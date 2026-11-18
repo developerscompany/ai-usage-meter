@@ -25,24 +25,7 @@ const PEAK = "2026-10-20T15:00:00Z";
 const SOON = "2026-10-20T11:45:00Z";
 const OFF_PEAK = "2026-10-20T19:30:00Z";
 
-/** One key per Claude action, in the order of the action list. */
-const CLAUDE_KEYS = [
-	["limit5h", renderPercent("ring", k.fiveView)],
-	["limit7d", renderPercent("gauge", { ...k.weekView, show: "left" })],
-	["limits", k.dualKey("bars")],
-	["peak", k.peakKey("badge", PEAK, "12")],
-	["credit", k.creditKey("number")],
-	["apicredit", k.apiCreditKey("ring")],
-	["extra", k.extraKey()],
-	["usage", k.tokensKey("classic")],
-	["cost", k.costWeekKey()],
-	["cache", k.cacheKey("ring")],
-	["models", k.modelsKey("donut")],
-	["context", k.contextKey()],
-	["streak", k.streakKey("days")],
-	["status", k.statusOkKey()],
-	["launch", k.launchKey()],
-];
+const CLAUDE_KEYS = k.claudeKeys();
 const CODEX_KEYS = k.codexKeys();
 const KIMI_KEYS = k.kimiKeys();
 const KEYS = Object.fromEntries([...CLAUDE_KEYS, ...CODEX_KEYS, ...KIMI_KEYS, ["overview", k.overviewKey("bars")]]);
@@ -265,6 +248,10 @@ await shoot("gallery-2.png", services);
 await shoot("gallery-3.png", limits);
 await shoot("gallery-4.png", credit);
 await shoot("gallery-5.png", code);
-await shoot("gallery-6.png", settings(await settingsShot(browser)));
+const panel = await settingsShot(browser);
+await shoot("gallery-6.png", settings(panel));
+// the panel by itself, for the website
+fs.writeFileSync(path.join(OUT, "settings-panel.png"), Buffer.from(panel.split(",")[1], "base64"));
+console.log("wrote", path.join(OUT, "settings-panel.png"));
 await shoot("app-icon.png", `<html><body style="margin:0;background:transparent">${pluginIcon(512)}</body></html>`, 512, 512);
 await browser.close();

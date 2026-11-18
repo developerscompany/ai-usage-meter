@@ -65,6 +65,25 @@ export const statusKey = (style) =>
 	renderStatus(style, { label: "CLAUDE", level: 2, text: "Degraded performance for Claude Fable 5", detail: "Fable 5", notes: ["Investigating", "claude.ai +3"], logo: "claude" });
 export const statusOkKey = () => renderStatus("badge", { label: "CLAUDE", level: 0, text: "All Systems Operational", logo: "claude" });
 
+/** One sample key per Claude action, in the order of the action list. Peak hours at a peak moment, on a 12-hour clock. */
+export const claudeKeys = () => [
+	["limit5h", renderPercent("ring", fiveView)],
+	["limit7d", renderPercent("gauge", { ...weekView, show: "left" })],
+	["limits", dualKey("bars")],
+	["peak", peakKey("badge", PEAK_MOMENTS[0][1], "12")],
+	["credit", creditKey("number")],
+	["apicredit", apiCreditKey("ring")],
+	["extra", extraKey()],
+	["usage", tokensKey("classic")],
+	["cost", costWeekKey()],
+	["cache", cacheKey("ring")],
+	["models", modelsKey("donut")],
+	["context", contextKey()],
+	["streak", streakKey("days")],
+	["status", statusOkKey()],
+	["launch", launchKey()],
+];
+
 // Codex and Kimi through their real action code, with fake limits services.
 const limitsOf = (data) => ({ data, error: null, fetchedAt: now, stale: () => false, series: () => [], loginInfo: () => null, window: (name) => (data[name] ? { ...data[name], reset: false } : null) });
 const codex = limitsOf({ fiveHour: { used: 64, resetsAt: now + 1.2 * H, windowMs: 5 * H }, sevenDay: { used: 31, resetsAt: now + 100 * H, windowMs: 168 * H }, credits: { has: true, unlimited: false, balance: 1240 }, resets: 3 });

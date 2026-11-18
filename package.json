@@ -32,7 +32,8 @@
     "test": "node --test test/*.test.js",
     "icons": "node scripts/make-icons.mjs",
     "pack": "npm run build && streamdeck validate agency.rivo.ai-usage-meter.sdPlugin && streamdeck pack agency.rivo.ai-usage-meter.sdPlugin --output dist --force",
-    "marketplace": "node scripts/marketplace.mjs"
+    "marketplace": "node scripts/marketplace.mjs",
+    "site": "node scripts/site.mjs"
   },
   "dependencies": {
     "@elgato/streamdeck": "3.0.3"

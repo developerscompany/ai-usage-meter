@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://developerscompany.github.io/ai-usage-meter/sitemap.xml

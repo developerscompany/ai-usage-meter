@@ -4,7 +4,7 @@
 
 ![AI Usage Meter на Stream Deck](marketplace/thumbnail.png)
 
-**[Завантажити AI Usage Meter](https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin)** · [Усі релізи](https://github.com/developerscompany/ai-usage-meter/releases) · [Що нового](CHANGELOG.md) · [English](README.md)
+**[Завантажити AI Usage Meter](https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin)** · [Сайт](https://developerscompany.github.io/ai-usage-meter/) · [Усі релізи](https://github.com/developerscompany/ai-usage-meter/releases) · [Що нового](CHANGELOG.md) · [English](README.md)
 
 > Неофіційний плагін від [Rivo Agency](https://rivo.agency). З Anthropic, OpenAI і Moonshot AI не пов'язаний. До версії 4.0 називався Usage Meter for Claude.
 
@@ -319,6 +319,7 @@ npm test             # юніт-тести, плагін цілком проти
 npm run pack         # перевірка маніфесту і збирання dist/agency.rivo.ai-usage-meter.streamDeckPlugin
 npm run icons        # іконки плагіна, категорії та дій (PNG)
 npm run marketplace  # зображення для цього README і для лістингу, у marketplace/
+npm run site         # сайт у docs/, який показує GitHub Pages (спершу npm run marketplace)
 node scripts/gallery.mjs   # docs/gallery.png з усіма кнопками і стилями
 ```
 

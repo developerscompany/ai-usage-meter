@@ -9,7 +9,7 @@ Your AI coding limits on Stream Deck. One plugin, 33 keys, three services: **Cla
 
 ![AI Usage Meter on a Stream Deck](marketplace/thumbnail.png)
 
-**[Download AI Usage Meter](https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin)** · [All releases](https://github.com/developerscompany/ai-usage-meter/releases) · [What's new](CHANGELOG.md) · [Українською](README.uk.md)
+**[Download AI Usage Meter](https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin)** · [Website](https://developerscompany.github.io/ai-usage-meter/) · [All releases](https://github.com/developerscompany/ai-usage-meter/releases) · [What's new](CHANGELOG.md) · [Українською](README.uk.md)
 
 > Unofficial plugin by [Rivo Agency](https://rivo.agency). Not affiliated with or endorsed by Anthropic, OpenAI or Moonshot AI. Until version 4.0 it was called Usage Meter for Claude.
 
@@ -307,6 +307,7 @@ npm test             # unit tests, the whole plugin against a fake Stream Deck a
 npm run pack         # validate the manifest and build dist/agency.rivo.ai-usage-meter.streamDeckPlugin
 npm run icons        # plugin, category and action icons (PNG)
 npm run marketplace  # the images of this README and of the listing, in marketplace/
+npm run site         # the website in docs/, served by GitHub Pages (run npm run marketplace first)
 ```
 
 The settings panel tests and the image scripts need [Playwright](https://playwright.dev) with Chromium installed globally (`npm install -g playwright`); without it, those tests are skipped.

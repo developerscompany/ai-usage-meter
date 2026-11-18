@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Usage Meter: Claude, Codex and Kimi limits on your Stream Deck</title>
+<meta name="description" content="A free, open-source Stream Deck plugin. 33 keys show the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code. Everything runs on your computer.">
+<link rel="canonical" href="https://developerscompany.github.io/ai-usage-meter/">
+<meta name="theme-color" content="#0b0b0c">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Usage Meter: Claude, Codex and Kimi limits on your Stream Deck">
+<meta property="og:description" content="33 keys for the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code. Free and open source.">
+<meta property="og:url" content="https://developerscompany.github.io/ai-usage-meter/">
+<meta property="og:image" content="https://developerscompany.github.io/ai-usage-meter/assets/og.png">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="960">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Usage Meter","description":"A Stream Deck plugin with 33 keys for the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code.","applicationCategory":"DeveloperApplication","operatingSystem":"macOS 12+, Windows 10+","softwareVersion":"4.0.0","softwareRequirements":"Elgato Stream Deck 6.9 or later","downloadUrl":"https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin","url":"https://developerscompany.github.io/ai-usage-meter/","image":"https://developerscompany.github.io/ai-usage-meter/assets/og.png","license":"https://opensource.org/license/mit","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"Rivo Agency","url":"https://rivo.agency"}}</script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+	<div class="wrap bar">
+		<a class="brand" href="#top" aria-label="AI Usage Meter, to the top"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 256 256">
+	<rect width="256" height="256" rx="56" fill="#0b0b0c"/>
+	<circle cx="128" cy="128" r="80" fill="none" stroke="#2c2c2e" stroke-width="26"/>
+	<path d="M128 48 A80 80 0 1 1 51.9 152.7" fill="none" stroke="#30d158" stroke-width="26" stroke-linecap="round"/>
+	<rect x="92" y="128" width="18" height="34" rx="4" fill="#30d158" fill-opacity="0.55"/>
+	<rect x="119" y="110" width="18" height="52" rx="4" fill="#30d158" fill-opacity="0.8"/>
+	<rect x="146" y="90" width="18" height="72" rx="4" fill="#30d158"/>
+</svg><span>AI Usage Meter</span></a>
+		<nav aria-label="Sections">
+			<a href="#services">Services</a>
+			<a href="#keys">Keys</a>
+			<a href="#styles">Styles</a>
+			<a href="#how">How it works</a>
+			<a href="#setup">Setup</a>
+			<a href="#faq">FAQ</a>
+		</nav>
+		<div class="bar-actions">
+			<a class="ghost" href="https://github.com/developerscompany/ai-usage-meter">GitHub</a>
+			<a class="button small" href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download</a>
+		</div>
+	</div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+	<div class="wrap hero-grid">
+		<div>
+			<p class="eyebrow">Stream Deck plugin · version 4.0.0 · free and open source</p>
+			<h1>Your AI coding limits, <em>on your Stream Deck</em></h1>
+			<p class="lead">One plugin, 33 keys, three services: Claude, Codex and Kimi Code. See what is left of each plan before you hit a limit, what your work would cost through the API, and whether the service is up.</p>
+			<div class="cta">
+				<a class="button" href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download for Stream Deck</a>
+				<a class="ghost big" href="https://github.com/developerscompany/ai-usage-meter">View on GitHub</a>
+			</div>
+			<p class="fine">Double-click the file to install. Stream Deck 6.9 or later, macOS 12+ or Windows 10+.</p>
+		</div>
+		<figure class="device" aria-label="Fifteen of the plugin's keys on a Stream Deck, with sample numbers">
+			<div class="device-grid"><img class="key" src="assets/keys/overview.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/limit5h.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/codex-limit7d.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/kimi-limit7d.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/limit7d.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/limits.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/codex-credit.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/kimi-month.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/peak.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/credit.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/usage.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/codex-cost.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/models.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/status.svg" width="144" height="144" alt="" decoding="async"><img class="key" src="assets/keys/codex-launch.svg" width="144" height="144" alt="" decoding="async"></div>
+		</figure>
+	</div>
+</section>
+
+<section class="facts" aria-label="At a glance">
+	<div class="wrap facts-grid">
+		<div><b>33</b><span>keys</span></div>
+		<div><b>3</b><span>services</span></div>
+		<div><b>10</b><span>display styles</span></div>
+		<div><b>0</b><span>data collected</span></div>
+	</div>
+</section>
+
+<section id="services" class="block">
+	<div class="wrap">
+		<h2>Three services, <em>one plugin</em></h2>
+		<p class="sub">A key works as soon as its service is signed in on the same computer. Nothing is typed into the plugin, and you only need the services you use.</p>
+		<div class="cards">
+			<article class="card">
+				<h3><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.3333)"><path d="M 4.71 15.96 L 9.43 13.31 L 9.51 13.08 L 9.43 12.95 L 9.2 12.95 L 8.41 12.9 L 5.71 12.83 L 3.37 12.73 L 1.11 12.61 L 0.54 12.49 L 0 11.78 L 0.06 11.43 L 0.54 11.11 L 1.22 11.17 L 2.74 11.27 L 5.02 11.43 L 6.67 11.53 L 9.12 11.78 L 9.51 11.78 L 9.56 11.63 L 9.43 11.53 L 9.33 11.43 L 6.97 9.84 L 4.42 8.15 L 3.08 7.18 L 2.36 6.69 L 1.99 6.22 L 1.83 5.22 L 2.49 4.49 L 3.37 4.55 L 3.6 4.61 L 4.49 5.3 L 6.4 6.78 L 8.89 8.61 L 9.25 8.91 L 9.4 8.81 L 9.42 8.74 L 9.25 8.46 L 7.9 6.02 L 6.45 3.53 L 5.81 2.5 L 5.64 1.88 A 2.97 2.97 0 0 1 5.53 1.15 L 6.28 0.13 L 6.7 0 L 7.69 0.13 L 8.11 0.5 L 8.73 1.91 L 9.73 4.14 L 11.29 7.17 L 11.75 8.07 L 11.99 8.9 L 12.08 9.16 L 12.24 9.16 L 12.24 9.01 L 12.36 7.3 L 12.6 5.21 L 12.83 2.51 L 12.91 1.75 L 13.29 0.84 L 14.03 0.35 L 14.62 0.63 L 15.1 1.32 L 15.03 1.76 L 14.75 3.61 L 14.19 6.52 L 13.82 8.46 L 14.03 8.46 L 14.28 8.22 L 15.26 6.91 L 16.92 4.85 L 17.65 4.02 L 18.5 3.12 L 19.04 2.69 L 20.08 2.69 L 20.84 3.82 L 20.5 4.98 L 19.43 6.33 L 18.55 7.47 L 17.29 9.17 L 16.5 10.53 L 16.57 10.64 L 16.76 10.62 L 19.61 10.02 L 21.16 9.74 L 23 9.42 L 23.83 9.81 L 23.92 10.21 L 23.59 11.01 L 21.62 11.5 L 19.32 11.96 L 15.88 12.77 L 15.83 12.8 L 15.88 12.86 L 17.43 13.01 L 18.09 13.05 L 19.72 13.05 L 22.74 13.27 L 23.53 13.79 L 24 14.43 L 23.92 14.92 L 22.71 15.54 L 21.07 15.15 L 17.24 14.24 L 15.93 13.91 L 15.74 13.91 L 15.74 14.02 L 16.84 15.09 L 18.84 16.9 L 21.35 19.23 L 21.48 19.8 L 21.16 20.26 L 20.82 20.21 L 18.61 18.55 L 17.76 17.81 L 15.83 16.19 L 15.71 16.19 L 15.71 16.36 L 16.15 17.01 L 18.5 20.53 L 18.62 21.61 L 18.45 21.96 L 17.84 22.17 L 17.17 22.05 L 15.8 20.13 L 14.38 17.96 L 13.24 16.02 L 13.1 16.1 L 12.43 23.35 L 12.11 23.72 L 11.38 24 L 10.77 23.54 L 10.45 22.79 L 10.77 21.32 L 11.16 19.39 L 11.48 17.86 L 11.76 15.96 L 11.93 15.33 L 11.92 15.29 L 11.78 15.31 L 10.35 17.27 L 8.17 20.22 L 6.44 22.06 L 6.03 22.23 L 5.31 21.86 L 5.38 21.2 L 5.78 20.61 L 8.17 17.57 L 9.61 15.69 L 10.54 14.6 L 10.53 14.44 L 10.48 14.44 L 4.13 18.56 L 3 18.71 L 2.51 18.25 L 2.58 17.5 L 2.81 17.26 L 4.72 15.95 L 4.71 15.96 Z" fill="#d97757"/></g></svg> Claude</h3>
+				<ul class="ticks"><li>5-hour and weekly limits, for all models or one</li><li>Cloud credit, Console credit and extra usage</li><li>Tokens, API cost, cache hits and model mix</li><li>Session context, streak, peak hours and status</li></ul>
+				<p class="needs"><b>Needs</b> <a href="https://code.claude.com/docs/en/setup">Claude Code</a> signed in with a Pro or Max plan.</p>
+			</article>
+			<article class="card">
+				<h3><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.3333)"><path d="M 9.21 8.66 L 9.21 6.4 C 9.21 6.21 9.28 6.07 9.44 5.97 L 13.99 3.35 C 14.61 3 15.34 2.83 16.1 2.83 C 18.96 2.83 20.77 5.04 20.77 7.4 C 20.77 7.56 20.77 7.75 20.74 7.94 L 16.03 5.18 A 0.8 0.8 0 0 0 15.18 5.18 L 9.2 8.66 Z M 19.81 17.46 L 19.81 12.06 C 19.81 11.73 19.67 11.49 19.39 11.32 L 13.42 7.85 L 15.37 6.73 A 0.43 0.43 0 0 1 15.84 6.73 L 20.38 9.35 C 21.69 10.11 22.57 11.73 22.57 13.3 C 22.57 15.11 21.5 16.77 19.81 17.46 Z M 7.8 12.7 L 5.85 11.56 C 5.69 11.47 5.61 11.32 5.61 11.13 L 5.61 5.9 C 5.61 3.35 7.56 1.43 10.2 1.43 C 11.2 1.43 12.13 1.76 12.92 2.35 L 8.23 5.07 C 7.95 5.23 7.8 5.47 7.8 5.8 L 7.8 12.7 Z M 12 15.13 L 9.21 13.56 L 9.21 10.23 L 12 8.66 L 14.8 10.23 L 14.8 13.56 L 12 15.13 Z M 13.8 22.36 C 12.8 22.36 11.87 22.03 11.08 21.43 L 15.77 18.72 C 16.06 18.55 16.2 18.32 16.2 17.98 L 16.2 11.08 L 18.17 12.23 C 18.34 12.32 18.41 12.46 18.41 12.65 L 18.41 17.89 C 18.41 20.43 16.44 22.36 13.8 22.36 Z M 8.16 17.06 L 3.61 14.44 C 2.31 13.68 1.43 12.06 1.43 10.49 A 4.48 4.48 0 0 1 4.21 6.33 L 4.21 11.75 C 4.21 12.08 4.35 12.32 4.64 12.49 L 10.59 15.94 L 8.64 17.06 A 0.43 0.43 0 0 1 8.16 17.06 Z M 7.9 20.96 C 5.21 20.96 3.23 18.93 3.23 16.44 C 3.23 16.25 3.26 16.06 3.28 15.87 L 7.97 18.58 C 8.25 18.74 8.54 18.74 8.82 18.58 L 14.79 15.13 L 14.79 17.39 C 14.79 17.58 14.72 17.72 14.56 17.82 L 10.01 20.43 C 9.39 20.79 8.66 20.96 7.9 20.96 Z M 13.8 23.78 A 5.95 5.95 0 0 0 19.62 19.03 C 22.29 18.34 24 15.84 24 13.3 C 24 11.63 23.29 10.01 22 8.85 C 22.12 8.35 22.19 7.85 22.19 7.35 C 22.19 3.95 19.43 1.4 16.25 1.4 C 15.6 1.4 14.99 1.5 14.37 1.71 A 5.96 5.96 0 0 0 10.21 0 A 5.95 5.95 0 0 0 4.38 4.76 C 1.71 5.45 0 7.95 0 10.49 C 0 12.16 0.71 13.77 2 14.94 C 1.88 15.44 1.81 15.94 1.81 16.44 C 1.81 19.84 4.57 22.38 7.75 22.38 C 8.4 22.38 9.01 22.29 9.63 22.07 A 5.96 5.96 0 0 0 13.8 23.79 Z" fill="#ffffff" fill-rule="evenodd"/></g></svg> Codex</h3>
+				<ul class="ticks"><li>5-hour and weekly limits of your ChatGPT plan</li><li>Credits and limit resets</li><li>Tokens, API cost, cache hits and model mix</li><li>Status from status.openai.com</li></ul>
+				<p class="needs"><b>Needs</b> Codex, the app or the CLI, signed in with a ChatGPT account.</p>
+			</article>
+			<article class="card">
+				<h3><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.3333)"><path d="M 21.85 0 A 1.92 1.92 0 1 1 21.85 3.85 L 20.15 3.85 A 0.23 0.23 0 0 1 19.92 3.62 L 19.92 1.92 C 19.92 0.86 20.78 0 21.85 0 Z" fill="#1783ff"/><path d="M 11.07 11.2 L 18.32 4 C 18.46 3.86 18.38 3.59 18.21 3.59 L 14.3 3.59 A 0.16 0.16 0 0 0 14.18 3.64 L 6.36 11.4 C 6.24 11.52 6.06 11.41 6.06 11.22 L 6.06 3.82 C 6.06 3.69 5.98 3.59 5.88 3.59 L 3.19 3.59 C 3.08 3.59 3 3.69 3 3.82 L 3 19.77 C 3 19.9 3.08 20 3.19 20 L 5.88 20 C 5.98 20 6.06 19.9 6.06 19.77 L 6.06 16.52 C 6.06 16.45 6.09 16.38 6.13 16.34 L 8.56 13.94 A 0.16 0.16 0 0 1 8.76 13.91 L 15.24 18.68 A 7.68 7.68 0 0 0 18.7 19.97 C 18.81 19.98 18.9 19.87 18.9 19.74 L 18.9 16.68 C 18.9 16.56 18.83 16.47 18.73 16.45 A 5.03 5.03 0 0 1 16.71 15.64 L 11.09 11.58 C 10.98 11.5 10.96 11.3 11.06 11.2 Z" fill="#ffffff"/></g></svg> Kimi Code</h3>
+				<ul class="ticks"><li>5-hour, weekly and monthly limits</li><li>The wallet of extra usage</li><li>Status from status.moonshot.cn</li><li>Token keys are on the way</li></ul>
+				<p class="needs"><b>Needs</b> The Kimi Code app signed in, or a Kimi Code API key <a href="#kimi-login">stored for the plugin</a>.</p>
+			</article>
+		</div>
+	</div>
+</section>
+
+<section id="all" class="block alt">
+	<div class="wrap split">
+		<div>
+			<h2>All three <em>on one key</em></h2>
+			<p class="sub">The All Services key puts Claude, Codex and Kimi side by side, each with its logo. Pick the weekly or the 5-hour limit as bars or rings, or both limits as numbers.</p>
+			<ul class="ticks">
+				<li>Press to switch between what's left and what's used, or between weekly and 5-hour.</li>
+				<li>An orange dot by a logo means that service's login needs attention.</li>
+				<li>A dimmed row has numbers that are no longer current.</li>
+				<li>Choose which services the key shows.</li>
+			</ul>
+		</div>
+		<div class="row3">
+			<figure><img class="key" src="assets/keys/overview-bars.svg" width="144" height="144" alt="The All Services key in the Bars style" loading="lazy" decoding="async"><figcaption>Bars</figcaption></figure>
+			<figure><img class="key" src="assets/keys/overview-rings.svg" width="144" height="144" alt="The All Services key in the Rings style" loading="lazy" decoding="async"><figcaption>Rings</figcaption></figure>
+			<figure><img class="key" src="assets/keys/overview-table.svg" width="144" height="144" alt="The All Services key in the Both limits style" loading="lazy" decoding="async"><figcaption>Both limits</figcaption></figure>
+		</div>
+	</div>
+</section>
+
+<section id="keys" class="block">
+	<div class="wrap">
+		<h2>Every key, <em>explained</em></h2>
+		<p class="sub">In Stream Deck's action list every key carries its service's name, such as Claude 5-Hour Limit or Codex Weekly Limit. A short press does what is listed here, and most of it can be changed in the key's settings. Holding a key for a moment refreshes it.</p>
+		
+			<section class="service-keys" aria-labelledby="keys-claude">
+				<h3 id="keys-claude"><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.1667)"><path d="M 4.71 15.96 L 9.43 13.31 L 9.51 13.08 L 9.43 12.95 L 9.2 12.95 L 8.41 12.9 L 5.71 12.83 L 3.37 12.73 L 1.11 12.61 L 0.54 12.49 L 0 11.78 L 0.06 11.43 L 0.54 11.11 L 1.22 11.17 L 2.74 11.27 L 5.02 11.43 L 6.67 11.53 L 9.12 11.78 L 9.51 11.78 L 9.56 11.63 L 9.43 11.53 L 9.33 11.43 L 6.97 9.84 L 4.42 8.15 L 3.08 7.18 L 2.36 6.69 L 1.99 6.22 L 1.83 5.22 L 2.49 4.49 L 3.37 4.55 L 3.6 4.61 L 4.49 5.3 L 6.4 6.78 L 8.89 8.61 L 9.25 8.91 L 9.4 8.81 L 9.42 8.74 L 9.25 8.46 L 7.9 6.02 L 6.45 3.53 L 5.81 2.5 L 5.64 1.88 A 2.97 2.97 0 0 1 5.53 1.15 L 6.28 0.13 L 6.7 0 L 7.69 0.13 L 8.11 0.5 L 8.73 1.91 L 9.73 4.14 L 11.29 7.17 L 11.75 8.07 L 11.99 8.9 L 12.08 9.16 L 12.24 9.16 L 12.24 9.01 L 12.36 7.3 L 12.6 5.21 L 12.83 2.51 L 12.91 1.75 L 13.29 0.84 L 14.03 0.35 L 14.62 0.63 L 15.1 1.32 L 15.03 1.76 L 14.75 3.61 L 14.19 6.52 L 13.82 8.46 L 14.03 8.46 L 14.28 8.22 L 15.26 6.91 L 16.92 4.85 L 17.65 4.02 L 18.5 3.12 L 19.04 2.69 L 20.08 2.69 L 20.84 3.82 L 20.5 4.98 L 19.43 6.33 L 18.55 7.47 L 17.29 9.17 L 16.5 10.53 L 16.57 10.64 L 16.76 10.62 L 19.61 10.02 L 21.16 9.74 L 23 9.42 L 23.83 9.81 L 23.92 10.21 L 23.59 11.01 L 21.62 11.5 L 19.32 11.96 L 15.88 12.77 L 15.83 12.8 L 15.88 12.86 L 17.43 13.01 L 18.09 13.05 L 19.72 13.05 L 22.74 13.27 L 23.53 13.79 L 24 14.43 L 23.92 14.92 L 22.71 15.54 L 21.07 15.15 L 17.24 14.24 L 15.93 13.91 L 15.74 13.91 L 15.74 14.02 L 16.84 15.09 L 18.84 16.9 L 21.35 19.23 L 21.48 19.8 L 21.16 20.26 L 20.82 20.21 L 18.61 18.55 L 17.76 17.81 L 15.83 16.19 L 15.71 16.19 L 15.71 16.36 L 16.15 17.01 L 18.5 20.53 L 18.62 21.61 L 18.45 21.96 L 17.84 22.17 L 17.17 22.05 L 15.8 20.13 L 14.38 17.96 L 13.24 16.02 L 13.1 16.1 L 12.43 23.35 L 12.11 23.72 L 11.38 24 L 10.77 23.54 L 10.45 22.79 L 10.77 21.32 L 11.16 19.39 L 11.48 17.86 L 11.76 15.96 L 11.93 15.33 L 11.92 15.29 L 11.78 15.31 L 10.35 17.27 L 8.17 20.22 L 6.44 22.06 L 6.03 22.23 L 5.31 21.86 L 5.38 21.2 L 5.78 20.61 L 8.17 17.57 L 9.61 15.69 L 10.54 14.6 L 10.53 14.44 L 10.48 14.44 L 4.13 18.56 L 3 18.71 L 2.51 18.25 L 2.58 17.5 L 2.81 17.26 L 4.72 15.95 L 4.71 15.96 Z" fill="#d97757"/></g></svg> Claude <span class="count">15 keys</span></h3>
+				<ul class="keycards">
+				<li class="keycard">
+					<img class="key" src="assets/keys/limit5h.svg" width="96" height="96" alt="Claude 5-Hour Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>5-Hour Limit</h4>
+						<p>The 5-hour session limit: what's left or used, and the time until it resets.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/limit7d.svg" width="96" height="96" alt="Claude Weekly Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Weekly Limit</h4>
+						<p>The weekly limit for all models, or just Fable, Opus, Sonnet or Haiku.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/limits.svg" width="96" height="96" alt="Claude Both Limits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Both Limits</h4>
+						<p>The 5-hour and the weekly limit on one key.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/peak.svg" width="96" height="96" alt="Claude Peak Hours key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Peak Hours</h4>
+						<p>Whether it's peak time now (weekdays 5–11 AM Pacific), and when it ends or starts, in your time zone.</p>
+						<p class="acts"><span><b>Press</b> next style</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/credit.svg" width="96" height="96" alt="Claude Cloud Credit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Cloud Credit</h4>
+						<p>Dollars left of your plan's cloud session credit, and when it expires.</p>
+						<p class="acts"><span><b>Press</b> switch left / spent</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/apicredit.svg" width="96" height="96" alt="Claude API Credit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>API Credit</h4>
+						<p>What's left of a Claude Console credit, such as $200 of promotional API credit, after your API spend.</p>
+						<p class="acts"><span><b>Press</b> switch left / spent</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/extra.svg" width="96" height="96" alt="Claude Extra Usage key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Extra Usage</h4>
+						<p>Extra usage spent this month, out of your monthly limit.</p>
+						<p class="acts"><span><b>Press</b> open the usage page</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/usage.svg" width="96" height="96" alt="Claude Token Usage key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Token Usage</h4>
+						<p>Claude Code tokens today, over 7 days or this month.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/cost.svg" width="96" height="96" alt="Claude API Cost key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>API Cost</h4>
+						<p>What that usage would cost at Anthropic's API list prices.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/cache.svg" width="96" height="96" alt="Claude Cache Hits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Cache Hits</h4>
+						<p>The share of input read from the prompt cache, and what it saved.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/models.svg" width="96" height="96" alt="Claude Model Mix key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Model Mix</h4>
+						<p>The share of Fable, Opus, Sonnet and Haiku in your usage.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/context.svg" width="96" height="96" alt="Claude Session Context key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Session Context</h4>
+						<p>How full the context of your latest Claude Code sessions is.</p>
+						<p class="acts"><span><b>Press</b> next session</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/streak.svg" width="96" height="96" alt="Claude Streak key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Streak</h4>
+						<p>Days in a row with Claude Code, or the last five weeks as a calendar.</p>
+						<p class="acts"><span><b>Press</b> next style</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/status.svg" width="96" height="96" alt="Claude Status key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Status</h4>
+						<p>Service status from status.claude.com, naming the model in trouble, such as DEGRADED · Fable 5.</p>
+						<p class="acts"><span><b>Press</b> open the incident</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/launch.svg" width="96" height="96" alt="Launch Claude Code key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Launch Claude Code</h4>
+						<p>Opens a terminal running claude in a folder you choose, with any of your Claude accounts.</p>
+						<p class="acts"><span><b>Press</b> launch</span></p>
+					</div>
+				</li>
+				</ul>
+			</section>
+			<section class="service-keys" aria-labelledby="keys-codex">
+				<h3 id="keys-codex"><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.1667)"><path d="M 9.21 8.66 L 9.21 6.4 C 9.21 6.21 9.28 6.07 9.44 5.97 L 13.99 3.35 C 14.61 3 15.34 2.83 16.1 2.83 C 18.96 2.83 20.77 5.04 20.77 7.4 C 20.77 7.56 20.77 7.75 20.74 7.94 L 16.03 5.18 A 0.8 0.8 0 0 0 15.18 5.18 L 9.2 8.66 Z M 19.81 17.46 L 19.81 12.06 C 19.81 11.73 19.67 11.49 19.39 11.32 L 13.42 7.85 L 15.37 6.73 A 0.43 0.43 0 0 1 15.84 6.73 L 20.38 9.35 C 21.69 10.11 22.57 11.73 22.57 13.3 C 22.57 15.11 21.5 16.77 19.81 17.46 Z M 7.8 12.7 L 5.85 11.56 C 5.69 11.47 5.61 11.32 5.61 11.13 L 5.61 5.9 C 5.61 3.35 7.56 1.43 10.2 1.43 C 11.2 1.43 12.13 1.76 12.92 2.35 L 8.23 5.07 C 7.95 5.23 7.8 5.47 7.8 5.8 L 7.8 12.7 Z M 12 15.13 L 9.21 13.56 L 9.21 10.23 L 12 8.66 L 14.8 10.23 L 14.8 13.56 L 12 15.13 Z M 13.8 22.36 C 12.8 22.36 11.87 22.03 11.08 21.43 L 15.77 18.72 C 16.06 18.55 16.2 18.32 16.2 17.98 L 16.2 11.08 L 18.17 12.23 C 18.34 12.32 18.41 12.46 18.41 12.65 L 18.41 17.89 C 18.41 20.43 16.44 22.36 13.8 22.36 Z M 8.16 17.06 L 3.61 14.44 C 2.31 13.68 1.43 12.06 1.43 10.49 A 4.48 4.48 0 0 1 4.21 6.33 L 4.21 11.75 C 4.21 12.08 4.35 12.32 4.64 12.49 L 10.59 15.94 L 8.64 17.06 A 0.43 0.43 0 0 1 8.16 17.06 Z M 7.9 20.96 C 5.21 20.96 3.23 18.93 3.23 16.44 C 3.23 16.25 3.26 16.06 3.28 15.87 L 7.97 18.58 C 8.25 18.74 8.54 18.74 8.82 18.58 L 14.79 15.13 L 14.79 17.39 C 14.79 17.58 14.72 17.72 14.56 17.82 L 10.01 20.43 C 9.39 20.79 8.66 20.96 7.9 20.96 Z M 13.8 23.78 A 5.95 5.95 0 0 0 19.62 19.03 C 22.29 18.34 24 15.84 24 13.3 C 24 11.63 23.29 10.01 22 8.85 C 22.12 8.35 22.19 7.85 22.19 7.35 C 22.19 3.95 19.43 1.4 16.25 1.4 C 15.6 1.4 14.99 1.5 14.37 1.71 A 5.96 5.96 0 0 0 10.21 0 A 5.95 5.95 0 0 0 4.38 4.76 C 1.71 5.45 0 7.95 0 10.49 C 0 12.16 0.71 13.77 2 14.94 C 1.88 15.44 1.81 15.94 1.81 16.44 C 1.81 19.84 4.57 22.38 7.75 22.38 C 8.4 22.38 9.01 22.29 9.63 22.07 A 5.96 5.96 0 0 0 13.8 23.79 Z" fill="#ffffff" fill-rule="evenodd"/></g></svg> Codex <span class="count">10 keys</span></h3>
+				<ul class="keycards">
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-limit5h.svg" width="96" height="96" alt="Codex 5-Hour Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>5-Hour Limit</h4>
+						<p>Codex's 5-hour limit on your ChatGPT plan. Says “not on your plan” where the plan only has a weekly one.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-limit7d.svg" width="96" height="96" alt="Codex Weekly Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Weekly Limit</h4>
+						<p>Codex's weekly limit.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-limits.svg" width="96" height="96" alt="Codex Both Limits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Both Limits</h4>
+						<p>Both Codex limits on one key.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-credit.svg" width="96" height="96" alt="Codex Credits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Credits</h4>
+						<p>Credits bought on top of the plan, and the limit resets your account can spend.</p>
+						<p class="acts"><span><b>Press</b> open the usage page</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-usage.svg" width="96" height="96" alt="Codex Token Usage key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Token Usage</h4>
+						<p>Codex tokens today, over 7 days or this month.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-cost.svg" width="96" height="96" alt="Codex API Cost key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>API Cost</h4>
+						<p>What that usage would cost at OpenAI's API list prices.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-cache.svg" width="96" height="96" alt="Codex Cache Hits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Cache Hits</h4>
+						<p>The share of input read from the prompt cache, and what it saved.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-models.svg" width="96" height="96" alt="Codex Model Mix key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Model Mix</h4>
+						<p>The share of each model family: Sol, Astra, Terra, Luna.</p>
+						<p class="acts"><span><b>Press</b> next period</span><span><b>Hold</b> rescan</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-status.svg" width="96" height="96" alt="Codex Status key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Status</h4>
+						<p>Codex's status from status.openai.com, or all of OpenAI, ChatGPT or the API.</p>
+						<p class="acts"><span><b>Press</b> open the incident</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/codex-launch.svg" width="96" height="96" alt="Launch Codex key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Launch Codex</h4>
+						<p>Opens the Codex app on a Mac, or a terminal running codex in a folder you choose.</p>
+						<p class="acts"><span><b>Press</b> launch</span></p>
+					</div>
+				</li>
+				</ul>
+			</section>
+			<section class="service-keys" aria-labelledby="keys-kimi">
+				<h3 id="keys-kimi"><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.1667)"><path d="M 21.85 0 A 1.92 1.92 0 1 1 21.85 3.85 L 20.15 3.85 A 0.23 0.23 0 0 1 19.92 3.62 L 19.92 1.92 C 19.92 0.86 20.78 0 21.85 0 Z" fill="#1783ff"/><path d="M 11.07 11.2 L 18.32 4 C 18.46 3.86 18.38 3.59 18.21 3.59 L 14.3 3.59 A 0.16 0.16 0 0 0 14.18 3.64 L 6.36 11.4 C 6.24 11.52 6.06 11.41 6.06 11.22 L 6.06 3.82 C 6.06 3.69 5.98 3.59 5.88 3.59 L 3.19 3.59 C 3.08 3.59 3 3.69 3 3.82 L 3 19.77 C 3 19.9 3.08 20 3.19 20 L 5.88 20 C 5.98 20 6.06 19.9 6.06 19.77 L 6.06 16.52 C 6.06 16.45 6.09 16.38 6.13 16.34 L 8.56 13.94 A 0.16 0.16 0 0 1 8.76 13.91 L 15.24 18.68 A 7.68 7.68 0 0 0 18.7 19.97 C 18.81 19.98 18.9 19.87 18.9 19.74 L 18.9 16.68 C 18.9 16.56 18.83 16.47 18.73 16.45 A 5.03 5.03 0 0 1 16.71 15.64 L 11.09 11.58 C 10.98 11.5 10.96 11.3 11.06 11.2 Z" fill="#ffffff"/></g></svg> Kimi Code <span class="count">7 keys</span></h3>
+				<ul class="keycards">
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-limit5h.svg" width="96" height="96" alt="Kimi 5-Hour Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>5-Hour Limit</h4>
+						<p>The 5-hour limit of your Kimi Code plan.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-limit7d.svg" width="96" height="96" alt="Kimi Weekly Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Weekly Limit</h4>
+						<p>The weekly limit of your Kimi Code plan.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-limits.svg" width="96" height="96" alt="Kimi Both Limits key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Both Limits</h4>
+						<p>Both Kimi Code limits on one key.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-month.svg" width="96" height="96" alt="Kimi Monthly Limit key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Monthly Limit</h4>
+						<p>The monthly limit of your Kimi plan, which Kimi Code shares with Kimi chat.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-extra.svg" width="96" height="96" alt="Kimi Extra Usage key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Extra Usage</h4>
+						<p>The wallet of extra usage on top of the plan: what is left, or this month's spend against the cap you set.</p>
+						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-status.svg" width="96" height="96" alt="Kimi Status key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Status</h4>
+						<p>Kimi Code's status from status.moonshot.cn, or all of Moonshot AI or the API.</p>
+						<p class="acts"><span><b>Press</b> open the incident</span><span><b>Hold</b> refresh</span></p>
+					</div>
+				</li>
+				<li class="keycard">
+					<img class="key" src="assets/keys/kimi-launch.svg" width="96" height="96" alt="Launch Kimi Code key with sample numbers" loading="lazy" decoding="async">
+					<div>
+						<h4>Launch Kimi Code</h4>
+						<p>Opens the Kimi Code app on a Mac, or a terminal running kimi in a folder you choose.</p>
+						<p class="acts"><span><b>Press</b> launch</span></p>
+					</div>
+				</li>
+				</ul>
+			</section>
+	</div>
+</section>
+
+<section id="styles" class="block alt">
+	<div class="wrap">
+		<h2>Ten display styles, <em>your levels</em></h2>
+		<p class="sub">Every limit key can show what's left or what's used, in any of ten styles. Colours go green, then yellow from 50% used, then red from 80%; both levels can be changed per key.</p>
+		<ul class="stylegrid">
+			<li><img class="key" src="assets/keys/style-ring.svg" width="120" height="120" alt="A limit key in the Ring style" loading="lazy" decoding="async"><b>Ring</b></li>
+			<li><img class="key" src="assets/keys/style-number.svg" width="120" height="120" alt="A limit key in the Number style" loading="lazy" decoding="async"><b>Number</b></li>
+			<li><img class="key" src="assets/keys/style-bar.svg" width="120" height="120" alt="A limit key in the Bar style" loading="lazy" decoding="async"><b>Bar</b></li>
+			<li><img class="key" src="assets/keys/style-pie.svg" width="120" height="120" alt="A limit key in the Pie style" loading="lazy" decoding="async"><b>Pie</b></li>
+			<li><img class="key" src="assets/keys/style-battery.svg" width="120" height="120" alt="A limit key in the Battery style" loading="lazy" decoding="async"><b>Battery</b></li>
+			<li><img class="key" src="assets/keys/style-gauge.svg" width="120" height="120" alt="A limit key in the Gauge style" loading="lazy" decoding="async"><b>Gauge</b></li>
+			<li><img class="key" src="assets/keys/style-segments.svg" width="120" height="120" alt="A limit key in the LED style" loading="lazy" decoding="async"><b>LED</b></li>
+			<li><img class="key" src="assets/keys/style-pace.svg" width="120" height="120" alt="A limit key in the Pace style" loading="lazy" decoding="async"><b>Pace</b><span>how fast you're using the limit against an even pace, and “limit in 1h12m” when it won't last</span></li>
+			<li><img class="key" src="assets/keys/style-history.svg" width="120" height="120" alt="A limit key in the History style" loading="lazy" decoding="async"><b>History</b><span>your usage over the current window, projected to the reset</span></li>
+			<li><img class="key" src="assets/keys/style-countdown.svg" width="120" height="120" alt="A limit key in the Reset timer style" loading="lazy" decoding="async"><b>Reset timer</b><span>the countdown first, the percentage second</span></li>
+		</ul>
+		<p class="fine center">Both Limits has 4 styles, All Services 3, Model Mix 3, and the credit keys eight. Every key shows the logo of its service before its label; Logo in the key's settings turns it off.</p>
+	</div>
+</section>
+
+<section id="settings" class="block">
+	<div class="wrap split">
+		<div>
+			<h2>Set up <em>in a click</em></h2>
+			<p class="sub">Click a key in the Stream Deck app to open its settings.</p>
+			<ul class="ticks">
+				<li><b>Display style:</b> live previews with your own numbers; click one to use it.</li>
+				<li><b>Show</b> what's left or what's used, and choose what a short press does.</li>
+				<li><b>Yellow from</b> and <b>Red from:</b> your own warning levels.</li>
+				<li><b>Account</b> for Claude keys, with a short tag in the corner to tell two accounts apart.</li>
+				<li><b>Logo:</b> with or without the service's logo.</li>
+				<li>Under the settings: the current numbers, when they were updated, which login was used (never the login itself), any error in full, and help links.</li>
+			</ul>
+		</div>
+		<figure class="panel"><img src="assets/settings.png" width="840" height="1574" alt="The settings panel of a 5-Hour Limit key: a grid of ten style previews, then Show, On press, Account, Tag, Yellow from, Red from, Refresh and Logo" loading="lazy" decoding="async"></figure>
+	</div>
+</section>
+
+<section id="how" class="block alt">
+	<div class="wrap">
+		<h2>Where the numbers <em>come from</em></h2>
+		<p class="sub">There are two kinds of numbers, and it helps to know which is which.</p>
+		<div class="cards two">
+			<article class="card">
+				<h3>For your whole account</h3>
+				<p>Limits, credits and extra usage come from the service itself. They include every computer you use and the service's own apps.</p>
+				<ul class="reqs">
+					<li><b><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.8333)"><path d="M 4.71 15.96 L 9.43 13.31 L 9.51 13.08 L 9.43 12.95 L 9.2 12.95 L 8.41 12.9 L 5.71 12.83 L 3.37 12.73 L 1.11 12.61 L 0.54 12.49 L 0 11.78 L 0.06 11.43 L 0.54 11.11 L 1.22 11.17 L 2.74 11.27 L 5.02 11.43 L 6.67 11.53 L 9.12 11.78 L 9.51 11.78 L 9.56 11.63 L 9.43 11.53 L 9.33 11.43 L 6.97 9.84 L 4.42 8.15 L 3.08 7.18 L 2.36 6.69 L 1.99 6.22 L 1.83 5.22 L 2.49 4.49 L 3.37 4.55 L 3.6 4.61 L 4.49 5.3 L 6.4 6.78 L 8.89 8.61 L 9.25 8.91 L 9.4 8.81 L 9.42 8.74 L 9.25 8.46 L 7.9 6.02 L 6.45 3.53 L 5.81 2.5 L 5.64 1.88 A 2.97 2.97 0 0 1 5.53 1.15 L 6.28 0.13 L 6.7 0 L 7.69 0.13 L 8.11 0.5 L 8.73 1.91 L 9.73 4.14 L 11.29 7.17 L 11.75 8.07 L 11.99 8.9 L 12.08 9.16 L 12.24 9.16 L 12.24 9.01 L 12.36 7.3 L 12.6 5.21 L 12.83 2.51 L 12.91 1.75 L 13.29 0.84 L 14.03 0.35 L 14.62 0.63 L 15.1 1.32 L 15.03 1.76 L 14.75 3.61 L 14.19 6.52 L 13.82 8.46 L 14.03 8.46 L 14.28 8.22 L 15.26 6.91 L 16.92 4.85 L 17.65 4.02 L 18.5 3.12 L 19.04 2.69 L 20.08 2.69 L 20.84 3.82 L 20.5 4.98 L 19.43 6.33 L 18.55 7.47 L 17.29 9.17 L 16.5 10.53 L 16.57 10.64 L 16.76 10.62 L 19.61 10.02 L 21.16 9.74 L 23 9.42 L 23.83 9.81 L 23.92 10.21 L 23.59 11.01 L 21.62 11.5 L 19.32 11.96 L 15.88 12.77 L 15.83 12.8 L 15.88 12.86 L 17.43 13.01 L 18.09 13.05 L 19.72 13.05 L 22.74 13.27 L 23.53 13.79 L 24 14.43 L 23.92 14.92 L 22.71 15.54 L 21.07 15.15 L 17.24 14.24 L 15.93 13.91 L 15.74 13.91 L 15.74 14.02 L 16.84 15.09 L 18.84 16.9 L 21.35 19.23 L 21.48 19.8 L 21.16 20.26 L 20.82 20.21 L 18.61 18.55 L 17.76 17.81 L 15.83 16.19 L 15.71 16.19 L 15.71 16.36 L 16.15 17.01 L 18.5 20.53 L 18.62 21.61 L 18.45 21.96 L 17.84 22.17 L 17.17 22.05 L 15.8 20.13 L 14.38 17.96 L 13.24 16.02 L 13.1 16.1 L 12.43 23.35 L 12.11 23.72 L 11.38 24 L 10.77 23.54 L 10.45 22.79 L 10.77 21.32 L 11.16 19.39 L 11.48 17.86 L 11.76 15.96 L 11.93 15.33 L 11.92 15.29 L 11.78 15.31 L 10.35 17.27 L 8.17 20.22 L 6.44 22.06 L 6.03 22.23 L 5.31 21.86 L 5.38 21.2 L 5.78 20.61 L 8.17 17.57 L 9.61 15.69 L 10.54 14.6 L 10.53 14.44 L 10.48 14.44 L 4.13 18.56 L 3 18.71 L 2.51 18.25 L 2.58 17.5 L 2.81 17.26 L 4.72 15.95 L 4.71 15.96 Z" fill="#d97757"/></g></svg> Claude</b><code>GET api.anthropic.com/api/oauth/usage</code><span>The same request as Claude Code's <kbd>/usage</kbd> command, with Claude Code's login.</span></li>
+					<li><b><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.8333)"><path d="M 9.21 8.66 L 9.21 6.4 C 9.21 6.21 9.28 6.07 9.44 5.97 L 13.99 3.35 C 14.61 3 15.34 2.83 16.1 2.83 C 18.96 2.83 20.77 5.04 20.77 7.4 C 20.77 7.56 20.77 7.75 20.74 7.94 L 16.03 5.18 A 0.8 0.8 0 0 0 15.18 5.18 L 9.2 8.66 Z M 19.81 17.46 L 19.81 12.06 C 19.81 11.73 19.67 11.49 19.39 11.32 L 13.42 7.85 L 15.37 6.73 A 0.43 0.43 0 0 1 15.84 6.73 L 20.38 9.35 C 21.69 10.11 22.57 11.73 22.57 13.3 C 22.57 15.11 21.5 16.77 19.81 17.46 Z M 7.8 12.7 L 5.85 11.56 C 5.69 11.47 5.61 11.32 5.61 11.13 L 5.61 5.9 C 5.61 3.35 7.56 1.43 10.2 1.43 C 11.2 1.43 12.13 1.76 12.92 2.35 L 8.23 5.07 C 7.95 5.23 7.8 5.47 7.8 5.8 L 7.8 12.7 Z M 12 15.13 L 9.21 13.56 L 9.21 10.23 L 12 8.66 L 14.8 10.23 L 14.8 13.56 L 12 15.13 Z M 13.8 22.36 C 12.8 22.36 11.87 22.03 11.08 21.43 L 15.77 18.72 C 16.06 18.55 16.2 18.32 16.2 17.98 L 16.2 11.08 L 18.17 12.23 C 18.34 12.32 18.41 12.46 18.41 12.65 L 18.41 17.89 C 18.41 20.43 16.44 22.36 13.8 22.36 Z M 8.16 17.06 L 3.61 14.44 C 2.31 13.68 1.43 12.06 1.43 10.49 A 4.48 4.48 0 0 1 4.21 6.33 L 4.21 11.75 C 4.21 12.08 4.35 12.32 4.64 12.49 L 10.59 15.94 L 8.64 17.06 A 0.43 0.43 0 0 1 8.16 17.06 Z M 7.9 20.96 C 5.21 20.96 3.23 18.93 3.23 16.44 C 3.23 16.25 3.26 16.06 3.28 15.87 L 7.97 18.58 C 8.25 18.74 8.54 18.74 8.82 18.58 L 14.79 15.13 L 14.79 17.39 C 14.79 17.58 14.72 17.72 14.56 17.82 L 10.01 20.43 C 9.39 20.79 8.66 20.96 7.9 20.96 Z M 13.8 23.78 A 5.95 5.95 0 0 0 19.62 19.03 C 22.29 18.34 24 15.84 24 13.3 C 24 11.63 23.29 10.01 22 8.85 C 22.12 8.35 22.19 7.85 22.19 7.35 C 22.19 3.95 19.43 1.4 16.25 1.4 C 15.6 1.4 14.99 1.5 14.37 1.71 A 5.96 5.96 0 0 0 10.21 0 A 5.95 5.95 0 0 0 4.38 4.76 C 1.71 5.45 0 7.95 0 10.49 C 0 12.16 0.71 13.77 2 14.94 C 1.88 15.44 1.81 15.94 1.81 16.44 C 1.81 19.84 4.57 22.38 7.75 22.38 C 8.4 22.38 9.01 22.29 9.63 22.07 A 5.96 5.96 0 0 0 13.8 23.79 Z" fill="#ffffff" fill-rule="evenodd"/></g></svg> Codex</b><code>GET chatgpt.com/backend-api/wham/usage</code><span>The same request as the Codex app's usage panel, with Codex's ChatGPT login.</span></li>
+					<li><b><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.8333)"><path d="M 21.85 0 A 1.92 1.92 0 1 1 21.85 3.85 L 20.15 3.85 A 0.23 0.23 0 0 1 19.92 3.62 L 19.92 1.92 C 19.92 0.86 20.78 0 21.85 0 Z" fill="#1783ff"/><path d="M 11.07 11.2 L 18.32 4 C 18.46 3.86 18.38 3.59 18.21 3.59 L 14.3 3.59 A 0.16 0.16 0 0 0 14.18 3.64 L 6.36 11.4 C 6.24 11.52 6.06 11.41 6.06 11.22 L 6.06 3.82 C 6.06 3.69 5.98 3.59 5.88 3.59 L 3.19 3.59 C 3.08 3.59 3 3.69 3 3.82 L 3 19.77 C 3 19.9 3.08 20 3.19 20 L 5.88 20 C 5.98 20 6.06 19.9 6.06 19.77 L 6.06 16.52 C 6.06 16.45 6.09 16.38 6.13 16.34 L 8.56 13.94 A 0.16 0.16 0 0 1 8.76 13.91 L 15.24 18.68 A 7.68 7.68 0 0 0 18.7 19.97 C 18.81 19.98 18.9 19.87 18.9 19.74 L 18.9 16.68 C 18.9 16.56 18.83 16.47 18.73 16.45 A 5.03 5.03 0 0 1 16.71 15.64 L 11.09 11.58 C 10.98 11.5 10.96 11.3 11.06 11.2 Z" fill="#ffffff"/></g></svg> Kimi Code</b><code>GET api.kimi.com/coding/v1/usages</code><span>Or api.kimi.ai, whichever Kimi Code is set up with. The same request as the Kimi Code app, with a stored API key or the app's login.</span></li>
+				</ul>
+			</article>
+			<article class="card">
+				<h3>For this computer only</h3>
+				<p>Tokens, API cost, cache hits, model mix, session context and streak come from the tool's own session logs. Neither Anthropic nor OpenAI publishes token counts per model for subscription accounts.</p>
+				<ul class="ticks">
+					<li><b>Claude Code:</b> <code>~/.claude/projects</code> and any <code>~/.claude-*</code> profile folders. Each response is counted once.</li>
+					<li><b>Codex:</b> <code>~/.codex/sessions</code> and <code>~/.codex/archived_sessions</code>. Older logs that Codex has compressed can't be opened yet; the key's settings say how many.</li>
+					<li><b>Costs</b> use the API list prices of Anthropic and OpenAI, cache writes, cache reads and long context included. They estimate what the same work would cost through the API; they aren't your subscription bill.</li>
+				</ul>
+			</article>
+		</div>
+	</div>
+</section>
+
+<section id="setup" class="block">
+	<div class="wrap">
+		<h2>Set up <em>in five minutes</em></h2>
+		<ol class="steps">
+			<li>
+				<h3>Install the plugin</h3>
+				<p><a href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download the file</a> and double-click it. Stream Deck installs the plugin; later versions install the same way and keep your keys and their settings.</p>
+			</li>
+			<li>
+				<h3>Add keys</h3>
+				<p>In Stream Deck's action list, open the <b>AI Usage Meter</b> category and drag the keys you want onto your Stream Deck. Click a key to choose its display style.</p>
+			</li>
+			<li>
+				<h3>Check the logins of your tools</h3>
+				<div class="logins">
+					<article>
+						<h4><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.9167)"><path d="M 4.71 15.96 L 9.43 13.31 L 9.51 13.08 L 9.43 12.95 L 9.2 12.95 L 8.41 12.9 L 5.71 12.83 L 3.37 12.73 L 1.11 12.61 L 0.54 12.49 L 0 11.78 L 0.06 11.43 L 0.54 11.11 L 1.22 11.17 L 2.74 11.27 L 5.02 11.43 L 6.67 11.53 L 9.12 11.78 L 9.51 11.78 L 9.56 11.63 L 9.43 11.53 L 9.33 11.43 L 6.97 9.84 L 4.42 8.15 L 3.08 7.18 L 2.36 6.69 L 1.99 6.22 L 1.83 5.22 L 2.49 4.49 L 3.37 4.55 L 3.6 4.61 L 4.49 5.3 L 6.4 6.78 L 8.89 8.61 L 9.25 8.91 L 9.4 8.81 L 9.42 8.74 L 9.25 8.46 L 7.9 6.02 L 6.45 3.53 L 5.81 2.5 L 5.64 1.88 A 2.97 2.97 0 0 1 5.53 1.15 L 6.28 0.13 L 6.7 0 L 7.69 0.13 L 8.11 0.5 L 8.73 1.91 L 9.73 4.14 L 11.29 7.17 L 11.75 8.07 L 11.99 8.9 L 12.08 9.16 L 12.24 9.16 L 12.24 9.01 L 12.36 7.3 L 12.6 5.21 L 12.83 2.51 L 12.91 1.75 L 13.29 0.84 L 14.03 0.35 L 14.62 0.63 L 15.1 1.32 L 15.03 1.76 L 14.75 3.61 L 14.19 6.52 L 13.82 8.46 L 14.03 8.46 L 14.28 8.22 L 15.26 6.91 L 16.92 4.85 L 17.65 4.02 L 18.5 3.12 L 19.04 2.69 L 20.08 2.69 L 20.84 3.82 L 20.5 4.98 L 19.43 6.33 L 18.55 7.47 L 17.29 9.17 L 16.5 10.53 L 16.57 10.64 L 16.76 10.62 L 19.61 10.02 L 21.16 9.74 L 23 9.42 L 23.83 9.81 L 23.92 10.21 L 23.59 11.01 L 21.62 11.5 L 19.32 11.96 L 15.88 12.77 L 15.83 12.8 L 15.88 12.86 L 17.43 13.01 L 18.09 13.05 L 19.72 13.05 L 22.74 13.27 L 23.53 13.79 L 24 14.43 L 23.92 14.92 L 22.71 15.54 L 21.07 15.15 L 17.24 14.24 L 15.93 13.91 L 15.74 13.91 L 15.74 14.02 L 16.84 15.09 L 18.84 16.9 L 21.35 19.23 L 21.48 19.8 L 21.16 20.26 L 20.82 20.21 L 18.61 18.55 L 17.76 17.81 L 15.83 16.19 L 15.71 16.19 L 15.71 16.36 L 16.15 17.01 L 18.5 20.53 L 18.62 21.61 L 18.45 21.96 L 17.84 22.17 L 17.17 22.05 L 15.8 20.13 L 14.38 17.96 L 13.24 16.02 L 13.1 16.1 L 12.43 23.35 L 12.11 23.72 L 11.38 24 L 10.77 23.54 L 10.45 22.79 L 10.77 21.32 L 11.16 19.39 L 11.48 17.86 L 11.76 15.96 L 11.93 15.33 L 11.92 15.29 L 11.78 15.31 L 10.35 17.27 L 8.17 20.22 L 6.44 22.06 L 6.03 22.23 L 5.31 21.86 L 5.38 21.2 L 5.78 20.61 L 8.17 17.57 L 9.61 15.69 L 10.54 14.6 L 10.53 14.44 L 10.48 14.44 L 4.13 18.56 L 3 18.71 L 2.51 18.25 L 2.58 17.5 L 2.81 17.26 L 4.72 15.95 L 4.71 15.96 Z" fill="#d97757"/></g></svg> Claude</h4>
+						<p>The plugin reads the login Claude Code keeps, in the macOS Keychain or in <code>~/.claude/.credentials.json</code>. The first time, macOS may ask to allow it: choose <b>Always Allow</b>. If a key says <code>login expired</code>, run <code>claude</code> and send any message.</p>
+						<p>A second Claude account lives in its own profile folder:</p>
+						<div class="cmd"><pre><code>CLAUDE_CONFIG_DIR=~/.claude-work claude</code></pre><button type="button" class="copy" data-copy="CLAUDE_CONFIG_DIR=~/.claude-work claude">Copy</button></div>
+						<p>Sign in there, then pick <code>~/.claude-work</code> under <b>Account</b> in the key's settings.</p>
+					</article>
+					<article>
+						<h4><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.9167)"><path d="M 9.21 8.66 L 9.21 6.4 C 9.21 6.21 9.28 6.07 9.44 5.97 L 13.99 3.35 C 14.61 3 15.34 2.83 16.1 2.83 C 18.96 2.83 20.77 5.04 20.77 7.4 C 20.77 7.56 20.77 7.75 20.74 7.94 L 16.03 5.18 A 0.8 0.8 0 0 0 15.18 5.18 L 9.2 8.66 Z M 19.81 17.46 L 19.81 12.06 C 19.81 11.73 19.67 11.49 19.39 11.32 L 13.42 7.85 L 15.37 6.73 A 0.43 0.43 0 0 1 15.84 6.73 L 20.38 9.35 C 21.69 10.11 22.57 11.73 22.57 13.3 C 22.57 15.11 21.5 16.77 19.81 17.46 Z M 7.8 12.7 L 5.85 11.56 C 5.69 11.47 5.61 11.32 5.61 11.13 L 5.61 5.9 C 5.61 3.35 7.56 1.43 10.2 1.43 C 11.2 1.43 12.13 1.76 12.92 2.35 L 8.23 5.07 C 7.95 5.23 7.8 5.47 7.8 5.8 L 7.8 12.7 Z M 12 15.13 L 9.21 13.56 L 9.21 10.23 L 12 8.66 L 14.8 10.23 L 14.8 13.56 L 12 15.13 Z M 13.8 22.36 C 12.8 22.36 11.87 22.03 11.08 21.43 L 15.77 18.72 C 16.06 18.55 16.2 18.32 16.2 17.98 L 16.2 11.08 L 18.17 12.23 C 18.34 12.32 18.41 12.46 18.41 12.65 L 18.41 17.89 C 18.41 20.43 16.44 22.36 13.8 22.36 Z M 8.16 17.06 L 3.61 14.44 C 2.31 13.68 1.43 12.06 1.43 10.49 A 4.48 4.48 0 0 1 4.21 6.33 L 4.21 11.75 C 4.21 12.08 4.35 12.32 4.64 12.49 L 10.59 15.94 L 8.64 17.06 A 0.43 0.43 0 0 1 8.16 17.06 Z M 7.9 20.96 C 5.21 20.96 3.23 18.93 3.23 16.44 C 3.23 16.25 3.26 16.06 3.28 15.87 L 7.97 18.58 C 8.25 18.74 8.54 18.74 8.82 18.58 L 14.79 15.13 L 14.79 17.39 C 14.79 17.58 14.72 17.72 14.56 17.82 L 10.01 20.43 C 9.39 20.79 8.66 20.96 7.9 20.96 Z M 13.8 23.78 A 5.95 5.95 0 0 0 19.62 19.03 C 22.29 18.34 24 15.84 24 13.3 C 24 11.63 23.29 10.01 22 8.85 C 22.12 8.35 22.19 7.85 22.19 7.35 C 22.19 3.95 19.43 1.4 16.25 1.4 C 15.6 1.4 14.99 1.5 14.37 1.71 A 5.96 5.96 0 0 0 10.21 0 A 5.95 5.95 0 0 0 4.38 4.76 C 1.71 5.45 0 7.95 0 10.49 C 0 12.16 0.71 13.77 2 14.94 C 1.88 15.44 1.81 15.94 1.81 16.44 C 1.81 19.84 4.57 22.38 7.75 22.38 C 8.4 22.38 9.01 22.29 9.63 22.07 A 5.96 5.96 0 0 0 13.8 23.79 Z" fill="#ffffff" fill-rule="evenodd"/></g></svg> Codex</h4>
+						<p>Sign in with your ChatGPT account in the Codex app or with <code>codex login</code>. The plugin reads the login Codex keeps in <code>~/.codex/auth.json</code>. It lasts about ten days and Codex renews it whenever it runs.</p>
+						<p>A Codex set up with an API key alone has no plan limits to show.</p>
+					</article>
+					<article id="kimi-login">
+						<h4><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><g transform="translate(0.00 0.00) scale(0.9167)"><path d="M 21.85 0 A 1.92 1.92 0 1 1 21.85 3.85 L 20.15 3.85 A 0.23 0.23 0 0 1 19.92 3.62 L 19.92 1.92 C 19.92 0.86 20.78 0 21.85 0 Z" fill="#1783ff"/><path d="M 11.07 11.2 L 18.32 4 C 18.46 3.86 18.38 3.59 18.21 3.59 L 14.3 3.59 A 0.16 0.16 0 0 0 14.18 3.64 L 6.36 11.4 C 6.24 11.52 6.06 11.41 6.06 11.22 L 6.06 3.82 C 6.06 3.69 5.98 3.59 5.88 3.59 L 3.19 3.59 C 3.08 3.59 3 3.69 3 3.82 L 3 19.77 C 3 19.9 3.08 20 3.19 20 L 5.88 20 C 5.98 20 6.06 19.9 6.06 19.77 L 6.06 16.52 C 6.06 16.45 6.09 16.38 6.13 16.34 L 8.56 13.94 A 0.16 0.16 0 0 1 8.76 13.91 L 15.24 18.68 A 7.68 7.68 0 0 0 18.7 19.97 C 18.81 19.98 18.9 19.87 18.9 19.74 L 18.9 16.68 C 18.9 16.56 18.83 16.47 18.73 16.45 A 5.03 5.03 0 0 1 16.71 15.64 L 11.09 11.58 C 10.98 11.5 10.96 11.3 11.06 11.2 Z" fill="#ffffff"/></g></svg> Kimi Code</h4>
+						<p>Best with a Kimi Code API key, which does not expire. Create one in the Kimi Code console and store it in the macOS Keychain; paste the key when asked:</p>
+						<div class="cmd"><pre><code>security add-generic-password -a &quot;$USER&quot; -s &quot;AI Usage Meter Kimi API Key&quot; -w</code></pre><button type="button" class="copy" data-copy="security add-generic-password -a &quot;$USER&quot; -s &quot;AI Usage Meter Kimi API Key&quot; -w">Copy</button></div>
+						<p>Without a key, the plugin reads the login of the Kimi Code app. That one lasts 15 minutes and is renewed only while you use Kimi Code, so the keys go stale between your sessions.</p>
+					</article>
+				</div>
+			</li>
+		</ol>
+		<details class="more">
+			<summary>The API Credit key: a Claude Console credit</summary>
+			<p>Anthropic has no API for the Console credit balance, so this key takes your API spend since the credit was granted off the amount granted. Create an Admin key in the <a href="https://platform.claude.com/settings/admin-keys">Claude Console</a> and store it in the Keychain:</p>
+			<div class="cmd"><pre><code>security add-generic-password -a &quot;$USER&quot; -s &quot;AI Usage Meter Admin Key&quot; -w</code></pre><button type="button" class="copy" data-copy="security add-generic-password -a &quot;$USER&quot; -s &quot;AI Usage Meter Admin Key&quot; -w">Copy</button></div>
+			<p>Then enter the credit's amount and dates in the key's settings. An Admin key can administer your organization, so keep it in the Keychain; you can revoke it in the Console at any time.</p>
+		</details>
+		<details class="more">
+			<summary>Coming from Usage Meter for Claude 3.x</summary>
+			<p>AI Usage Meter has a new plugin identifier, so Stream Deck installs it next to the old plugin instead of over it. Add your keys once from the new category, then right-click the old plugin in Stream Deck's plugin list and choose Uninstall. An Admin key you stored under the old name is still found.</p>
+		</details>
+		<p class="fine">On Windows, keys are stored as files instead of in the Keychain. The <a href="https://github.com/developerscompany/ai-usage-meter#setup">README</a> has every step for both systems.</p>
+	</div>
+</section>
+
+<section id="messages" class="block alt">
+	<div class="wrap">
+		<h2>What the keys <em>say</em></h2>
+		<p class="sub">A key never shows old numbers as if they were new. When something is wrong, it says what, and its settings say why.</p>
+		<div class="tablewrap"><table class="messages">
+			<thead><tr><th scope="col">On the key</th><th scope="col">Meaning</th></tr></thead>
+			<tbody>
+				<tr><th scope="row"><code>no Claude login / run claude</code></th><td>No Claude Code login was found for this account.</td></tr>
+				<tr><th scope="row"><code>login expired / run claude</code></th><td>The login expired: run claude and send any message.</td></tr>
+				<tr><th scope="row"><code>no Codex login / open Codex</code></th><td>Codex isn't signed in with a ChatGPT account on this computer.</td></tr>
+				<tr><th scope="row"><code>no Kimi login / open Kimi Code</code></th><td>No Kimi Code login and no stored API key were found.</td></tr>
+				<tr><th scope="row"><code>login expired / open Kimi Code</code></th><td>The 15-minute login of the Kimi Code app ran out: use Kimi Code, or store an API key.</td></tr>
+				<tr><th scope="row"><code>token refused / login refused</code></th><td>The service didn't accept the login; the key's settings say more.</td></tr>
+				<tr><th scope="row"><code>rate limited / offline / API error</code></th><td>A temporary problem; the plugin retries.</td></tr>
+				<tr><th scope="row"><code>not on your plan</code></th><td>Your plan has no such limit: a separate Haiku limit, say, or a 5-hour limit on a Codex plan that only has a weekly one.</td></tr>
+				<tr><th scope="row"><code>only on claude.ai / press to open</code></th><td>The API didn't send the cloud credit; press to open claude.ai.</td></tr>
+				<tr><th scope="row"><code>no Admin key / see settings</code></th><td>The API Credit key found no Admin key.</td></tr>
+				<tr><th scope="row">Dimmed numbers, “login expired” below</th><td>The last numbers from before the login expired.</td></tr>
+				<tr><th scope="row">Dimmed numbers, “3h old” below</th><td>The plugin couldn't update them for that long; the key's settings say why.</td></tr>
+				<tr><th scope="row">A small ring in the top left corner</th><td>The last update failed; the numbers may be a few minutes old.</td></tr>
+				<tr><th scope="row">An orange dot by a logo, a dimmed row</th><td>On All Services: that service's login needs attention.</td></tr>
+			</tbody>
+		</table></div>
+	</div>
+</section>
+
+<section id="privacy" class="block">
+	<div class="wrap split">
+		<div>
+			<h2>Private <em>by design</em></h2>
+			<p class="sub">The plugin is a reader. It never changes, refreshes, copies or logs a login.</p>
+		</div>
+		<ul class="ticks big">
+			<li>Everything runs on your computer. No analytics, no telemetry, no server of ours.</li>
+			<li>It talks only to the services themselves and their public status pages.</li>
+			<li>Each login or key is sent only to the service it belongs to, and never follows a redirect to another address.</li>
+			<li>The source is open: read it, build it, change it. <a href="https://github.com/developerscompany/ai-usage-meter/blob/main/PRIVACY.md">Privacy</a> and <a href="https://github.com/developerscompany/ai-usage-meter/blob/main/SECURITY.md">security</a> notes are in the repository.</li>
+		</ul>
+	</div>
+</section>
+
+<section id="faq" class="block alt">
+	<div class="wrap narrow">
+		<h2>Questions <em>and answers</em></h2>
+		<details class="qa"><summary>Do I need all three services?</summary><p>No. Add the keys of the services you use. The All Services key shows the ones you tick under Services, and a key of a service that isn't set up simply says so.</p></details>
+		<details class="qa"><summary>Is it free?</summary><p>Yes. AI Usage Meter is open source under the MIT license. There is no account, no subscription and nothing to pay for.</p></details>
+		<details class="qa"><summary>Does it send my data anywhere?</summary><p>No. Everything runs on your computer. The plugin reads the logins your tools already keep, asks each service for your own numbers, and has no analytics, no telemetry and no server of its own.</p></details>
+		<details class="qa"><summary>The Kimi keys say “login expired” most of the time.</summary><p>That is the Kimi Code app's 15-minute login running out between your sessions. Store a Kimi Code API key for the plugin and the numbers stay current all the time.</p></details>
+		<details class="qa"><summary>My Codex 5-Hour key says “not on your plan”.</summary><p>Some ChatGPT plans give Codex a weekly limit only. Use the Weekly key; the key's settings tell you which limits your plan has.</p></details>
+		<details class="qa"><summary>The Codex token numbers look too low.</summary><p>Codex compresses its older session logs, and the plugin can't open those yet. The key's settings say how many logs were not read.</p></details>
+		<details class="qa"><summary>Do the token keys count other computers or the web apps?</summary><p>No, only this computer's logs. The limit keys do count everything: those numbers come from the service itself.</p></details>
+		<details class="qa"><summary>Can I hide the logos?</summary><p>Yes, per key: Logo in its settings. The All Services key then shows two letters per service.</p></details>
+		<details class="qa"><summary>How often are the numbers updated?</summary><p>Every minute by default (Refresh in the settings); hold a key to update it now. Flipping between pages of your Stream Deck doesn't ask the services again.</p></details>
+		<details class="qa"><summary>Does it work on Windows?</summary><p>The code is there and the tests cover it, but it hasn't been tried on a real PC yet. Reports are welcome.</p></details>
+		<details class="qa"><summary>I used Usage Meter for Claude. What changes?</summary><p>It is the same plugin under a new name and a new identifier, so Stream Deck installs it next to the old one. Add your keys once from the AI Usage Meter category, then uninstall the old plugin.</p></details>
+	</div>
+</section>
+
+<section class="block final">
+	<div class="wrap narrow center">
+		<h2>Put your limits <em>where you can see them</em></h2>
+		<p class="sub">Free, open source, and installed with a double click.</p>
+		<div class="cta center">
+			<a class="button" href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download AI Usage Meter 4.0.0</a>
+			<a class="ghost big" href="https://github.com/developerscompany/ai-usage-meter/releases">All releases</a>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer class="foot">
+	<div class="wrap">
+		<p><a href="https://github.com/developerscompany/ai-usage-meter">GitHub</a> · <a href="https://github.com/developerscompany/ai-usage-meter/blob/main/CHANGELOG.md">What's new</a> · <a href="https://github.com/developerscompany/ai-usage-meter/issues">Issues</a> · <a href="https://github.com/developerscompany/ai-usage-meter/blob/main/README.uk.md">Українською</a> · <a href="https://github.com/developerscompany/ai-usage-meter/blob/main/LICENSE">MIT license</a></p>
+		<p class="fine">Unofficial plugin by <a href="https://rivo.agency">Rivo Agency</a>. Not affiliated with or endorsed by Anthropic, OpenAI or Moonshot AI. Claude is a trademark of Anthropic, PBC. OpenAI, ChatGPT and Codex are trademarks of OpenAI. Kimi is a trademark of Moonshot AI. Elgato and Stream Deck are trademarks of Corsair Memory, Inc. The logos on the keys only name the service a key shows. All numbers on this page are samples.</p>
+	</div>
+</footer>
+
+<script>
+// Copy buttons of the commands; the page works the same without them.
+for (const button of document.querySelectorAll(".copy")) {
+	button.addEventListener("click", async () => {
+		try {
+			await navigator.clipboard.writeText(button.dataset.copy);
+			button.textContent = "Copied";
+		} catch {
+			button.textContent = "Select and copy";
+		}
+		setTimeout(() => (button.textContent = "Copy"), 2000);
+	});
+}
+</script>
+</body>
+</html>
