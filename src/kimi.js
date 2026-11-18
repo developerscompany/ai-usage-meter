@@ -1,6 +1,6 @@
 // Kimi Code (Moonshot AI): plan limits from the endpoint Kimi Code asks for its own usage panel.
 // Two logins work, and both are only read:
-//  - a Kimi Code API key the user stored for the plugin: the macOS Keychain item "Usage Meter Kimi API Key",
+//  - a Kimi Code API key the user stored for the plugin: the macOS Keychain item "AI Usage Meter Kimi API Key",
 //    or the file kimi-api-key in the plugin's data folder. A key does not expire.
 //  - else the login of the Kimi Code app in <KIMI_CODE_HOME>/credentials (~/.kimi-code by default). It lasts
 //    15 minutes, and Kimi Code renews it only while it is in use, so without a key the numbers go stale
@@ -16,8 +16,8 @@ import { tildify } from "./login.js";
 import { expandHome } from "./usage-index.js";
 
 const USAGE_URL = testUrl(process.env.KIMI_USAGE_URL);
-const USER_AGENT = "usage-meter-streamdeck/3.2";
-export const KIMI_KEY_SERVICE = "Usage Meter Kimi API Key";
+const USER_AGENT = "ai-usage-meter-streamdeck/4.0";
+export const KIMI_KEY_SERVICE = "AI Usage Meter Kimi API Key";
 export const KIMI_KEY_FILE = "kimi-api-key";
 
 // Kimi's API in mainland China and elsewhere; a login is only ever sent to one of these.

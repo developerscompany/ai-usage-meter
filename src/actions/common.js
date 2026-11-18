@@ -7,7 +7,7 @@ import { accountEmail } from "../login.js";
 import { PERIOD_IDS, getPeriod } from "../periods.js";
 import { PROVIDERS } from "../providers.js";
 
-export const PREFIX = "agency.rivo.usage-meter-for-claude";
+export const PREFIX = "agency.rivo.ai-usage-meter";
 
 export const pick = (value, allowed, fallback) => (allowed.includes(value) ? value : fallback);
 

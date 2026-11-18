@@ -1,10 +1,12 @@
-// Marketplace listing images, drawn from the real key renderers with sample numbers (needs Playwright's Chromium):
-// marketplace/thumbnail.png and gallery-1…5.png at 1920×960, and app-icon.png at 512×512.
+// Listing images for Marketplace and the README, drawn from the real key renderers with sample numbers
+// (needs Playwright's Chromium): marketplace/thumbnail.png and gallery-1…6.png at 1920×960, and app-icon.png
+// at 512×512.
 // Peak hours are shown in US Eastern time on a 12-hour clock.
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { logo } from "../src/render/logos.js";
 import { PERCENT_STYLES, renderPercent } from "../src/render/percent.js";
 import { toDataUrl } from "../src/render/svg.js";
 import { pluginIcon } from "./brand.mjs";
@@ -16,15 +18,15 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(path.join(execSync("npm root -g").toString().trim(), "playwright"));
 
 const OUT = "marketplace";
-const PLUGIN = "agency.rivo.usage-meter-for-claude.sdPlugin";
+const PLUGIN = "agency.rivo.ai-usage-meter.sdPlugin";
 const NAMES = Object.fromEntries(JSON.parse(fs.readFileSync(path.join(PLUGIN, "manifest.json"), "utf8")).Actions.map((a) => [a.UUID.split(".").pop(), a.Name]));
 
 const PEAK = "2026-10-20T15:00:00Z";
 const SOON = "2026-10-20T11:45:00Z";
 const OFF_PEAK = "2026-10-20T19:30:00Z";
 
-/** One key per action, in the order of the action list. */
-const ALL_KEYS = [
+/** One key per Claude action, in the order of the action list. */
+const CLAUDE_KEYS = [
 	["limit5h", renderPercent("ring", k.fiveView)],
 	["limit7d", renderPercent("gauge", { ...k.weekView, show: "left" })],
 	["limits", k.dualKey("bars")],
@@ -41,6 +43,11 @@ const ALL_KEYS = [
 	["status", k.statusOkKey()],
 	["launch", k.launchKey()],
 ];
+const CODEX_KEYS = k.codexKeys();
+const KIMI_KEYS = k.kimiKeys();
+const KEYS = Object.fromEntries([...CLAUDE_KEYS, ...CODEX_KEYS, ...KIMI_KEYS, ["overview", k.overviewKey("bars")]]);
+/** What a key is called under its service's heading: the action's name without the service. */
+const short = (id) => NAMES[id].replace(/^(Claude|Codex|Kimi) /, "");
 
 const key = (svg, size) => `<div class="key" style="width:${size}px;height:${size}px">${svg.replace('width="144" height="144"', `width="${size}" height="${size}"`)}</div>`;
 const tile = (svg, caption, size) => `<figure>${key(svg, size)}<figcaption>${caption}</figcaption></figure>`;
@@ -61,7 +68,11 @@ const STYLE = `
 	figcaption { margin-top: 12px; color: #a1a1a6; font-size: 21px; font-weight: 500; white-space: nowrap; }
 	.note { position: absolute; left: 120px; bottom: 44px; color: #6e6e73; font-size: 19px; }
 `;
-const page = (body) => `<!doctype html><html><head><meta charset="utf-8"><style>${STYLE}</style></head><body>${body}<div class="note">Unofficial. Not affiliated with Anthropic.</div></body></html>`;
+const page = (body) =>
+	`<!doctype html><html><head><meta charset="utf-8"><style>${STYLE}</style></head><body>${body}<div class="note">Unofficial. Not affiliated with Anthropic, OpenAI or Moonshot AI.</div></body></html>`;
+
+// the fifteen keys on the device of the cover: a bit of every service
+const COVER = ["overview", "limit5h", "codex-limit7d", "kimi-limit7d", "limit7d", "limits", "codex-credit", "kimi-month", "peak", "credit", "usage", "codex-cost", "models", "status", "codex-launch"];
 
 const thumbnail = page(`
 	<style>
@@ -73,19 +84,59 @@ const thumbnail = page(`
 		.device .grid { margin: 0; gap: 20px; }
 		.device .key { box-shadow: 0 0 0 2px #000, 0 0 0 3px #2c2c2e; }
 	</style>
-	<div class="hero">${pluginIcon(132)}<h1>Usage Meter<br><em>for Claude</em></h1><p class="sub">Plan limits, credits, tokens and costs, live on your Stream Deck.</p></div>
-	<div class="device">${grid(ALL_KEYS.map(([, svg]) => key(svg, 146)), 5, 146, 20)}</div>
+	<div class="hero">${pluginIcon(132)}<h1>AI Usage<br><em>Meter</em></h1><p class="sub">Claude, Codex and Kimi: plan limits, credits, tokens and costs, live on your Stream Deck.</p></div>
+	<div class="device">${grid(COVER.map((id) => key(KEYS[id], 146)), 5, 146, 20)}</div>
 `);
 
-const everyKey = page(`<div class="page">
-	<h1>15 keys for <em>everything Claude</em></h1>
-	<p class="sub">Limits, credits, peak hours, tokens, costs, models, context, streak and status.</p>
-	${grid(ALL_KEYS.map(([id, svg]) => tile(svg, NAMES[id], 136)), 5, 136, 132)}
+// Every key, a row or two per service, with the service's mark and name at the left.
+const mark = (id) => `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">${logo(id, 0, 0, 34)}</svg>`;
+const band = (id, name, ids, more = "") => `<div class="band"><div class="who">${id ? mark(id) : ""}<span>${name}</span></div><div class="row">${ids.map((a) => tile(KEYS[a], short(a), 108)).join("")}${more}</div></div>`;
+const everyKey = page(`
+	<style>
+		.page { padding: 0 90px 70px; }
+		.bands { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; }
+		.band { display: flex; align-items: flex-start; gap: 34px; }
+		.who { width: 196px; height: 108px; display: flex; align-items: center; justify-content: flex-end; gap: 14px; font-size: 27px; font-weight: 700; color: #e5e5ea; white-space: nowrap; }
+		.row { display: flex; gap: 46px; }
+		.band figure { width: 108px; }
+		.band figcaption { font-size: 16.5px; margin-top: 9px; }
+	</style>
+	<div class="page">
+	<h1>33 keys for <em>Claude, Codex and Kimi</em></h1>
+	<p class="sub">Limits, credits, tokens, costs, models and status of each, and one key with all three.</p>
+	<div class="bands">
+		${band("claude", "Claude", CLAUDE_KEYS.slice(0, 8).map(([id]) => id))}
+		${band(null, "", CLAUDE_KEYS.slice(8).map(([id]) => id), tile(KEYS.overview, "All Services", 108))}
+		${band("codex", "Codex", CODEX_KEYS.map(([id]) => id))}
+		${band("kimi", "Kimi Code", KIMI_KEYS.map(([id]) => id))}
+	</div>
+</div>`);
+
+const services = page(`<div class="page">
+	<h1>All three <em>on one key</em></h1>
+	<p class="sub">Claude, Codex and Kimi side by side, each with its logo: the weekly or the 5-hour limit as bars or rings, or both as numbers. And every limit as a key of its own.</p>
+	${grid(
+		[
+			tile(k.overviewKey("bars"), "All Services: bars", 170),
+			tile(k.overviewKey("rings"), "All Services: rings", 170),
+			tile(k.overviewKey("table"), "All Services: both limits", 170),
+			tile(KEYS["codex-limit7d"], "Codex Weekly Limit", 170),
+			tile(KEYS["codex-limits"], "Codex Both Limits", 170),
+			tile(k.overviewKey("bars", "fiveHour"), "All Services: 5-hour", 170),
+			tile(KEYS["codex-credit"], "Codex Credits", 170),
+			tile(KEYS["kimi-limit5h"], "Kimi 5-Hour Limit", 170),
+			tile(KEYS["kimi-month"], "Kimi Monthly Limit", 170),
+			tile(KEYS["kimi-extra"], "Kimi Extra Usage", 170),
+		],
+		5,
+		170,
+		110,
+	)}
 </div>`);
 
 const limits = page(`<div class="page">
 	<h1>Plan limits, <em>your way</em></h1>
-	<p class="sub">5-hour and weekly limits for all models or just Fable, Opus, Sonnet or Haiku. Ten display styles show what's left or what's used, and when it resets.</p>
+	<p class="sub">5-hour and weekly limits of Claude, Codex and Kimi; Claude's also for just Fable, Opus, Sonnet or Haiku. Ten display styles show what's left or what's used, and when it resets.</p>
 	${grid(
 		[
 			...PERCENT_STYLES.map((s, i) => tile(renderPercent(s.id, i < 7 ? k.fiveView : k.weekView), s.label, 174)),
@@ -102,7 +153,7 @@ const limits = page(`<div class="page">
 
 const credit = page(`<div class="page">
 	<h1>Know <em>what's left</em></h1>
-	<p class="sub">Cloud session credit, Claude Console credit and extra usage in dollars, and peak hours with a countdown in your own time zone.</p>
+	<p class="sub">Claude's cloud session credit, Claude Console credit and extra usage in dollars, and its peak hours with a countdown in your own time zone.</p>
 	${grid(
 		[
 			tile(k.creditKey("number"), "Cloud Credit", 170),
@@ -123,8 +174,8 @@ const credit = page(`<div class="page">
 </div>`);
 
 const code = page(`<div class="page">
-	<h1>Claude Code <em>at a glance</em></h1>
-	<p class="sub">Tokens and API-equivalent cost by day, week or month, cache hits, model mix, session context, your daily streak and service status.</p>
+	<h1>Your coding agents <em>at a glance</em></h1>
+	<p class="sub">Tokens and API-equivalent cost of Claude Code and Codex by day, week or month, cache hits, model mix, session context, your daily streak and service status.</p>
 	${grid(
 		[
 			tile(k.tokensKey("classic"), "Tokens: month", 170),
@@ -132,13 +183,13 @@ const code = page(`<div class="page">
 			tile(k.costTodayKey(), "Cost: today", 170),
 			tile(k.cacheKey("ring"), "Cache Hits", 170),
 			tile(k.modelsKey("donut"), "Model Mix", 170),
-			tile(k.modelsKey("bars"), "Model Mix: bars", 170),
 			tile(k.contextKey(), "Session Context", 170),
 			tile(k.streakKey("days"), "Streak", 170),
-			tile(k.streakKey("calendar"), "Streak: calendar", 170),
+			tile(KEYS["codex-usage"], "Codex tokens", 170),
+			tile(KEYS["codex-cost"], "Codex cost", 170),
+			tile(KEYS["codex-models"], "Codex models", 170),
 			tile(k.statusKey("badge"), "Claude Status", 170),
-			tile(k.statusOkKey(), "Status: all good", 170),
-			tile(k.launchKey(), "Launch Claude Code", 170),
+			tile(KEYS["codex-status"], "Codex Status", 170),
 		],
 		6,
 		170,
@@ -191,6 +242,7 @@ const settings = (shot) =>
 			<li>Live previews of every display style</li>
 			<li>What's left or what's used, with your own yellow and red levels</li>
 			<li>Several Claude Code accounts, each with a short tag</li>
+			<li>The logo of each service on its keys, or none</li>
 			<li>Clear messages on the key, and help links in its settings</li>
 		</ul>
 	</div>
@@ -209,9 +261,10 @@ const shoot = async (file, html, width = 1920, height = 960) => {
 };
 await shoot("thumbnail.png", thumbnail);
 await shoot("gallery-1.png", everyKey);
-await shoot("gallery-2.png", limits);
-await shoot("gallery-3.png", credit);
-await shoot("gallery-4.png", code);
-await shoot("gallery-5.png", settings(await settingsShot(browser)));
+await shoot("gallery-2.png", services);
+await shoot("gallery-3.png", limits);
+await shoot("gallery-4.png", credit);
+await shoot("gallery-5.png", code);
+await shoot("gallery-6.png", settings(await settingsShot(browser)));
 await shoot("app-icon.png", `<html><body style="margin:0;background:transparent">${pluginIcon(512)}</body></html>`, 512, 512);
 await browser.close();

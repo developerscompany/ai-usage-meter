@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-	"UUID": "agency.rivo.usage-meter-for-claude",
-	"Name": "Usage Meter for Claude",
-	"Version": "3.2.0.0",
+	"UUID": "agency.rivo.ai-usage-meter",
+	"Name": "AI Usage Meter",
+	"Version": "4.0.0.0",
 	"Author": "Rivo Agency",
-	"URL": "https://github.com/developerscompany/usage-meter-for-claude",
-	"SupportURL": "https://github.com/developerscompany/usage-meter-for-claude/issues",
-	"Description": "Your AI coding limits on Stream Deck. Claude: 5-hour and weekly plan limits for every model, peak hours, cloud and API credit, tokens and API-equivalent cost of Claude Code, cache hits, model mix, session context, streak, service status. Codex: 5-hour and weekly limits, credits, tokens, cost, cache, models, status. Kimi Code: 5-hour, weekly and monthly limits, extra usage, status. Plus one key with all three, and keys that start each tool. Unofficial; not affiliated with Anthropic, OpenAI or Moonshot AI.",
-	"Category": "Usage Meter for Claude",
+	"URL": "https://github.com/developerscompany/ai-usage-meter",
+	"SupportURL": "https://github.com/developerscompany/ai-usage-meter/issues",
+	"Description": "Your AI coding limits on Stream Deck, for Claude, Codex and Kimi Code. Claude: 5-hour and weekly plan limits for every model, peak hours, cloud and API credit, tokens and API-equivalent cost of Claude Code, cache hits, model mix, session context, streak, status. Codex: 5-hour and weekly limits, credits, tokens, cost, cache, models, status. Kimi Code: 5-hour, weekly and monthly limits, extra usage, status. Plus one key with all three, and keys that start each tool. Unofficial; not affiliated with Anthropic, OpenAI or Moonshot AI.",
+	"Category": "AI Usage Meter",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"Icon": "imgs/plugin/icon",
 	"CodePath": "bin/plugin.js",
@@ -30,7 +30,7 @@
 	},
 	"Actions": [
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.overview",
+			"UUID": "agency.rivo.ai-usage-meter.overview",
 			"Name": "All Services",
 			"Icon": "imgs/actions/overview/icon",
 			"Tooltip": "Claude, Codex and Kimi on one key: the weekly or 5-hour limit of each, or both. Hold to refresh.",
@@ -48,7 +48,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.limit5h",
+			"UUID": "agency.rivo.ai-usage-meter.limit5h",
 			"Name": "Claude 5-Hour Limit",
 			"Icon": "imgs/actions/limit5h/icon",
 			"Tooltip": "Claude plan 5-hour (session) limit: what's left or used, 10 display styles. Hold to refresh.",
@@ -66,7 +66,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.limit7d",
+			"UUID": "agency.rivo.ai-usage-meter.limit7d",
 			"Name": "Claude Weekly Limit",
 			"Icon": "imgs/actions/limit7d/icon",
 			"Tooltip": "Claude plan weekly limit: all models, or Fable, Opus, Sonnet or Haiku alone. 10 display styles. Hold to refresh.",
@@ -84,7 +84,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.limits",
+			"UUID": "agency.rivo.ai-usage-meter.limits",
 			"Name": "Claude Both Limits",
 			"Icon": "imgs/actions/limits/icon",
 			"Tooltip": "Claude 5-hour and weekly limits on one key. Hold to refresh.",
@@ -102,7 +102,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.peak",
+			"UUID": "agency.rivo.ai-usage-meter.peak",
 			"Name": "Claude Peak Hours",
 			"Icon": "imgs/actions/peak/icon",
 			"Tooltip": "Is it Claude's peak time (weekdays 5–11 AM Pacific), and when it ends or starts, in your time. Press for the next style.",
@@ -120,7 +120,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.credit",
+			"UUID": "agency.rivo.ai-usage-meter.credit",
 			"Name": "Claude Cloud Credit",
 			"Icon": "imgs/actions/credit/icon",
 			"Tooltip": "Cloud session credit of your Claude plan: dollars left of the amount granted, and when it expires.",
@@ -138,7 +138,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.apicredit",
+			"UUID": "agency.rivo.ai-usage-meter.apicredit",
 			"Name": "Claude API Credit",
 			"Icon": "imgs/actions/apicredit/icon",
 			"Tooltip": "A Claude Console credit, such as promotional API credit: what is left after your API spend, from the Admin API.",
@@ -156,7 +156,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.extra",
+			"UUID": "agency.rivo.ai-usage-meter.extra",
 			"Name": "Claude Extra Usage",
 			"Icon": "imgs/actions/extra/icon",
 			"Tooltip": "Claude extra usage spent this month on top of your plan.",
@@ -174,7 +174,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.usage",
+			"UUID": "agency.rivo.ai-usage-meter.usage",
 			"Name": "Claude Token Usage",
 			"Icon": "imgs/actions/usage/icon",
 			"Tooltip": "Claude Code tokens for today / 7 days / this month, in millions. Press to switch period, hold to rescan.",
@@ -192,7 +192,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.cost",
+			"UUID": "agency.rivo.ai-usage-meter.cost",
 			"Name": "Claude API Cost",
 			"Icon": "imgs/actions/cost/icon",
 			"Tooltip": "What your Claude Code usage would cost at API list prices. Press to switch period.",
@@ -210,7 +210,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.cache",
+			"UUID": "agency.rivo.ai-usage-meter.cache",
 			"Name": "Claude Cache Hits",
 			"Icon": "imgs/actions/cache/icon",
 			"Tooltip": "How much of Claude Code's input came from the prompt cache, and what that saved at API prices. Press for the next period.",
@@ -228,7 +228,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.models",
+			"UUID": "agency.rivo.ai-usage-meter.models",
 			"Name": "Claude Model Mix",
 			"Icon": "imgs/actions/models/icon",
 			"Tooltip": "Share of Fable, Opus, Sonnet and Haiku in your Claude Code usage. Press to switch period.",
@@ -246,7 +246,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.context",
+			"UUID": "agency.rivo.ai-usage-meter.context",
 			"Name": "Claude Session Context",
 			"Icon": "imgs/actions/context/icon",
 			"Tooltip": "How full the context of your latest Claude Code session is. Press for the next session.",
@@ -264,7 +264,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.streak",
+			"UUID": "agency.rivo.ai-usage-meter.streak",
 			"Name": "Claude Streak",
 			"Icon": "imgs/actions/streak/icon",
 			"Tooltip": "Days in a row you have used Claude Code. Press for the next style.",
@@ -282,7 +282,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.status",
+			"UUID": "agency.rivo.ai-usage-meter.status",
 			"Name": "Claude Status",
 			"Icon": "imgs/actions/status/icon",
 			"Tooltip": "Claude service status from status.claude.com, naming the model or service in trouble. Press to open the incident.",
@@ -300,7 +300,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.launch",
+			"UUID": "agency.rivo.ai-usage-meter.launch",
 			"Name": "Launch Claude Code",
 			"Icon": "imgs/actions/launch/icon",
 			"Tooltip": "Opens a terminal running claude in the folder you choose, with any of your Claude accounts.",
@@ -318,7 +318,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-limit5h",
+			"UUID": "agency.rivo.ai-usage-meter.codex-limit5h",
 			"Name": "Codex 5-Hour Limit",
 			"Icon": "imgs/actions/codex-limit5h/icon",
 			"Tooltip": "Codex 5-hour limit of your ChatGPT plan: what is left or used, 10 display styles. Hold to refresh.",
@@ -336,7 +336,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-limit7d",
+			"UUID": "agency.rivo.ai-usage-meter.codex-limit7d",
 			"Name": "Codex Weekly Limit",
 			"Icon": "imgs/actions/codex-limit7d/icon",
 			"Tooltip": "Codex weekly limit of your ChatGPT plan, 10 display styles. Hold to refresh.",
@@ -354,7 +354,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-limits",
+			"UUID": "agency.rivo.ai-usage-meter.codex-limits",
 			"Name": "Codex Both Limits",
 			"Icon": "imgs/actions/codex-limits/icon",
 			"Tooltip": "Codex 5-hour and weekly limits on one key. Hold to refresh.",
@@ -372,7 +372,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-credit",
+			"UUID": "agency.rivo.ai-usage-meter.codex-credit",
 			"Name": "Codex Credits",
 			"Icon": "imgs/actions/codex-credit/icon",
 			"Tooltip": "Credits bought on top of your ChatGPT plan, and the limit resets you can spend.",
@@ -390,7 +390,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-usage",
+			"UUID": "agency.rivo.ai-usage-meter.codex-usage",
 			"Name": "Codex Token Usage",
 			"Icon": "imgs/actions/codex-usage/icon",
 			"Tooltip": "Codex tokens for today / 7 days / this month, in millions. Press to switch period, hold to rescan.",
@@ -408,7 +408,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-cost",
+			"UUID": "agency.rivo.ai-usage-meter.codex-cost",
 			"Name": "Codex API Cost",
 			"Icon": "imgs/actions/codex-cost/icon",
 			"Tooltip": "What your Codex usage would cost at OpenAI API list prices. Press to switch period.",
@@ -426,7 +426,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-cache",
+			"UUID": "agency.rivo.ai-usage-meter.codex-cache",
 			"Name": "Codex Cache Hits",
 			"Icon": "imgs/actions/codex-cache/icon",
 			"Tooltip": "How much of the input of Codex came from the prompt cache, and what that saved at API prices. Press for the next period.",
@@ -444,7 +444,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-models",
+			"UUID": "agency.rivo.ai-usage-meter.codex-models",
 			"Name": "Codex Model Mix",
 			"Icon": "imgs/actions/codex-models/icon",
 			"Tooltip": "Share of each model in your Codex usage. Press to switch period.",
@@ -462,7 +462,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-status",
+			"UUID": "agency.rivo.ai-usage-meter.codex-status",
 			"Name": "Codex Status",
 			"Icon": "imgs/actions/codex-status/icon",
 			"Tooltip": "Codex and OpenAI service status from status.openai.com. Press to open the incident.",
@@ -480,7 +480,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.codex-launch",
+			"UUID": "agency.rivo.ai-usage-meter.codex-launch",
 			"Name": "Launch Codex",
 			"Icon": "imgs/actions/codex-launch/icon",
 			"Tooltip": "Opens the Codex app, or a terminal running codex in the folder you choose.",
@@ -498,7 +498,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limit5h",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-limit5h",
 			"Name": "Kimi 5-Hour Limit",
 			"Icon": "imgs/actions/kimi-limit5h/icon",
 			"Tooltip": "Kimi Code 5-hour limit: what is left or used, 10 display styles. Hold to refresh.",
@@ -516,7 +516,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limit7d",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-limit7d",
 			"Name": "Kimi Weekly Limit",
 			"Icon": "imgs/actions/kimi-limit7d/icon",
 			"Tooltip": "Kimi Code weekly limit, 10 display styles. Hold to refresh.",
@@ -534,7 +534,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limits",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-limits",
 			"Name": "Kimi Both Limits",
 			"Icon": "imgs/actions/kimi-limits/icon",
 			"Tooltip": "Kimi Code 5-hour and weekly limits on one key. Hold to refresh.",
@@ -552,7 +552,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-month",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-month",
 			"Name": "Kimi Monthly Limit",
 			"Icon": "imgs/actions/kimi-month/icon",
 			"Tooltip": "The monthly limit of your Kimi plan, 10 display styles. Hold to refresh.",
@@ -570,7 +570,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-extra",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-extra",
 			"Name": "Kimi Extra Usage",
 			"Icon": "imgs/actions/kimi-extra/icon",
 			"Tooltip": "The wallet of extra usage on top of your Kimi plan: what is left, or the spend against your monthly cap.",
@@ -588,7 +588,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-status",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-status",
 			"Name": "Kimi Status",
 			"Icon": "imgs/actions/kimi-status/icon",
 			"Tooltip": "Kimi Code service status from status.moonshot.cn. Press to open the incident.",
@@ -606,7 +606,7 @@
 			]
 		},
 		{
-			"UUID": "agency.rivo.usage-meter-for-claude.kimi-launch",
+			"UUID": "agency.rivo.ai-usage-meter.kimi-launch",
 			"Name": "Launch Kimi Code",
 			"Icon": "imgs/actions/kimi-launch/icon",
 			"Tooltip": "Opens the Kimi Code app, or a terminal running kimi in the folder you choose.",

@@ -1,4 +1,4 @@
-// Usage Meter for Claude, a Stream Deck plugin: plan limits, peak hours, credit, tokens, API cost, cache, model mix,
+// AI Usage Meter, a Stream Deck plugin: plan limits, peak hours, credit, tokens, API cost, cache, model mix,
 // session context, streak, service status, and a key that starts Claude Code; plus the limits, credits, tokens
 // and status of Codex and Kimi Code.
 // Short press does what the key's settings say (next period, used/left, ...). Holding a key refreshes it now.

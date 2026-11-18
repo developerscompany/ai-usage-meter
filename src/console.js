@@ -1,7 +1,7 @@
 // Claude Console (API organization) spend, from the Usage and Cost Admin API. Anthropic has no API for
 // the credit balance itself, so the API Credit key takes the spend since a credit was granted off the
-// amount granted. The Admin API key is only read: from the macOS Keychain item "Usage Meter for Claude Admin
-// Key" (or the item named before the plugin was renamed), or else from the file admin-key in the plugin's
+// amount granted. The Admin API key is only read: from the macOS Keychain item "AI Usage Meter Admin Key"
+// (or the item named before the plugin was renamed), or else from the file admin-key in the plugin's
 // data folder. It is sent to api.anthropic.com only.
 import fsp from "node:fs/promises";
 import path from "node:path";
@@ -9,10 +9,10 @@ import { runSecurity } from "./keychain.js";
 import { cleanSecret, safeMessage, testUrl } from "./secrets.js";
 
 const COST_URL = testUrl(process.env.CLAUDE_COST_URL) ?? "https://api.anthropic.com/v1/organizations/cost_report";
-const USER_AGENT = "usage-meter-for-claude-streamdeck/3.2";
-export const ADMIN_KEY_SERVICE = "Usage Meter for Claude Admin Key";
-// the Keychain item from versions before 3.0, still read so a stored key keeps working
-const OLD_ADMIN_KEY_SERVICE = "Rivo Claude Usage Admin Key";
+const USER_AGENT = "ai-usage-meter-streamdeck/4.0";
+export const ADMIN_KEY_SERVICE = "AI Usage Meter Admin Key";
+// the Keychain items from when the plugin had other names (3.x, then 2.x), still read so a stored key keeps working
+export const OLD_ADMIN_KEY_SERVICES = ["Usage Meter for Claude Admin Key", "Rivo Claude Usage Admin Key"];
 const MAX_PAGES = 13;
 const MAX_BACKOFF_MS = 30 * 60_000;
 
@@ -46,7 +46,7 @@ export function parseCostPages(pages) {
  */
 export async function readAdminKey({ platform = process.platform, security = runSecurity, dir = null } = {}) {
 	if (platform === "darwin") {
-		for (const service of [ADMIN_KEY_SERVICE, OLD_ADMIN_KEY_SERVICE]) {
+		for (const service of [ADMIN_KEY_SERVICE, ...OLD_ADMIN_KEY_SERVICES]) {
 			const key = cleanSecret(await security(["find-generic-password", "-w", "-s", service]));
 			if (key) return { key, source: `Keychain «${service}»` };
 		}

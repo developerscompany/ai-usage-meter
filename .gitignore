@@ -1,6 +1,6 @@
 node_modules/
 dist/
-agency.rivo.usage-meter-for-claude.sdPlugin/bin/
-agency.rivo.usage-meter-for-claude.sdPlugin/logs/
+agency.rivo.ai-usage-meter.sdPlugin/bin/
+agency.rivo.ai-usage-meter.sdPlugin/logs/
 test/output/
 .DS_Store

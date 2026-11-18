@@ -10,7 +10,7 @@ import { pluginIcon } from "./brand.mjs";
 const require = createRequire(import.meta.url);
 const { chromium } = require(path.join(execSync("npm root -g").toString().trim(), "playwright"));
 
-const root = "agency.rivo.usage-meter-for-claude.sdPlugin/imgs";
+const root = "agency.rivo.ai-usage-meter.sdPlugin/imgs";
 const W = 'fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"';
 
 // Monochrome glyphs (white on transparent) drawn on a 20×20 grid.

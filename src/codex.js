@@ -10,7 +10,7 @@ import { testUrl } from "./secrets.js";
 import { expandHome } from "./usage-index.js";
 
 const USAGE_URL = testUrl(process.env.CODEX_USAGE_URL) ?? "https://chatgpt.com/backend-api/wham/usage";
-const USER_AGENT = "usage-meter-streamdeck/3.2";
+const USER_AGENT = "ai-usage-meter-streamdeck/4.0";
 const DAY_MS = 86_400_000;
 
 /** Codex's folder: CODEX_HOME, or ~/.codex. */

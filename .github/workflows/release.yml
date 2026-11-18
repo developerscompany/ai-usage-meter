@@ -23,7 +23,7 @@ jobs:
       - name: Version from the manifest
         id: version
         run: |
-          version=$(node -p 'require("./agency.rivo.usage-meter-for-claude.sdPlugin/manifest.json").Version.split(".").slice(0, 3).join(".")')
+          version=$(node -p 'require("./agency.rivo.ai-usage-meter.sdPlugin/manifest.json").Version.split(".").slice(0, 3).join(".")')
           if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
             echo "The tag $GITHUB_REF_NAME does not match the manifest version $version"
             exit 1
@@ -37,7 +37,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           {
-            echo 'Download `agency.rivo.usage-meter-for-claude.streamDeckPlugin` below and double-click it to install. Needs Stream Deck 6.9 or later on macOS 12+ or Windows 10+.'
+            echo 'Download `agency.rivo.ai-usage-meter.streamDeckPlugin` below and double-click it to install. Needs Stream Deck 6.9 or later on macOS 12+ or Windows 10+.'
             echo
             awk -v v="$VERSION" 'index($0, "## " v " ") == 1 { found = 1; next } found && /^## / { exit } found' CHANGELOG.md
           } > notes.md
@@ -46,10 +46,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          file=dist/agency.rivo.usage-meter-for-claude.streamDeckPlugin
+          file=dist/agency.rivo.ai-usage-meter.streamDeckPlugin
           # a release that already exists for this version gets the file built here
           if gh release view "v$VERSION" > /dev/null 2>&1; then
             gh release upload "v$VERSION" "$file" --clobber
           else
-            gh release create "v$VERSION" "$file" --target "$GITHUB_SHA" --title "Usage Meter for Claude $VERSION" --notes-file notes.md
+            gh release create "v$VERSION" "$file" --target "$GITHUB_SHA" --title "AI Usage Meter $VERSION" --notes-file notes.md
           fi

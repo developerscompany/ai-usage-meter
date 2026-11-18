@@ -15,7 +15,7 @@ export { accountDir, keychainServices, loginCandidates, parseCredentials, pickLo
 
 const USAGE_URL = testUrl(process.env.CLAUDE_USAGE_URL) ?? "https://api.anthropic.com/api/oauth/usage";
 const OAUTH_BETA = "oauth-2025-04-20";
-const USER_AGENT = "usage-meter-for-claude-streamdeck/3.2";
+const USER_AGENT = "ai-usage-meter-streamdeck/4.0";
 const REREAD_TOKEN_MS = 30_000;
 // A login that is still valid is read again this often: after /login with another account, or a
 // fresher login in another profile, the keys follow within minutes instead of at the old one's end.
@@ -119,9 +119,9 @@ export function parseUsage(json) {
 }
 
 export function dataDir(home = os.homedir()) {
-	if (process.platform === "darwin") return path.join(home, "Library", "Application Support", "agency.rivo.usage-meter-for-claude");
-	if (process.platform === "win32") return path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "agency.rivo.usage-meter-for-claude");
-	return path.join(process.env.XDG_STATE_HOME || path.join(home, ".local", "state"), "agency.rivo.usage-meter-for-claude");
+	if (process.platform === "darwin") return path.join(home, "Library", "Application Support", "agency.rivo.ai-usage-meter");
+	if (process.platform === "win32") return path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "agency.rivo.ai-usage-meter");
+	return path.join(process.env.XDG_STATE_HOME || path.join(home, ".local", "state"), "agency.rivo.ai-usage-meter");
 }
 
 /**
@@ -131,7 +131,6 @@ export function dataDir(home = os.homedir()) {
  * @property {string} api                what answers, for messages: "Anthropic API"
  * @property {string[]} windows          the limit windows kept in the history, in column order
  * @property {(account: string) => string} cacheName   the cache file of an account
- * @property {(account: string) => string | null} [oldCacheName]  where an earlier version kept it, if elsewhere
  * @property {(account: string, o: { dirs: string[], now: number }) => Promise<object | null>} login
  *           reads the login: { token, expiresAt, source, dir, logins } or null; never changes it
  * @property {(fetchImpl: typeof fetch, login: object) => Promise<Response>} request
@@ -150,8 +149,6 @@ export const CLAUDE_LIMITS = {
 	// "Auto" takes the freshest login of any profile, which need not be the default profile's: the two
 	// must not share a cache, or one key would show the other account's numbers as its own
 	cacheName: (account) => (account ? `limits-${sha(accountDir(account)).slice(0, 10)}.json` : "limits-auto.json"),
-	// where Auto's numbers were kept before, read once so the history collected there is not lost
-	oldCacheName: (account) => (account ? null : `limits-${sha(accountDir("")).slice(0, 10)}.json`),
 	login: readCredentials,
 	request: (fetchImpl, login) =>
 		fetchImpl(USAGE_URL, {
@@ -207,21 +204,18 @@ export class LimitsService {
 		this.retryAt = 0;
 		this.inflight = null;
 		this.cacheFile = dir ? path.join(dir, source.cacheName(account)) : null;
-		const old = dir && source.oldCacheName?.(account);
-		this.load(this.cacheFile) || (old && this.load(path.join(dir, old)));
+		this.load();
 	}
 
-	/** Takes the numbers and history from a cache file; false when there is none to take. */
-	load(file) {
-		if (!file) return false;
+	load() {
+		if (!this.cacheFile) return;
 		try {
-			const saved = JSON.parse(fs.readFileSync(file, "utf8"));
+			const saved = JSON.parse(fs.readFileSync(this.cacheFile, "utf8"));
 			this.data = saved.data ?? null;
 			this.fetchedAt = saved.fetchedAt ?? 0;
 			this.history = Array.isArray(saved.history) ? saved.history : [];
-			return true;
 		} catch {
-			return false; // first run
+			// first run
 		}
 	}
 

@@ -3,7 +3,7 @@
 import { execFile } from "node:child_process";
 
 /**
- * @param {string[]} args e.g. ["find-generic-password", "-w", "-s", "Usage Meter for Claude Admin Key"]
+ * @param {string[]} args e.g. ["find-generic-password", "-w", "-s", "AI Usage Meter Admin Key"]
  * @returns {Promise<string | null>} what the command printed, or null when there is no such item
  */
 export function runSecurity(args) {

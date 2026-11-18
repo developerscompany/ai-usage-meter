@@ -1,22 +1,15 @@
-Usage Meter for Claude puts your Claude usage on Stream Deck keys, so you see what's left before you hit a limit.
+AI Usage Meter puts the limits of your AI coding tools on Stream Deck keys, so you see what's left before you hit a limit. One plugin for Claude, Codex and Kimi Code.
 
-15 keys:
-• 5-Hour Limit and Weekly Limit, for all models or just Fable, Opus, Sonnet or Haiku, with the time until reset
-• Both Limits on one key
-• Peak Hours: whether it's peak time now, and when it starts or ends, in your time zone
-• Cloud Credit: dollars left of your cloud session credit
-• API Credit: what's left of a Claude Console credit after your API spend
-• Extra Usage this month
-• Token Usage and API Cost of your Claude Code work, by day, week or month
-• Cache Hits, Model Mix and Session Context
-• Streak: days in a row with Claude Code
-• Claude Status from status.claude.com, naming the model in trouble
-• Launch Claude Code in the folder you choose
+33 keys:
+• All Services: Claude, Codex and Kimi side by side on one key
+• Claude: 5-Hour Limit and Weekly Limit (all models or just Fable, Opus, Sonnet or Haiku), Both Limits, Peak Hours, Cloud Credit, API Credit, Extra Usage, Token Usage, API Cost, Cache Hits, Model Mix, Session Context, Streak, Claude Status, Launch Claude Code
+• Codex: 5-Hour Limit, Weekly Limit, Both Limits, Credits, Token Usage, API Cost, Cache Hits, Model Mix, Codex Status, Launch Codex
+• Kimi Code: 5-Hour Limit, Weekly Limit, Both Limits, Monthly Limit, Extra Usage, Kimi Status, Launch Kimi Code
 
-Ten display styles (ring, gauge, battery, history and more) with live previews, your own yellow and red levels, and several Claude Code accounts.
+Ten display styles (ring, gauge, battery, history and more) with live previews, your own yellow and red levels, several Claude Code accounts, and the logo of its service on every key (or none).
 
-Requirements: Claude Code signed in on this computer (Pro or Max plan) for the limit and credit keys. Token, cost, cache and streak keys read Claude Code's local logs. The API Credit key needs a Claude Console Admin API key.
+Requirements: for each service you use, its tool signed in on this computer: Claude Code (Pro or Max plan), Codex with a ChatGPT account, the Kimi Code app or a Kimi Code API key. Token, cost, cache and streak keys read the local logs of Claude Code and Codex. The API Credit key needs a Claude Console Admin API key.
 
-Privacy: everything runs on your computer and nothing is collected. The plugin only reads your Claude Code login and logs, and talks only to Anthropic (api.anthropic.com) and status.claude.com.
+Privacy: everything runs on your computer and nothing is collected. The plugin only reads the logins and logs of your tools, and talks only to the services themselves (api.anthropic.com, chatgpt.com, Kimi's API) and their public status pages.
 
-Unofficial plugin by Rivo Agency, not affiliated with or endorsed by Anthropic. Claude is a trademark of Anthropic.
+Unofficial plugin by Rivo Agency, not affiliated with or endorsed by Anthropic, OpenAI or Moonshot AI. Claude is a trademark of Anthropic; OpenAI, ChatGPT and Codex are trademarks of OpenAI; Kimi is a trademark of Moonshot AI.

@@ -78,7 +78,7 @@ const html = `<html><body><style>
 	.key { width: 104px; height: 104px; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 4px #161616, 0 0 0 5px #3a3a3a; }
 	figcaption { font-size: 11.5px; color: #a0a0a0; text-align: center; }
 </style>
-<h1>Usage Meter for Claude, Codex і Kimi: усі кнопки та стилі</h1>
+<h1>AI Usage Meter: усі кнопки та стилі для Claude, Codex і Kimi</h1>
 <p>Приклад на тестових даних. На ваших кнопках будуть ваші цифри.</p>
 ${sections.map(([title, tiles]) => `<h2>${title}</h2><div class="row">${tiles.map(tile).join("")}</div>`).join("")}
 </body></html>`;

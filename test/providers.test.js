@@ -134,8 +134,8 @@ test("Kimi login: a stored API key before the app's login, and only Kimi's own a
 	assert.ok(!JSON.stringify(stored.logins).includes("sk-kimi-key"), "what was found is listed without the secrets");
 
 	// on a Mac the Keychain comes first
-	const mac = await readKimiKey({ platform: "darwin", security: async (args) => (args.includes("Usage Meter Kimi API Key") ? "sk-from-keychain\n" : null), dir: keyDir });
-	assert.deepEqual(mac, { key: "sk-from-keychain", source: "Keychain «Usage Meter Kimi API Key»" });
+	const mac = await readKimiKey({ platform: "darwin", security: async (args) => (args.includes("AI Usage Meter Kimi API Key") ? "sk-from-keychain\n" : null), dir: keyDir });
+	assert.deepEqual(mac, { key: "sk-from-keychain", source: "Keychain «AI Usage Meter Kimi API Key»" });
 });
 
 test("Kimi usage: shares of 1 become percentages, and the wallet of extra usage becomes money", () => {
@@ -175,20 +175,19 @@ test("Kimi limits service: a login that says it is over is not sent; a renewed o
 	assert.deepEqual(refused.error, { code: "auth", message: "Kimi API refused the key (HTTP 401)" });
 });
 
-test("limits cache: Auto and the default profile each have their own, and Auto keeps its earlier history", () => {
+test("limits cache: Auto and the default profile each have their own", () => {
 	const dir = tmpdir();
 	const auto = new LimitsService("", { dir, credentials: async () => null });
 	const named = new LimitsService("~/.claude", { dir, credentials: async () => null });
 	assert.notEqual(auto.cacheFile, named.cacheFile, "Auto may hold another profile's login");
 	assert.equal(path.basename(auto.cacheFile), "limits-auto.json");
 
-	// what a version before this one wrote for Auto: the file the default profile now uses
-	fs.writeFileSync(named.cacheFile, JSON.stringify({ data: { fiveHour: { used: 7, resetsAt: null } }, fetchedAt: 123, history: [[1, 7]] }));
-	const upgraded = new LimitsService("", { dir, credentials: async () => null });
-	assert.equal(upgraded.fetchedAt, 123);
-	upgraded.fetchedAt = 456;
-	upgraded.save();
-	assert.equal(new LimitsService("", { dir, credentials: async () => null }).fetchedAt, 456, "from its own file from then on");
+	named.fetchedAt = 123;
+	named.save();
+	assert.equal(new LimitsService("", { dir, credentials: async () => null }).fetchedAt, 0, "the default profile's numbers are not Auto's");
+	auto.fetchedAt = 456;
+	auto.save();
+	assert.equal(new LimitsService("", { dir, credentials: async () => null }).fetchedAt, 456);
 	assert.ok(!fs.existsSync(`${auto.cacheFile}.tmp`), "written beside the file and moved over it");
 	assert.equal(path.basename(new LimitsService("", { source: CODEX_LIMITS, dir }).cacheFile), "limits-codex.json");
 });

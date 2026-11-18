@@ -23,5 +23,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Validate the manifest
-        run: npx streamdeck validate agency.rivo.usage-meter-for-claude.sdPlugin
+        run: npx streamdeck validate agency.rivo.ai-usage-meter.sdPlugin
       - run: npm test

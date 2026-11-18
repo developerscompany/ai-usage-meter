@@ -17,19 +17,19 @@ import { openaiRequestCost, priceFor, requestCost } from "../src/pricing.js";
 import { addDays, dayKey, startOfDay } from "../src/usage-index.js";
 import { assistantLines, codexLines, jwt, taskResultLine, userLine } from "./fixtures.js";
 
-const PREFIX = "agency.rivo.usage-meter-for-claude";
+const PREFIX = "agency.rivo.ai-usage-meter";
 const PLUGIN_UUID = "0123456789ABCDEF";
 // what Stream Deck on a Mac passes in -info; the SDK reads the application version from it
 const INFO = JSON.stringify({
 	application: { font: ".AppleSystemUIFont", language: "en", platform: "mac", platformVersion: "15.1.0", version: "7.1.0.22035" },
-	plugin: { uuid: "agency.rivo.usage-meter-for-claude", version: "3.2.0.0" },
+	plugin: { uuid: "agency.rivo.ai-usage-meter", version: "4.0.0.0" },
 	devicePixelRatio: 2,
 	colors: { buttonPressedBackgroundColor: "#303030FF", buttonPressedBorderColor: "#646464FF", buttonPressedTextColor: "#969696FF", disabledColor: "#F7821B59", highlightColor: "#F7821BFF", mouseDownColor: "#CF6304FF" },
 	devices: [{ id: "dev-1", name: "Stream Deck XL", size: { columns: 8, rows: 4 }, type: 2 }],
 });
 const OUTPUT = path.resolve("test/output");
 // PLUGIN_DIR: test an unpacked .streamDeckPlugin instead of the build; PLUGIN_NODE: e.g. a Node.js 20 binary like Stream Deck's.
-const SOURCE = process.env.PLUGIN_DIR ?? path.resolve("agency.rivo.usage-meter-for-claude.sdPlugin");
+const SOURCE = process.env.PLUGIN_DIR ?? path.resolve("agency.rivo.ai-usage-meter.sdPlugin");
 const NODE = process.env.PLUGIN_NODE ?? process.execPath;
 
 const now = new Date();
@@ -258,7 +258,7 @@ before(async () => {
 
 	// Install a copy of the built plugin, like Stream Deck does (no package.json above it).
 	const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "claude-usage-e2e-"));
-	pluginDir = path.join(tmp, "Plugins", "agency.rivo.usage-meter-for-claude.sdPlugin");
+	pluginDir = path.join(tmp, "Plugins", "agency.rivo.ai-usage-meter.sdPlugin");
 	fs.cpSync(SOURCE, pluginDir, { recursive: true });
 
 	home = path.join(tmp, "home");
@@ -536,7 +536,7 @@ test("API credit: what is left of a Console credit after the API spend since it 
 	assert.match(info["Admin key"], /admin-key$/, "where the key was found, never the key");
 	assert.ok(!JSON.stringify(status.payload).includes(ADMIN_KEY));
 	// on a Mac the key belongs in the Keychain, elsewhere in a file
-	assert.match(status.payload.note, process.platform === "darwin" ? /security add-generic-password .*-s "Usage Meter for Claude Admin Key" -w$/m : /Save the key as the only line of this file:\n.*admin-key$/m, "the steps for this computer");
+	assert.match(status.payload.note, process.platform === "darwin" ? /security add-generic-password .*-s "AI Usage Meter Admin Key" -w$/m : /Save the key as the only line of this file:\n.*admin-key$/m, "the steps for this computer");
 	assert.deepEqual(status.payload.table.rows.at(-1), ["Credit left", `$${(200 - spent).toFixed(2)}`], "with cents in the table");
 
 	// without an amount: this month's API spend
@@ -826,7 +826,7 @@ test("Kimi: an expired login says so without asking; a renewed one brings the li
 	sd.send({ action: `${PREFIX}.kimi-limit7d`, event: "propertyInspectorDidAppear", context: "kimi", device: "dev-1" });
 	let status = await sd.waitFor((m) => m.event === "sendToPropertyInspector" && m.context === "kimi", from);
 	assert.match(Object.fromEntries(status.payload.info).Login, /^~\/\.kimi-code\/credentials\/kimi-code-env-test\.json, expired 1h ago$/);
-	assert.match(status.payload.note, process.platform === "darwin" ? /security add-generic-password .*-s "Usage Meter Kimi API Key" -w$/m : /kimi-api-key$/m, "how to store an API key on this computer");
+	assert.match(status.payload.note, process.platform === "darwin" ? /security add-generic-password .*-s "AI Usage Meter Kimi API Key" -w$/m : /kimi-api-key$/m, "how to store an API key on this computer");
 	assert.deepEqual(status.payload.links, [["Kimi Code console", "https://www.kimi.ai/code/console"]], "the console of the region Kimi Code is set up for");
 
 	// what Kimi Code does when it is used again

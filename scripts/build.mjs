@@ -2,7 +2,7 @@
 import { build } from "esbuild";
 import { readFileSync, writeFileSync } from "node:fs";
 
-const out = "agency.rivo.usage-meter-for-claude.sdPlugin/bin";
+const out = "agency.rivo.ai-usage-meter.sdPlugin/bin";
 
 // third-party code in the bundle, and where its license text is
 const BUNDLED = [
@@ -21,7 +21,7 @@ await build({
 	format: "cjs",
 	// optional native speedups of ws; it falls back to plain JS without them
 	external: ["bufferutil", "utf-8-validate"],
-	banner: { js: `/*! Usage Meter for Claude, a Stream Deck plugin by Rivo Agency. Bundles, under these licenses:\n${BUNDLED.map(license).join("\n\n")}\n*/` },
+	banner: { js: `/*! AI Usage Meter, a Stream Deck plugin by Rivo Agency. Bundles, under these licenses:\n${BUNDLED.map(license).join("\n\n")}\n*/` },
 	logLevel: "info",
 });
 writeFileSync(`${out}/package.json`, '{ "type": "commonjs" }\n');

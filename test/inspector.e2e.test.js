@@ -18,8 +18,8 @@ try {
 }
 const skip = !chromium && "Playwright not installed";
 
-const PREFIX = "agency.rivo.usage-meter-for-claude";
-const PAGE = path.resolve("agency.rivo.usage-meter-for-claude.sdPlugin/ui/inspector.html");
+const PREFIX = "agency.rivo.ai-usage-meter";
+const PAGE = path.resolve("agency.rivo.ai-usage-meter.sdPlugin/ui/inspector.html");
 const OUTPUT = path.resolve("test/output");
 
 let server;

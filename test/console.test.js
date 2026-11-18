@@ -81,7 +81,7 @@ test("reads the Admin key from the Keychain on a Mac, else from a file; never wr
 	const asked = [];
 	const before = async (args) => (asked.push(args.at(-1)), args.at(-1) === "Rivo Claude Usage Admin Key" ? "sk-ant-admin01-old\n" : null);
 	assert.deepEqual(await readAdminKey({ platform: "darwin", security: before }), { key: "sk-ant-admin01-old", source: "Keychain «Rivo Claude Usage Admin Key»" });
-	assert.deepEqual(asked, [ADMIN_KEY_SERVICE, "Rivo Claude Usage Admin Key"], "the item named before the rename, after the new one");
+	assert.deepEqual(asked, [ADMIN_KEY_SERVICE, "Usage Meter for Claude Admin Key", "Rivo Claude Usage Admin Key"], "the items named before each rename, after the new one");
 
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), "admin-key-"));
 	assert.equal(await readAdminKey({ platform: "linux", dir }), null);

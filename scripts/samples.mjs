@@ -74,6 +74,7 @@ export const codexKeys = () => [
 	...limitKeys(CODEX_LIMIT_ACTIONS, codex),
 	["codex-usage", renderSeries("classic", { label: "7 DAYS", value: { num: "48.2", unit: "M" }, rate: "~6.9M/day", bars: weekBars, dots: 2, dot: 0, logo: "codex" })],
 	["codex-cost", renderSeries("classic", { label: "7 DAYS", value: { num: "$31.4", unit: "" }, rate: "~$4.5/day", bars: weekBars, dots: 3, dot: 1, logo: "codex" })],
+	["codex-cache", renderPercent("ring", { label: "7 DAYS", used: 12, show: "left", display: { value: "88", unit: "%", caption: "cached" }, footer: "saved $41", resetsAt: null, now, windowMs: 1, warn: 30, danger: 60, logo: "codex" })],
 	["codex-models", renderModels("donut", { label: "7 DAYS", items: [{ name: "Sol", family: "sol", share: 0.86 }, { name: "Astra", family: "astra", share: 0.14 }], total: "48.2M tokens", logo: "codex" })],
 	["codex-status", renderStatus("badge", { label: "CODEX", level: 0, text: "operational", logo: "codex" })],
 	["codex-launch", codexLaunchAction.render({ settings: codexLaunchAction.normalize({ open: "app" }) })],

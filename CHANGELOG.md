@@ -1,7 +1,8 @@
 # Changelog
 
-## 3.2.0 — 2026-11-18
+## 4.0.0 — 2026-11-18
 
+- **New name, AI Usage Meter**, and a new plugin identifier, `agency.rivo.ai-usage-meter`: the plugin now covers Claude, Codex and Kimi Code, not Claude alone. Stream Deck installs it next to Usage Meter for Claude 3.x: add your keys once from the new category, then uninstall the old plugin. An Admin key stored in the Keychain under an earlier name is still found. The repository moved to `developerscompany/ai-usage-meter`.
 - **Codex keys**: 5-hour and weekly limits (and both on one key), credits and limit resets, token usage, API cost at OpenAI's list prices, cache hits, model mix, service status from status.openai.com, and a key that opens Codex.
 - **Kimi Code keys**: 5-hour, weekly and monthly limits (5-hour and weekly also on one key), extra usage, service status from status.moonshot.cn, and a key that opens Kimi Code. With a Kimi Code API key in the Keychain the numbers are always current; without one the keys read the 15-minute login of the Kimi Code app.
 - **All Services**: Claude, Codex and Kimi on one key, as bars, rings, or both limits as numbers.

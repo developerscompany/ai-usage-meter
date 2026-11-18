@@ -1,8 +1,8 @@
-# Usage Meter for Claude: Privacy Policy
+# AI Usage Meter: Privacy Policy
 
 Last updated: October 21, 2026
 
-Usage Meter for Claude is a Stream Deck plugin by Rivo Agency. It runs entirely on your computer.
+AI Usage Meter is a Stream Deck plugin by Rivo Agency. It runs entirely on your computer.
 
 ## What the plugin reads on your computer
 
@@ -26,7 +26,7 @@ Nothing else. The plugin has no analytics, no telemetry and no servers of its ow
 
 ## What the plugin stores
 
-The latest numbers and a short history (for the History display style), in the plugin's data folder on your computer: `~/Library/Application Support/agency.rivo.usage-meter-for-claude` on macOS, `%APPDATA%\agency.rivo.usage-meter-for-claude` on Windows. Uninstall the plugin and delete that folder to remove them.
+The latest numbers and a short history (for the History display style), in the plugin's data folder on your computer: `~/Library/Application Support/agency.rivo.ai-usage-meter` on macOS, `%APPDATA%\agency.rivo.ai-usage-meter` on Windows. Uninstall the plugin and delete that folder to remove them.
 
 ## Contact
 
