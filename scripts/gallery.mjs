@@ -7,6 +7,7 @@ import { creditAction } from "../src/actions/limits.js";
 import { peakAction } from "../src/actions/peak.js";
 import { DUAL_STYLES } from "../src/render/dual.js";
 import { MODEL_STYLES } from "../src/render/models.js";
+import { OVERVIEW_STYLES } from "../src/render/overview.js";
 import { PERCENT_STYLES, renderPercent } from "../src/render/percent.js";
 import { SERIES_STYLES } from "../src/render/series.js";
 import { STATUS_STYLES } from "../src/render/status.js";
@@ -18,6 +19,9 @@ const { chromium } = require(path.join(execSync("npm root -g").toString().trim()
 
 const { fiveView, hotView, weekView } = k;
 const sections = [
+	["Усі сервіси на одній кнопці: Claude, Codex і Kimi", [...OVERVIEW_STYLES.map((s) => [s.label, k.overviewKey(s.id)]), ["Bars: 5-hour", k.overviewKey("bars", "fiveHour")], ["Rings: 5-hour", k.overviewKey("rings", "fiveHour")]]],
+	["Codex: ліміти, кредити, токени, вартість, моделі, статус, запуск", k.codexKeys()],
+	["Kimi Code: ліміти на 5 годин, тиждень і місяць, доплати, статус, запуск", k.kimiKeys()],
 	["5-годинний ліміт: 10 стилів (скільки лишилось)", PERCENT_STYLES.map((s) => [s.label, renderPercent(s.id, fiveView)])],
 	["Той самий ліміт, коли витрачено багато (скільки використано)", PERCENT_STYLES.map((s) => [s.label, renderPercent(s.id, hotView)])],
 	["Тижневий ліміт: усі моделі або окремо Fable, Opus, Sonnet, Haiku", [
@@ -74,7 +78,7 @@ const html = `<html><body><style>
 	.key { width: 104px; height: 104px; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 4px #161616, 0 0 0 5px #3a3a3a; }
 	figcaption { font-size: 11.5px; color: #a0a0a0; text-align: center; }
 </style>
-<h1>Usage Meter for Claude: усі кнопки та стилі</h1>
+<h1>Usage Meter for Claude, Codex і Kimi: усі кнопки та стилі</h1>
 <p>Приклад на тестових даних. На ваших кнопках будуть ваші цифри.</p>
 ${sections.map(([title, tiles]) => `<h2>${title}</h2><div class="row">${tiles.map(tile).join("")}</div>`).join("")}
 </body></html>`;

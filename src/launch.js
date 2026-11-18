@@ -1,5 +1,5 @@
 // Opens a terminal window that runs a command (claude by default) in a folder, optionally with another
-// account's Claude Code profile (CLAUDE_CONFIG_DIR).
+// account's Claude Code profile (CLAUDE_CONFIG_DIR); or, on a Mac, opens a desktop app such as Codex.
 // macOS: Terminal or iTerm through AppleScript; folder and profile go in as arguments and are quoted there.
 // Windows: Command Prompt or Windows Terminal, the profile through the environment. CLAUDE_LAUNCHER replaces
 // all of it (used by the tests).
@@ -16,11 +16,17 @@ const TERMINAL = (line) => ['tell application "Terminal"', "activate", `do scrip
 const ITERM = (line) => ['tell application "iTerm"', "activate", "set w to (create window with default profile)", `tell current session of w to write text (${line})`, "end tell"];
 
 /**
- * The program to start for a launch key, or null where there is no terminal to open.
- * @param {{ folder: string, command: string, terminal: string, account?: string }} s
- * @returns {{ file: string, args: string[], folder: string, command: string, profile: string, env: object | null } | null}
+ * The program to start for a launch key, or null where there is nothing to open.
+ * @param {{ folder: string, command: string, terminal: string, account?: string, app?: string }} s
+ *        app: the bundle id of a Mac app to open instead of a terminal
+ * @returns {{ file: string, args: string[], folder: string, command: string, profile: string, env: object | null, app?: string } | null}
  */
 export function launchCommand(s, { platform = process.platform, env = process.env, home = os.homedir() } = {}) {
+	if (s.app) {
+		const open = (file, args) => ({ file, args, folder: "", command: "", profile: "", env: null, app: s.app });
+		if (env.CLAUDE_LAUNCHER) return open(env.CLAUDE_LAUNCHER, ["app", s.app]);
+		return platform === "darwin" ? open("/usr/bin/open", ["-b", s.app]) : null;
+	}
 	const folder = expandHome(s.folder || "~", home);
 	const command = s.command || "claude";
 	// the default profile needs no variable: setting it would make Claude Code look for another login

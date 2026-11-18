@@ -86,5 +86,5 @@ const STYLES = {
 /** @param {PeakView} view */
 export function renderPeak(style, view) {
 	const draw = STYLES[style] ?? STYLES.badge;
-	return svg([header("PEAK HOURS", { tag: view.tag }), ...draw(view)]);
+	return svg([header("PEAK HOURS", { tag: view.tag, logo: view.logo }), ...draw(view)]);
 }

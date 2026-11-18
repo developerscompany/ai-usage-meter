@@ -1,5 +1,6 @@
 // Display styles for a percentage with a reset time: plan limits, extra usage, context window.
 import { formatDuration, percentParts } from "../format.js";
+import { logo } from "./logos.js";
 import { COLORS, arc, bar, esc, fitSize, header, labelWidth, levelColor, oldNumbers, polar, rect, slice, svg, text, textWidth, valueWithUnit } from "./svg.js";
 
 export const PERCENT_STYLES = [
@@ -27,11 +28,13 @@ export const PERCENT_STYLES = [
  * @property {number} danger
  * @property {[number, number][]} [series]   samples [time, percent used]
  * @property {string} [tag]
+ * @property {string} [logo]        the service the key reports on: its mark goes before the label
  * @property {boolean} [stale]
  * @property {string} [old]         numbers that are no longer current: why, e.g. "login expired" or "3h old"
  * @property {boolean} [reset]      the window has reset since the numbers were fetched
  * @property {string} [footer]      replaces the reset countdown
- * @property {{ value: string, unit: string, caption: string }} [display]  replaces the percent (context and credit keys)
+ * @property {{ value: string, unit: string, caption: string, color?: string }} [display]  replaces the percent (context and credit keys);
+ *           `color` when the number is not a level to colour by
  * @property {string} [until]       countdown caption, "until reset" by default
  */
 
@@ -48,7 +51,7 @@ function partsOf(v) {
 		used,
 		left,
 		fraction: shown / 100,
-		color: levelColor(v.used, v.warn, v.danger),
+		color: v.display?.color ?? levelColor(v.used, v.warn, v.danger),
 		value: v.display?.value ?? String(shown),
 		unit: v.display ? v.display.unit : "%",
 		caption: v.display?.caption ?? (v.show === "left" ? "left" : "used"),
@@ -200,9 +203,14 @@ const STYLES = {
 		const px = (t) => x0 + ((t - start) / (end - start)) * w;
 		const py = (pct) => top + h - (Math.max(0, Math.min(100, pct)) / 100) * h;
 
-		const valueRoom = Math.max(30, w - labelWidth(v.label, 15) - 8);
+		// a service mark before the label takes room: a long label gets smaller letters, so the number still fits
+		const mark = v.logo ? 17 : 0;
+		let labelSize = 15;
+		while (mark && labelSize > 11 && mark + labelWidth(v.label, labelSize) + 8 + 30 > w) labelSize--;
+		const valueRoom = Math.max(30, w - labelWidth(v.label, labelSize) - 8 - mark);
 		const out = [
-			text(x0, 25, 15, COLORS.white, esc(v.label), { anchor: "start" }),
+			v.logo ? logo(v.logo, x0, 12.5, 14) : "",
+			text(x0 + mark, 25, labelSize, COLORS.white, esc(v.label), { anchor: "start" }),
 			valueWithUnit(134, 27, fitSize(p.value, p.unit, valueRoom, 22), p.color, p.value, p.unit, { anchor: "end" }),
 			`<line x1="${x0}" y1="${top}" x2="${x0 + w}" y2="${top}" stroke="${COLORS.track}" stroke-width="1" stroke-dasharray="3 3"/>`,
 			`<line x1="${x0}" y1="${top + h / 2}" x2="${x0 + w}" y2="${top + h / 2}" stroke="${COLORS.track}" stroke-width="1" stroke-dasharray="3 3"/>`,

@@ -52,9 +52,18 @@ const F = {
 	tag: { key: "tag", label: "Tag", type: "text", placeholder: "Optional, e.g. N", maxlength: 3, hint: "Short marker in the corner, handy with two accounts." },
 	warn: { key: "warn", label: "Yellow from", type: "select", options: THRESHOLDS, number: true },
 	danger: { key: "danger", label: "Red from", type: "select", options: THRESHOLDS, number: true },
+	logo: { key: "logo", label: "Logo", type: "select", options: [["on", "Show the service's logo"], ["off", "No logo"]] },
 };
 
-const LIMIT_FIELDS = [F.show, F.press, F.account, F.tag, F.warn, F.danger, F.refresh];
+const LIMIT_FIELDS = [F.show, F.press, F.account, F.tag, F.warn, F.danger, F.refresh, F.logo];
+
+// Codex and Kimi have one login each, so their limit keys have no account to choose.
+const pressOpening = (page) => ({ ...F.press, options: [...F.press.options.slice(0, 3), ["open", `Open the ${page}`]] });
+const limitFields = (page) => [F.show, pressOpening(page), F.tag, F.warn, F.danger, F.refresh, F.logo];
+const CODEX_FIELDS = limitFields("Codex usage page");
+const KIMI_FIELDS = limitFields("Kimi Code console");
+const foldersOf = (placeholder) => ({ ...F.folders, placeholder });
+const CODEX_FOLDERS = foldersOf("Auto: ~/.codex/sessions and ~/.codex/archived_sessions");
 
 // Help links under each key's settings, opened in the browser; support is added to every key.
 const HELP = {
@@ -63,18 +72,48 @@ const HELP = {
 	adminKeys: ["Create an Admin key", "https://platform.claude.com/settings/admin-keys"],
 	billing: ["Console billing", "https://platform.claude.com/settings/billing"],
 	status: ["Claude status", "https://status.claude.com"],
+	codexUsage: ["Codex usage page", "https://chatgpt.com/codex/settings/usage"],
+	codex: ["Codex", "https://developers.openai.com/codex"],
+	openaiStatus: ["OpenAI status", "https://status.openai.com"],
+	kimiDocs: ["Kimi Code docs", "https://www.kimi.com/code/docs/en/"],
+	kimiStatus: ["Moonshot AI status", "https://status.moonshot.cn"],
 	support: ["Email support", "mailto:elgato@rivo.agency"],
 };
 const LIMIT_LINKS = [HELP.usage, HELP.code];
+const CODEX_LINKS = [HELP.codexUsage, HELP.codex];
+const KIMI_LINKS = [HELP.kimiDocs];
+
+/** Settings of a launch key of Codex or Kimi Code: the app on a Mac, or a command in a terminal. */
+const launchFields = (command, app) => [
+	{ key: "open", label: "Open", type: "select", options: [["app", `The ${app} app`, "mac"], ["terminal", "A command in a terminal"]] },
+	{ key: "folder", label: "Folder", type: "text", placeholder: "~", hint: "For a terminal: where to start, e.g. ~/projects/app" },
+	{ key: "command", label: "Command", type: "text", placeholder: command, hint: `For a terminal: what to run there, e.g. ${command}` },
+	{ key: "terminal", label: "Terminal", type: "select", options: [["terminal", "Terminal", "mac"], ["iterm", "iTerm", "mac"], ["cmd", "Command Prompt", "windows"], ["wt", "Windows Terminal", "windows"]] },
+	F.tag,
+	F.logo,
+];
+const STATUS_REFRESH = { key: "refresh", label: "Refresh", type: "select", options: [[60, "Every minute"], [120, "Every 2 minutes"], [300, "Every 5 minutes"]], number: true };
+
+const COUNT = { key: "count", label: "Count", type: "select", options: [["all", "All tokens (input + output + cache)"], ["no-cache-read", "All except cache reads"], ["io", "Input + output only"]] };
+const MODEL_FIELDS = (groups, folders) => [
+	F.periods,
+	F.week,
+	F.month,
+	{ key: "metric", label: "Share of", type: "select", options: [["tokens", "Tokens"], ["cost", "API cost"]] },
+	{ key: "group", label: "Group by", type: "select", options: [["family", `Family (${groups})`], ["model", "Model version"]] },
+	F.refresh,
+	folders,
+	F.logo,
+];
 
 const SCHEMAS = {
 	usage: {
-		fields: [F.periods, F.week, F.month, { key: "count", label: "Count", type: "select", options: [["all", "All tokens (input + output + cache)"], ["no-cache-read", "All except cache reads"], ["io", "Input + output only"]] }, F.refresh, F.folders],
+		fields: [F.periods, F.week, F.month, COUNT, F.refresh, F.folders, F.logo],
 		hint: "Press the key to switch period, hold it to rescan.",
 		links: [HELP.code],
 	},
 	cost: {
-		fields: [F.periods, F.week, F.month, F.refresh, F.folders],
+		fields: [F.periods, F.week, F.month, F.refresh, F.folders, F.logo],
 		hint: "What your Claude Code usage would cost at Anthropic API list prices. Press: next period. Hold: rescan.",
 		links: [HELP.code],
 	},
@@ -105,23 +144,12 @@ const SCHEMAS = {
 			F.warn,
 			F.danger,
 			{ key: "refresh", label: "Refresh", type: "select", options: [[60, "Every minute"], [300, "Every 5 minutes"], [900, "Every 15 minutes"]], number: true },
+			F.logo,
 		],
 		hint: "A Claude Console credit, such as promotional API credit: what is left after your API spend. Needs an Admin API key, see below.",
 		links: [HELP.adminKeys, HELP.billing],
 	},
-	models: {
-		fields: [
-			F.periods,
-			F.week,
-			F.month,
-			{ key: "metric", label: "Share of", type: "select", options: [["tokens", "Tokens"], ["cost", "API cost"]] },
-			{ key: "group", label: "Group by", type: "select", options: [["family", "Family (Opus, Sonnet, …)"], ["model", "Model version"]] },
-			F.refresh,
-			F.folders,
-		],
-		hint: "Press: next period.",
-		links: [HELP.code],
-	},
+	models: { fields: MODEL_FIELDS("Opus, Sonnet, …", F.folders), hint: "Press: next period.", links: [HELP.code] },
 	context: {
 		fields: [
 			{ key: "window", label: "Context size", type: "select", options: [["auto", "Auto (from the model)"], ["200000", "200K"], ["1000000", "1M"]] },
@@ -129,6 +157,7 @@ const SCHEMAS = {
 			F.danger,
 			{ key: "refresh", label: "Refresh", type: "select", options: [[5, "Every 5 seconds"], [15, "Every 15 seconds"], [30, "Every 30 seconds"], [60, "Every minute"]], number: true },
 			F.folders,
+			F.logo,
 		],
 		hint: "Context of your latest Claude Code sessions. Press: next session.",
 		links: [HELP.code],
@@ -138,16 +167,17 @@ const SCHEMAS = {
 			{ key: "warn", label: "Warn before", type: "select", options: [[0, "Off"], [15, "15 minutes"], [30, "30 minutes"], [60, "1 hour"], [120, "2 hours"]], number: true },
 			{ key: "clock", label: "Clock", type: "select", options: [["auto", "Auto (as this computer)"], ["24", "24-hour"], ["12", "12-hour (AM/PM)"]] },
 			F.tag,
+			F.logo,
 		],
 		hint: "Weekdays 5–11 AM Pacific time, shown in your time. Press: next style.",
 	},
 	cache: {
-		fields: [F.periods, F.week, F.month, F.refresh, F.folders],
+		fields: [F.periods, F.week, F.month, F.refresh, F.folders, F.logo],
 		hint: "Share of Claude Code's input read from the prompt cache, and what those reads saved at API list prices. Press: next period.",
 		links: [HELP.code],
 	},
 	streak: {
-		fields: [{ key: "refresh", label: "Refresh", type: "select", options: [[60, "Every minute"], [300, "Every 5 minutes"], [900, "Every 15 minutes"]], number: true }, F.folders],
+		fields: [{ key: "refresh", label: "Refresh", type: "select", options: [[60, "Every minute"], [300, "Every 5 minutes"], [900, "Every 15 minutes"]], number: true }, F.folders, F.logo],
 		hint: "Days in a row with Claude Code on this computer; the last 40 days are kept. Green: today counts, orange: not yet today. Press: next style.",
 		links: [HELP.code],
 	},
@@ -158,6 +188,7 @@ const SCHEMAS = {
 			{ ...F.account, hint: "Which Claude account Claude Code opens with." },
 			{ key: "terminal", label: "Terminal", type: "select", options: [["terminal", "Terminal", "mac"], ["iterm", "iTerm", "mac"], ["cmd", "Command Prompt", "windows"], ["wt", "Windows Terminal", "windows"]] },
 			F.tag,
+			F.logo,
 		],
 		hint: "Press to open a terminal window running Claude Code. Sending it a message also renews that account's login, which the limit keys read.",
 		links: [HELP.code],
@@ -181,10 +212,61 @@ const SCHEMAS = {
 					["haiku", "Haiku models"],
 				],
 			},
-			{ key: "refresh", label: "Refresh", type: "select", options: [[60, "Every minute"], [120, "Every 2 minutes"], [300, "Every 5 minutes"]], number: true },
+			STATUS_REFRESH,
+			F.logo,
 		],
 		hint: "From status.claude.com. When something is wrong, the key names the model in trouble (such as Fable 5) or the service. Press it to open the incident.",
 		links: [HELP.status],
+	},
+
+	// Codex (OpenAI)
+	"codex-limit5h": { fields: CODEX_FIELDS, hint: "The 5-hour limit of Codex on your ChatGPT plan. Some plans only have a weekly limit; the key then says so. Hold the key to refresh now.", links: CODEX_LINKS },
+	"codex-limit7d": { fields: CODEX_FIELDS, hint: "The weekly limit of Codex on your ChatGPT plan. Hold the key to refresh now.", links: CODEX_LINKS },
+	"codex-limits": { fields: CODEX_FIELDS, hint: "Codex's 5-hour and weekly limits on one key. Hold to refresh now.", links: CODEX_LINKS },
+	"codex-credit": {
+		fields: [{ key: "press", label: "On press", type: "select", options: [["open", "Open the Codex usage page"], ["refresh", "Refresh"]] }, F.tag, F.refresh, F.logo],
+		hint: "Credits bought on top of your ChatGPT plan, and the limit resets your account can spend.",
+		links: CODEX_LINKS,
+	},
+	"codex-usage": { fields: [F.periods, F.week, F.month, COUNT, F.refresh, CODEX_FOLDERS, F.logo], hint: "Codex tokens on this computer, from Codex's session logs. Press the key to switch period, hold it to rescan.", links: [HELP.codex] },
+	"codex-cost": { fields: [F.periods, F.week, F.month, F.refresh, CODEX_FOLDERS, F.logo], hint: "What your Codex usage would cost at OpenAI API list prices. Press: next period. Hold: rescan.", links: [HELP.codex] },
+	"codex-cache": { fields: [F.periods, F.week, F.month, F.refresh, CODEX_FOLDERS, F.logo], hint: "Share of Codex's input read from the prompt cache, and what those reads saved at API list prices. Press: next period.", links: [HELP.codex] },
+	"codex-models": { fields: MODEL_FIELDS("Sol, Astra, …", CODEX_FOLDERS), hint: "Press: next period.", links: [HELP.codex] },
+	"codex-status": {
+		fields: [{ key: "component", label: "Watch", type: "select", options: [["codex", "Codex"], ["all", "Everything at OpenAI"], ["chatgpt", "ChatGPT"], ["api", "The API"]] }, STATUS_REFRESH, F.logo],
+		hint: "From status.openai.com. Press the key to open the incident, or the status page.",
+		links: [HELP.openaiStatus],
+	},
+	"codex-launch": { fields: launchFields("codex", "Codex"), hint: "Press to open Codex: its app on a Mac, or the codex command in a terminal window.", links: [HELP.codex] },
+
+	// Kimi Code (Moonshot AI)
+	"kimi-limit5h": { fields: KIMI_FIELDS, hint: "The 5-hour limit of your Kimi Code plan. Hold the key to refresh now.", links: KIMI_LINKS },
+	"kimi-limit7d": { fields: KIMI_FIELDS, hint: "The weekly limit of your Kimi Code plan. Hold the key to refresh now.", links: KIMI_LINKS },
+	"kimi-limits": { fields: KIMI_FIELDS, hint: "Kimi Code's 5-hour and weekly limits on one key. Hold to refresh now.", links: KIMI_LINKS },
+	"kimi-month": { fields: KIMI_FIELDS, hint: "The monthly limit of your Kimi plan, which Kimi Code shares with Kimi chat. Hold the key to refresh now.", links: KIMI_LINKS },
+	"kimi-extra": { fields: KIMI_FIELDS, hint: "Kimi's wallet of extra usage on top of the plan: what is left of it, or this month's spend against the cap you set.", links: KIMI_LINKS },
+	"kimi-status": {
+		fields: [{ key: "component", label: "Watch", type: "select", options: [["code", "Kimi Code"], ["all", "Everything at Moonshot AI"], ["api", "The API"]] }, STATUS_REFRESH, F.logo],
+		hint: "From status.moonshot.cn. Press the key to open the incident, or the status page.",
+		links: [HELP.kimiStatus],
+	},
+	"kimi-launch": { fields: launchFields("kimi", "Kimi Code"), hint: "Press to open Kimi Code: its app on a Mac, or the kimi command in a terminal window.", links: KIMI_LINKS },
+
+	overview: {
+		fields: [
+			{ key: "services", label: "Services", type: "checks", options: [["claude", "Claude"], ["codex", "Codex"], ["kimi", "Kimi"]] },
+			{ key: "window", label: "Limit", type: "select", options: [["sevenDay", "Weekly"], ["fiveHour", "5-hour"]], hint: "The limit that Bars and Rings show; Both limits shows the two." },
+			F.show,
+			{ key: "press", label: "On press", type: "select", options: [["toggle", "Switch left / used"], ["window", "Switch weekly / 5-hour"], ["style", "Next display style"], ["refresh", "Refresh"]] },
+			{ ...F.account, label: "Claude account", hint: "Whose Claude limits to show. Codex and Kimi have one login each." },
+			F.tag,
+			F.warn,
+			F.danger,
+			F.refresh,
+			{ key: "logo", label: "Logo", type: "select", options: [["on", "Show each service's logo"], ["off", "Two letters instead"]] },
+		],
+		hint: "Claude, Codex and Kimi on one key. An orange dot marks a service whose login needs attention; a dimmed row has numbers that are no longer current. Hold to refresh now.",
+		links: [HELP.usage, HELP.codexUsage],
 	},
 };
 
@@ -237,6 +319,18 @@ function guideOf(field) {
 	return `<details class="guide"><summary>${esc(field.guide.title)}</summary>${body}</details>`;
 }
 
+/** Help links under the settings: the key's own, those the plugin adds for this computer, and support. */
+function showLinks(more) {
+	const links = [...(schema.links ?? []), ...more.filter((link) => Array.isArray(link) && /^https:\/\//.test(link[1])), HELP.support];
+	$("links").innerHTML = links.map(([label, url]) => `<a href="#" data-url="${esc(url)}">${esc(label)}</a>`).join("");
+	for (const link of document.querySelectorAll("#links a")) {
+		link.addEventListener("click", (e) => {
+			e.preventDefault();
+			openUrl(link.dataset.url);
+		});
+	}
+}
+
 function buildForm() {
 	$("fields").innerHTML = schema.fields
 		.map((field) => {
@@ -245,13 +339,7 @@ function buildForm() {
 		})
 		.join("");
 	$("hint").textContent = schema.hint ?? "";
-	$("links").innerHTML = [...(schema.links ?? []), HELP.support].map(([label, url]) => `<a href="#" data-url="${esc(url)}">${esc(label)}</a>`).join("");
-	for (const link of document.querySelectorAll("#links a")) {
-		link.addEventListener("click", (e) => {
-			e.preventDefault();
-			openUrl(link.dataset.url);
-		});
-	}
+	showLinks([]);
 
 	for (const el of document.querySelectorAll("[data-key]")) {
 		const field = schema.fields.find((f) => f.key === el.dataset.key);
@@ -295,7 +383,9 @@ function buildForm() {
 	}
 	$("f-account-other")?.addEventListener("change", (e) => {
 		settings.account = e.target.value.trim();
+		e.target.hidden = true; // the folder is now an entry of the picker
 		save();
+		fill();
 	});
 }
 
@@ -305,13 +395,22 @@ function fill() {
 		if (field.type === "checks") {
 			for (const box of document.querySelectorAll(`input[data-key="${field.key}"]`)) box.checked = Array.isArray(value) && value.includes(box.value);
 		} else if (field.type === "account") {
+			// while "Other folder…" is being typed, an update from the plugin must not snap the picker back
+			if (!$("f-account-other").hidden) continue;
 			const list = [...accounts];
 			if (value && !list.some((a) => a.value === value)) list.push({ value, label: value });
 			$("f-account").innerHTML = list.map((a) => `<option value="${esc(a.value)}">${esc(a.label)}</option>`).join("") + `<option value="__other">Other folder…</option>`;
 			$("f-account").value = value ?? "";
 		} else {
 			const el = $(`f-${field.key}`);
-			if (el && document.activeElement !== el && value !== undefined) el.value = String(value);
+			if (el && document.activeElement !== el && value !== undefined) {
+				el.value = String(value);
+				// the saved value is back in the box: what was typed wrong is gone, and so is its warning
+				if (field.pattern) {
+					el.classList.remove("invalid");
+					$(`f-${field.key}-error`).hidden = true;
+				}
+			}
 			if (el?.tagName === "SELECT" && el.selectedIndex < 0) el.selectedIndex = 0; // a value this platform has no option for
 		}
 	}
@@ -383,6 +482,7 @@ function connectElgatoStreamDeckSocket(port, inUUID, registerEvent, info, action
 			const status = message.payload;
 			settings = { ...settings, ...status.settings };
 			if (status.accounts) accounts = status.accounts;
+			showLinks(status.links ?? []);
 			showPreviews(status.previews);
 			showDetails(status);
 			fill();

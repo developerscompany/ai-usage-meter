@@ -3,12 +3,13 @@
 // amount granted. The Admin API key is only read: from the macOS Keychain item "Usage Meter for Claude Admin
 // Key" (or the item named before the plugin was renamed), or else from the file admin-key in the plugin's
 // data folder. It is sent to api.anthropic.com only.
-import { execFile } from "node:child_process";
 import fsp from "node:fs/promises";
 import path from "node:path";
+import { runSecurity } from "./keychain.js";
+import { cleanSecret, safeMessage, testUrl } from "./secrets.js";
 
-const COST_URL = process.env.CLAUDE_COST_URL ?? "https://api.anthropic.com/v1/organizations/cost_report";
-const USER_AGENT = "usage-meter-for-claude-streamdeck/3.1";
+const COST_URL = testUrl(process.env.CLAUDE_COST_URL) ?? "https://api.anthropic.com/v1/organizations/cost_report";
+const USER_AGENT = "usage-meter-for-claude-streamdeck/3.2";
 export const ADMIN_KEY_SERVICE = "Usage Meter for Claude Admin Key";
 // the Keychain item from versions before 3.0, still read so a stored key keeps working
 const OLD_ADMIN_KEY_SERVICE = "Rivo Claude Usage Admin Key";
@@ -39,12 +40,6 @@ export function parseCostPages(pages) {
 	return days;
 }
 
-function runSecurity(args) {
-	return new Promise((resolve) => {
-		execFile("/usr/bin/security", args, { timeout: 5000 }, (err, stdout) => resolve(err ? null : String(stdout)));
-	});
-}
-
 /**
  * The Admin API key the user stored for the plugin, and where it was found (never the key in messages).
  * @returns {Promise<{ key: string, source: string } | null>}
@@ -52,14 +47,14 @@ function runSecurity(args) {
 export async function readAdminKey({ platform = process.platform, security = runSecurity, dir = null } = {}) {
 	if (platform === "darwin") {
 		for (const service of [ADMIN_KEY_SERVICE, OLD_ADMIN_KEY_SERVICE]) {
-			const key = (await security(["find-generic-password", "-w", "-s", service]))?.trim();
+			const key = cleanSecret(await security(["find-generic-password", "-w", "-s", service]));
 			if (key) return { key, source: `Keychain «${service}»` };
 		}
 	}
 	if (dir) {
 		const file = path.join(dir, "admin-key");
 		try {
-			const key = (await fsp.readFile(file, "utf8")).trim();
+			const key = cleanSecret(await fsp.readFile(file, "utf8"));
 			if (key) return { key, source: file };
 		} catch {
 			// no key file
@@ -126,10 +121,12 @@ export class ConsoleService {
 			try {
 				res = await this.fetchImpl(url, {
 					headers: { "x-api-key": found.key, "anthropic-version": "2023-06-01", "User-Agent": USER_AGENT },
+					// the key goes to this address only, never on to wherever an answer might point
+					redirect: "error",
 					signal: AbortSignal.timeout(15_000),
 				});
 			} catch (err) {
-				this.fail("network", err?.name === "TimeoutError" ? "The Admin API timed out" : `Network error: ${err?.message ?? err}`);
+				this.fail("network", err?.name === "TimeoutError" ? "The Admin API timed out" : `Network error: ${safeMessage(err, found.key)}`);
 				return;
 			}
 			if (res.status === 401 || res.status === 403) {

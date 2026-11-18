@@ -2,11 +2,11 @@
 	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
 	"UUID": "agency.rivo.usage-meter-for-claude",
 	"Name": "Usage Meter for Claude",
-	"Version": "3.1.1.0",
+	"Version": "3.2.0.0",
 	"Author": "Rivo Agency",
 	"URL": "https://github.com/developerscompany/usage-meter-for-claude",
 	"SupportURL": "https://github.com/developerscompany/usage-meter-for-claude/issues",
-	"Description": "Claude usage on your Stream Deck: 5-hour and weekly plan limits for every model, peak hours, cloud and API credit, tokens and API-equivalent cost of Claude Code, cache hits, model mix, session context, streak, service status, and a key that starts Claude Code. Unofficial; not affiliated with Anthropic.",
+	"Description": "Your AI coding limits on Stream Deck. Claude: 5-hour and weekly plan limits for every model, peak hours, cloud and API credit, tokens and API-equivalent cost of Claude Code, cache hits, model mix, session context, streak, service status. Codex: 5-hour and weekly limits, credits, tokens, cost, cache, models, status. Kimi Code: 5-hour, weekly and monthly limits, extra usage, status. Plus one key with all three, and keys that start each tool. Unofficial; not affiliated with Anthropic, OpenAI or Moonshot AI.",
 	"Category": "Usage Meter for Claude",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"Icon": "imgs/plugin/icon",
@@ -30,8 +30,26 @@
 	},
 	"Actions": [
 		{
+			"UUID": "agency.rivo.usage-meter-for-claude.overview",
+			"Name": "All Services",
+			"Icon": "imgs/actions/overview/icon",
+			"Tooltip": "Claude, Codex and Kimi on one key: the weekly or 5-hour limit of each, or both. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/overview/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
 			"UUID": "agency.rivo.usage-meter-for-claude.limit5h",
-			"Name": "5-Hour Limit",
+			"Name": "Claude 5-Hour Limit",
 			"Icon": "imgs/actions/limit5h/icon",
 			"Tooltip": "Claude plan 5-hour (session) limit: what's left or used, 10 display styles. Hold to refresh.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -49,7 +67,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.limit7d",
-			"Name": "Weekly Limit",
+			"Name": "Claude Weekly Limit",
 			"Icon": "imgs/actions/limit7d/icon",
 			"Tooltip": "Claude plan weekly limit: all models, or Fable, Opus, Sonnet or Haiku alone. 10 display styles. Hold to refresh.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -67,9 +85,9 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.limits",
-			"Name": "Both Limits",
+			"Name": "Claude Both Limits",
 			"Icon": "imgs/actions/limits/icon",
-			"Tooltip": "5-hour and weekly limits on one key. Hold to refresh.",
+			"Tooltip": "Claude 5-hour and weekly limits on one key. Hold to refresh.",
 			"PropertyInspectorPath": "ui/inspector.html",
 			"Controllers": [
 				"Keypad"
@@ -85,7 +103,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.peak",
-			"Name": "Peak Hours",
+			"Name": "Claude Peak Hours",
 			"Icon": "imgs/actions/peak/icon",
 			"Tooltip": "Is it Claude's peak time (weekdays 5–11 AM Pacific), and when it ends or starts, in your time. Press for the next style.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -103,7 +121,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.credit",
-			"Name": "Cloud Credit",
+			"Name": "Claude Cloud Credit",
 			"Icon": "imgs/actions/credit/icon",
 			"Tooltip": "Cloud session credit of your Claude plan: dollars left of the amount granted, and when it expires.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -121,7 +139,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.apicredit",
-			"Name": "API Credit",
+			"Name": "Claude API Credit",
 			"Icon": "imgs/actions/apicredit/icon",
 			"Tooltip": "A Claude Console credit, such as promotional API credit: what is left after your API spend, from the Admin API.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -139,9 +157,9 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.extra",
-			"Name": "Extra Usage",
+			"Name": "Claude Extra Usage",
 			"Icon": "imgs/actions/extra/icon",
-			"Tooltip": "Extra usage spent this month on top of your plan.",
+			"Tooltip": "Claude extra usage spent this month on top of your plan.",
 			"PropertyInspectorPath": "ui/inspector.html",
 			"Controllers": [
 				"Keypad"
@@ -157,7 +175,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.usage",
-			"Name": "Token Usage",
+			"Name": "Claude Token Usage",
 			"Icon": "imgs/actions/usage/icon",
 			"Tooltip": "Claude Code tokens for today / 7 days / this month, in millions. Press to switch period, hold to rescan.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -175,7 +193,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.cost",
-			"Name": "API Cost",
+			"Name": "Claude API Cost",
 			"Icon": "imgs/actions/cost/icon",
 			"Tooltip": "What your Claude Code usage would cost at API list prices. Press to switch period.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -193,7 +211,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.cache",
-			"Name": "Cache Hits",
+			"Name": "Claude Cache Hits",
 			"Icon": "imgs/actions/cache/icon",
 			"Tooltip": "How much of Claude Code's input came from the prompt cache, and what that saved at API prices. Press for the next period.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -211,9 +229,9 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.models",
-			"Name": "Model Mix",
+			"Name": "Claude Model Mix",
 			"Icon": "imgs/actions/models/icon",
-			"Tooltip": "Share of Opus, Sonnet, Haiku and others in your usage. Press to switch period.",
+			"Tooltip": "Share of Fable, Opus, Sonnet and Haiku in your Claude Code usage. Press to switch period.",
 			"PropertyInspectorPath": "ui/inspector.html",
 			"Controllers": [
 				"Keypad"
@@ -229,7 +247,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.context",
-			"Name": "Session Context",
+			"Name": "Claude Session Context",
 			"Icon": "imgs/actions/context/icon",
 			"Tooltip": "How full the context of your latest Claude Code session is. Press for the next session.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -247,7 +265,7 @@
 		},
 		{
 			"UUID": "agency.rivo.usage-meter-for-claude.streak",
-			"Name": "Streak",
+			"Name": "Claude Streak",
 			"Icon": "imgs/actions/streak/icon",
 			"Tooltip": "Days in a row you have used Claude Code. Press for the next style.",
 			"PropertyInspectorPath": "ui/inspector.html",
@@ -295,6 +313,312 @@
 			"States": [
 				{
 					"Image": "imgs/actions/launch/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-limit5h",
+			"Name": "Codex 5-Hour Limit",
+			"Icon": "imgs/actions/codex-limit5h/icon",
+			"Tooltip": "Codex 5-hour limit of your ChatGPT plan: what is left or used, 10 display styles. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-limit5h/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-limit7d",
+			"Name": "Codex Weekly Limit",
+			"Icon": "imgs/actions/codex-limit7d/icon",
+			"Tooltip": "Codex weekly limit of your ChatGPT plan, 10 display styles. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-limit7d/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-limits",
+			"Name": "Codex Both Limits",
+			"Icon": "imgs/actions/codex-limits/icon",
+			"Tooltip": "Codex 5-hour and weekly limits on one key. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-limits/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-credit",
+			"Name": "Codex Credits",
+			"Icon": "imgs/actions/codex-credit/icon",
+			"Tooltip": "Credits bought on top of your ChatGPT plan, and the limit resets you can spend.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-credit/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-usage",
+			"Name": "Codex Token Usage",
+			"Icon": "imgs/actions/codex-usage/icon",
+			"Tooltip": "Codex tokens for today / 7 days / this month, in millions. Press to switch period, hold to rescan.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-usage/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-cost",
+			"Name": "Codex API Cost",
+			"Icon": "imgs/actions/codex-cost/icon",
+			"Tooltip": "What your Codex usage would cost at OpenAI API list prices. Press to switch period.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-cost/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-cache",
+			"Name": "Codex Cache Hits",
+			"Icon": "imgs/actions/codex-cache/icon",
+			"Tooltip": "How much of the input of Codex came from the prompt cache, and what that saved at API prices. Press for the next period.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-cache/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-models",
+			"Name": "Codex Model Mix",
+			"Icon": "imgs/actions/codex-models/icon",
+			"Tooltip": "Share of each model in your Codex usage. Press to switch period.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-models/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-status",
+			"Name": "Codex Status",
+			"Icon": "imgs/actions/codex-status/icon",
+			"Tooltip": "Codex and OpenAI service status from status.openai.com. Press to open the incident.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-status/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.codex-launch",
+			"Name": "Launch Codex",
+			"Icon": "imgs/actions/codex-launch/icon",
+			"Tooltip": "Opens the Codex app, or a terminal running codex in the folder you choose.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/codex-launch/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limit5h",
+			"Name": "Kimi 5-Hour Limit",
+			"Icon": "imgs/actions/kimi-limit5h/icon",
+			"Tooltip": "Kimi Code 5-hour limit: what is left or used, 10 display styles. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-limit5h/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limit7d",
+			"Name": "Kimi Weekly Limit",
+			"Icon": "imgs/actions/kimi-limit7d/icon",
+			"Tooltip": "Kimi Code weekly limit, 10 display styles. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-limit7d/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-limits",
+			"Name": "Kimi Both Limits",
+			"Icon": "imgs/actions/kimi-limits/icon",
+			"Tooltip": "Kimi Code 5-hour and weekly limits on one key. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-limits/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-month",
+			"Name": "Kimi Monthly Limit",
+			"Icon": "imgs/actions/kimi-month/icon",
+			"Tooltip": "The monthly limit of your Kimi plan, 10 display styles. Hold to refresh.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-month/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-extra",
+			"Name": "Kimi Extra Usage",
+			"Icon": "imgs/actions/kimi-extra/icon",
+			"Tooltip": "The wallet of extra usage on top of your Kimi plan: what is left, or the spend against your monthly cap.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-extra/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-status",
+			"Name": "Kimi Status",
+			"Icon": "imgs/actions/kimi-status/icon",
+			"Tooltip": "Kimi Code service status from status.moonshot.cn. Press to open the incident.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-status/key",
+					"ShowTitle": false
+				}
+			]
+		},
+		{
+			"UUID": "agency.rivo.usage-meter-for-claude.kimi-launch",
+			"Name": "Launch Kimi Code",
+			"Icon": "imgs/actions/kimi-launch/icon",
+			"Tooltip": "Opens the Kimi Code app, or a terminal running kimi in the folder you choose.",
+			"PropertyInspectorPath": "ui/inspector.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false,
+			"UserTitleEnabled": false,
+			"States": [
+				{
+					"Image": "imgs/actions/kimi-launch/key",
 					"ShowTitle": false
 				}
 			]

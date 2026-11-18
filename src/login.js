@@ -5,18 +5,18 @@
 // "Claude Code-credentials" (a hash of the folder is appended when CLAUDE_CONFIG_DIR is set),
 // or in <profile folder>/.credentials.json elsewhere. Which account is signed in (its email) is in
 // the profile's config file, ~/.claude.json for the default profile.
-import { execFile } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { runSecurity } from "./keychain.js";
 import { expandHome } from "./usage-index.js";
 
 export const EXPIRY_MARGIN_MS = 60_000;
 
 const sha = (text) => crypto.createHash("sha256").update(text).digest("hex");
-const tildify = (p, home) => (p === home || p.startsWith(home + path.sep) ? `~${p.slice(home.length)}` : p);
+export const tildify = (p, home = os.homedir()) => (p === home || p.startsWith(home + path.sep) ? `~${p.slice(home.length)}` : p);
 
 /** Claude Code profile folder for an account setting ("" = the default ~/.claude). */
 export function accountDir(account, home = os.homedir()) {
@@ -99,12 +99,6 @@ const isValid = (login, now) => !login.expiresAt || login.expiresAt - EXPIRY_MAR
 export function pickLogin(logins, now = Date.now()) {
 	const byExpiry = [...logins].sort((a, b) => (b.expiresAt ?? Infinity) - (a.expiresAt ?? Infinity));
 	return byExpiry.find((l) => isValid(l, now)) ?? byExpiry[0] ?? null;
-}
-
-function runSecurity(args) {
-	return new Promise((resolve) => {
-		execFile("/usr/bin/security", args, { timeout: 5000 }, (err, stdout) => resolve(err ? null : String(stdout)));
-	});
 }
 
 function userName() {

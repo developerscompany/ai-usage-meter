@@ -5,6 +5,7 @@ import path from "node:path";
 import { twelveHour } from "../clock.js";
 import { accountEmail } from "../login.js";
 import { PERIOD_IDS, getPeriod } from "../periods.js";
+import { PROVIDERS } from "../providers.js";
 
 export const PREFIX = "agency.rivo.usage-meter-for-claude";
 
@@ -37,8 +38,17 @@ export function nextPeriod(s) {
 	return "save";
 }
 
+/** The "Logo" setting: every key shows its service's mark unless it is switched off. */
+export function normalizeLogo(s) {
+	s.logo = pick(s.logo, ["on", "off"], "on");
+}
+
+/** The mark a key draws: its service's, or none when the key's "Logo" setting is off. */
+export const logoOf = (s, provider) => (s.logo === "off" ? null : provider);
+
 /** Settings shared by the plan-limit keys. */
 export function normalizeLimitSettings(s, styles) {
+	normalizeLogo(s);
 	s.style = pick(s.style, styleIds(styles), styles[0].id);
 	s.show = pick(s.show, ["left", "used"], "left");
 	s.press = pick(s.press, ["toggle", "style", "refresh", "open"], "toggle");
@@ -52,8 +62,8 @@ export function normalizeLimitSettings(s, styles) {
 
 export const USAGE_PAGE = "https://claude.ai/settings/usage";
 
-/** Short press on a limit key, by its "On press" setting. */
-export function limitPress(s, styles) {
+/** Short press on a limit key, by its "On press" setting; `page` is where the service shows its limits. */
+export function limitPress(s, styles, page = USAGE_PAGE) {
 	if (s.press === "toggle") {
 		s.show = s.show === "left" ? "used" : "left";
 		return "save";
@@ -63,19 +73,23 @@ export function limitPress(s, styles) {
 		s.style = ids[(ids.indexOf(s.style) + 1) % ids.length];
 		return "save";
 	}
-	if (s.press === "open") return { url: USAGE_PAGE };
+	if (s.press === "open") return { url: page };
 	return "refresh";
 }
 
-/** What a limit key says when it has no numbers: [message, what to do]. */
-export const LIMIT_ERRORS = {
-	signin: ["no Claude login", "run claude"],
-	expired: ["login expired", "run claude"],
-	auth: ["token refused", "see settings"],
-	rate: ["rate limited", "retrying"],
-	network: ["offline", "retrying"],
-	http: ["API error", "retrying"],
-};
+/** What a limit key of a service says when it has no numbers: [message, what to do]. */
+export function limitError(provider, code) {
+	const { name, todo } = PROVIDERS[provider] ?? PROVIDERS.claude;
+	const texts = {
+		signin: [`no ${name} login`, todo],
+		expired: ["login expired", todo],
+		auth: [provider === "claude" ? "token refused" : "login refused", "see settings"],
+		rate: ["rate limited", "retrying"],
+		network: ["offline", "retrying"],
+		http: ["API error", "retrying"],
+	};
+	return texts[code] ?? ["error", ""];
+}
 
 export function tildify(p, home = os.homedir()) {
 	return p === home || p.startsWith(home + path.sep) ? `~${p.slice(home.length)}` : p;

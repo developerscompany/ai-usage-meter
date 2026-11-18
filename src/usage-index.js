@@ -1,19 +1,20 @@
-// Incremental reader of Claude Code transcripts (~/.claude/projects/**/*.jsonl).
+// Incremental reader of session logs: tokens, cost, models, hours and sessions. How a program writes
+// its logs is a "format": Claude Code's here, Codex's in codex-logs.js.
 //
-// Claude Code writes one JSONL line per content block of a response, and every line of
-// the same response repeats the same message.id and usage. Resumed sessions also copy old
-// lines into a new file. So usage is de-duplicated by message id before it is summed.
+// Claude Code (~/.claude/projects/**/*.jsonl) writes one JSONL line per content block of a response,
+// and every line of the same response repeats the same message.id and usage. Resumed sessions also copy
+// old lines into a new file. So usage is de-duplicated by message id before it is summed.
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { requestCost } from "./pricing.js";
+import zlib from "node:zlib";
+import { familyOf, modelLabel, priceFor, requestCost } from "./pricing.js";
 
 const CHUNK_SIZE = 1 << 20;
 // Assistant lines are well below this; longer lines (pasted images, huge tool output) never carry usage.
 const MAX_LINE = 16 << 20;
 const NEWLINE = 0x0a;
-const USAGE_MARK = Buffer.from('"usage":{');
 const MAX_DEPTH = 6;
 
 export const FIELDS = ["input", "output", "cacheWrite", "cacheRead"];
@@ -121,7 +122,7 @@ export function resolveRoots(custom = "", { home = os.homedir(), env = process.e
 	return roots;
 }
 
-async function collectJsonl(dir, out, depth) {
+async function collectJsonl(dir, out, depth, accepts) {
 	let entries;
 	try {
 		entries = await fsp.readdir(dir, { withFileTypes: true });
@@ -132,9 +133,9 @@ async function collectJsonl(dir, out, depth) {
 		const full = path.join(dir, ent.name);
 		if (ent.isDirectory()) {
 			if (depth < MAX_DEPTH && ent.name !== "node_modules" && ent.name !== ".git") {
-				await collectJsonl(full, out, depth + 1);
+				await collectJsonl(full, out, depth + 1, accepts);
 			}
-		} else if (ent.isFile() && ent.name.endsWith(".jsonl")) {
+		} else if (ent.isFile() && accepts(ent.name)) {
 			out.push(full);
 		}
 	}
@@ -157,12 +158,89 @@ function costOf(model, t, fast) {
 	});
 }
 
+const FAMILY_NAMES = { opus: "Opus", sonnet: "Sonnet", haiku: "Haiku", fable: "Fable", other: "Other" };
+
+/**
+ * One API response found in a log.
+ * @typedef {object} LogEntry
+ * @property {string | undefined} id   the same response logged again has the same id; counted once
+ * @property {number} ts
+ * @property {string} model
+ * @property {boolean} [fast]
+ * @property {{ input: number, output: number, cacheWrite: number, cacheRead: number, cacheWrite1h?: number, webSearches?: number }} tokens
+ * @property {{ id: string, cwd: string } | null} [session]  the main-thread session it belongs to
+ *
+ * How a program writes its session logs, and what its models cost.
+ * @typedef {object} LogFormat
+ * @property {string} id            "claude" or "codex"
+ * @property {string} app           the program, for messages: "Claude Code"
+ * @property {string[]} marks       only lines that contain one of these are parsed
+ * @property {(custom?: string) => string[]} roots   folders to scan; `custom` are the user's own, "" to find them
+ * @property {(name: string) => boolean} [accepts]   the log files among a folder's files; *.jsonl when left out
+ * @property {(text: string, memo: object, file: string) => LogEntry | null} parse   `memo` is kept per file
+ * @property {(model: string, tokens: object, fast: boolean) => number} cost   USD at API list prices
+ * @property {(model: string) => { input: number, cacheRead: number } | null} price   USD per million tokens
+ * @property {(model: string) => { id: string, name: string }} family   the group a model counts under
+ * @property {(model: string) => string} label
+ */
+
+/** @type {LogFormat} */
+export const CLAUDE_LOGS = {
+	id: "claude",
+	app: "Claude Code",
+	marks: ['"usage":{'],
+	roots: (custom) => resolveRoots(custom),
+	parse(text) {
+		// Tool results of sub-agents also contain "usage", but only assistant lines are API responses.
+		if (!text.includes('"assistant"')) return null;
+		let entry;
+		try {
+			entry = JSON.parse(text);
+		} catch {
+			return null;
+		}
+		if (entry?.type !== "assistant") return null;
+		const message = entry.message;
+		const usage = message?.usage;
+		if (!usage || typeof usage !== "object") return null;
+		const cacheWrite = tokens(usage.cache_creation_input_tokens);
+		return {
+			id: message.id || entry.requestId,
+			ts: Date.parse(entry.timestamp),
+			model: typeof message.model === "string" ? message.model : "unknown",
+			fast: usage.speed === "fast",
+			tokens: {
+				input: tokens(usage.input_tokens),
+				output: tokens(usage.output_tokens),
+				cacheWrite,
+				cacheRead: tokens(usage.cache_read_input_tokens),
+				cacheWrite1h: Math.min(cacheWrite, tokens(usage.cache_creation?.ephemeral_1h_input_tokens)),
+				webSearches: tokens(usage.server_tool_use?.web_search_requests),
+			},
+			session: entry.isSidechain ? null : { id: entry.sessionId || "unknown", cwd: typeof entry.cwd === "string" ? entry.cwd : "" },
+		};
+	},
+	cost: costOf,
+	price: priceFor,
+	family(model) {
+		const id = familyOf(model);
+		return { id, name: FAMILY_NAMES[id] };
+	},
+	label: modelLabel,
+};
+
+const isJsonl = (name) => name.endsWith(".jsonl");
+
 export class UsageIndex {
 	/**
 	 * @param {() => string[]} getRoots folders to scan; called on every scan so new profiles are picked up
-	 * @param {{ windowDays?: number, now?: () => Date }} [options]
+	 * @param {{ windowDays?: number, now?: () => Date, format?: LogFormat, inflate?: ((data: Buffer) => Buffer) | null }} [options]
+	 *        inflate: opens a .zst log (Codex compresses the sessions it archives); null where Node.js cannot
 	 */
-	constructor(getRoots, { windowDays = 40, now = () => new Date() } = {}) {
+	constructor(getRoots, { windowDays = 40, now = () => new Date(), format = CLAUDE_LOGS, inflate = zlib.zstdDecompressSync ?? null } = {}) {
+		this.format = format;
+		this.marks = format.marks.map((mark) => Buffer.from(mark));
+		this.inflate = inflate;
 		this.getRoots = getRoots;
 		this.windowDays = windowDays;
 		this.now = now;
@@ -191,22 +269,33 @@ export class UsageIndex {
 
 	async scan() {
 		const started = Date.now();
-		// Start from scratch once a day so memory stays bounded to the window.
+		// Start from scratch once a day so memory stays bounded to the window. The fresh totals are
+		// collected aside and swapped in when complete: until then the keys keep showing the old ones.
 		const windowStartMs = startOfDay(addDays(this.now(), 1 - this.windowDays)).getTime();
+		if (windowStartMs !== this.windowStartMs && this.lastScan) {
+			const fresh = new UsageIndex(this.getRoots, { windowDays: this.windowDays, now: this.now, format: this.format, inflate: this.inflate });
+			const scan = await fresh.scan();
+			for (const part of ["windowStartMs", "roots", "files", "seen", "days", "hours", "sessions"]) this[part] = fresh[part];
+			this.lastScan = scan;
+			return scan;
+		}
 		if (windowStartMs !== this.windowStartMs) this.reset(windowStartMs);
 
 		this.roots = this.getRoots();
 		const files = [];
-		for (const root of this.roots) await collectJsonl(root, files, 0);
+		for (const root of this.roots) await collectJsonl(root, files, 0, this.format.accepts ?? isJsonl);
 
 		let bytes = 0;
 		let errors = 0;
+		let unread = 0; // compressed logs this Node.js cannot open
 		const present = new Set(files);
 		for (const file of files) {
 			try {
 				const st = await fsp.stat(file);
 				if (st.mtimeMs < this.windowStartMs) continue; // nothing new enough in it
-				bytes += await this.readAppended(file, st);
+				if (!file.endsWith(".zst")) bytes += await this.readAppended(file, st);
+				else if (this.inflate) bytes += await this.readCompressed(file, st);
+				else unread++;
 			} catch {
 				errors++;
 			}
@@ -214,15 +303,21 @@ export class UsageIndex {
 		// Forget deleted files; the tokens they contributed stay counted.
 		for (const file of this.files.keys()) if (!present.has(file)) this.files.delete(file);
 
-		this.lastScan = { at: Date.now(), ms: Date.now() - started, files: files.length, bytes, errors };
+		this.lastScan = { at: Date.now(), ms: Date.now() - started, files: files.length, bytes, errors, unread };
 		return this.lastScan;
 	}
 
 	async readAppended(file, st) {
 		let state = this.files.get(file);
-		if (!state) this.files.set(file, (state = { offset: 0, size: -1, mtimeMs: 0 }));
-		if (st.size === state.size && st.mtimeMs === state.mtimeMs) return 0;
-		if (st.size < state.offset) state.offset = 0; // rewritten
+		if (!state) this.files.set(file, (state = { offset: 0, size: -1, mtimeMs: 0, ino: st.ino, memo: {} }));
+		if (st.size === state.size && st.mtimeMs === state.mtimeMs && st.ino === state.ino) return 0;
+		if (st.size < state.offset || st.ino !== state.ino) {
+			// rewritten, or another file under the same name
+			state.offset = 0;
+			state.memo = {};
+			state.ino = st.ino;
+		}
+		const { memo } = state;
 
 		const from = state.offset;
 		let pos = from;
@@ -249,7 +344,7 @@ export class UsageIndex {
 					if (pendingLen + nl <= MAX_LINE) {
 						pending.push(chunk.subarray(0, nl));
 						const line = Buffer.concat(pending);
-						this.scanLines(line, 0, line.length);
+						this.scanLines(line, 0, line.length, memo, file);
 					}
 					pending = [];
 					pendingLen = 0;
@@ -259,7 +354,7 @@ export class UsageIndex {
 
 				const last = chunk.lastIndexOf(NEWLINE);
 				if (last >= start) {
-					this.scanLines(chunk, start, last);
+					this.scanLines(chunk, start, last, memo, file);
 					start = last + 1;
 					state.offset = chunkStart + start;
 				}
@@ -276,7 +371,7 @@ export class UsageIndex {
 		// The offset stays before it, so it is read again later; the id check prevents double counting.
 		if (pendingLen && pendingLen <= MAX_LINE) {
 			const line = Buffer.concat(pending);
-			this.scanLines(line, 0, line.length);
+			this.scanLines(line, 0, line.length, memo, file);
 		}
 
 		state.size = st.size;
@@ -284,52 +379,51 @@ export class UsageIndex {
 		return pos - from;
 	}
 
-	/** Parses the lines of buf[start, end) that mention usage. */
-	scanLines(buf, start, end) {
+	/** A compressed log cannot be read from where the last scan stopped: when it has changed, all of it is read. */
+	async readCompressed(file, st) {
+		let state = this.files.get(file);
+		if (!state) this.files.set(file, (state = { offset: 0, size: -1, mtimeMs: 0, memo: {} }));
+		if (st.size === state.size && st.mtimeMs === state.mtimeMs) return 0;
+		const text = this.inflate(await fsp.readFile(file));
+		state.memo = {};
+		this.scanLines(text, 0, text.length, state.memo, file);
+		state.size = st.size;
+		state.mtimeMs = st.mtimeMs;
+		return st.size;
+	}
+
+	/** Parses the lines of buf[start, end) that contain one of the format's marks. */
+	scanLines(buf, start, end, memo = {}, file = "") {
+		// where each mark is found next; a mark is looked for again only once the scan has passed it
+		const next = this.marks.map((mark) => buf.indexOf(mark, start));
 		let pos = start;
 		while (pos < end) {
-			const hit = buf.indexOf(USAGE_MARK, pos);
+			let hit = -1;
+			for (let i = 0; i < next.length; i++) {
+				if (next[i] !== -1 && next[i] < pos) next[i] = buf.indexOf(this.marks[i], pos);
+				if (next[i] !== -1 && (hit === -1 || next[i] < hit)) hit = next[i];
+			}
 			if (hit === -1 || hit >= end) return;
 			const lineStart = Math.max(start, buf.lastIndexOf(NEWLINE, hit) + 1);
 			let lineEnd = buf.indexOf(NEWLINE, hit);
 			if (lineEnd === -1 || lineEnd > end) lineEnd = end;
-			this.addLine(buf.toString("utf8", lineStart, lineEnd));
+			this.addLine(buf.toString("utf8", lineStart, lineEnd), memo, file);
 			pos = lineEnd + 1;
 		}
 	}
 
-	addLine(text) {
-		// Tool results of sub-agents also contain "usage", but only assistant lines are API responses.
-		if (!text.includes('"assistant"')) return;
-		let entry;
-		try {
-			entry = JSON.parse(text);
-		} catch {
-			return;
-		}
-		if (entry?.type !== "assistant") return;
-		const message = entry.message;
-		const usage = message?.usage;
-		if (!usage || typeof usage !== "object") return;
-		const ts = Date.parse(entry.timestamp);
+	addLine(text, memo = {}, file = "") {
+		const entry = this.format.parse(text, memo, file);
+		if (!entry) return;
+		const { ts, model } = entry;
 		if (!(ts >= this.windowStartMs)) return;
-
-		const cacheWrite = tokens(usage.cache_creation_input_tokens);
-		const t = {
-			input: tokens(usage.input_tokens),
-			output: tokens(usage.output_tokens),
-			cacheWrite,
-			cacheRead: tokens(usage.cache_read_input_tokens),
-			cacheWrite1h: Math.min(cacheWrite, tokens(usage.cache_creation?.ephemeral_1h_input_tokens)),
-			webSearches: tokens(usage.server_tool_use?.web_search_requests),
-		};
+		const t = { cacheWrite1h: 0, webSearches: 0, ...entry.tokens };
 		if (!(t.input || t.output || t.cacheWrite || t.cacheRead)) return;
-		const model = typeof message.model === "string" ? message.model : "unknown";
-		const fast = usage.speed === "fast";
+		const fast = entry.fast === true;
 
-		if (!entry.isSidechain) this.noteSession(entry, ts, model, t);
+		if (entry.session) this.noteSession(entry.session, ts, model, t);
 
-		const id = message.id || entry.requestId;
+		const { id } = entry;
 		const prev = id && this.seen.get(id);
 		if (prev) {
 			// Same response logged again: keep the largest value of each counter.
@@ -343,7 +437,7 @@ export class UsageIndex {
 				}
 			}
 			if (!grew) return;
-			const cost = costOf(prev.model, prev, prev.fast);
+			const cost = this.format.cost(prev.model, prev, prev.fast);
 			delta.cost = cost - prev.cost;
 			prev.cost = cost;
 			this.addToBuckets(prev.day, prev.hour, prev.model, delta);
@@ -351,7 +445,7 @@ export class UsageIndex {
 		}
 
 		const at = new Date(ts);
-		const record = { day: dayKey(at), hour: hourKey(at), model, fast, ...t, cost: costOf(model, t, fast) };
+		const record = { day: dayKey(at), hour: hourKey(at), model, fast, ...t, cost: this.format.cost(model, t, fast) };
 		this.addToBuckets(record.day, record.hour, model, { ...t, requests: 1, cost: record.cost });
 		if (id) this.seen.set(id, record);
 	}
@@ -367,18 +461,10 @@ export class UsageIndex {
 		addTotals(hourly, delta);
 	}
 
-	noteSession(entry, ts, model, t) {
-		const id = entry.sessionId || "unknown";
+	noteSession({ id, cwd }, ts, model, t) {
 		const known = this.sessions.get(id);
 		if (known && known.at > ts) return;
-		this.sessions.set(id, {
-			id,
-			at: ts,
-			model,
-			context: t.input + t.cacheWrite + t.cacheRead,
-			output: t.output,
-			cwd: typeof entry.cwd === "string" ? entry.cwd : "",
-		});
+		this.sessions.set(id, { id, at: ts, model, context: t.input + t.cacheWrite + t.cacheRead, output: t.output, cwd });
 	}
 
 	/** Main-thread sessions, most recent first. */

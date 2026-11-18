@@ -8,10 +8,17 @@ export const MODEL_STYLES = [
 ];
 
 export const FAMILY_COLORS = {
+	// Claude
 	opus: COLORS.orange,
 	sonnet: COLORS.blue,
 	haiku: COLORS.green,
 	fable: COLORS.purple,
+	// Codex (OpenAI)
+	astra: COLORS.purple,
+	sol: COLORS.orange,
+	terra: COLORS.blue,
+	luna: COLORS.green,
+	"gpt-5": COLORS.teal,
 	other: COLORS.gray,
 };
 
@@ -45,7 +52,7 @@ const STYLES = {
 			const y = 48 + i * 24;
 			const color = FAMILY_COLORS[item.family];
 			out.push(text(10, y, 13, COLORS.text, esc(item.name), { anchor: "start" }));
-			out.push(text(134, y, 13, color, pct(item.share), { anchor: "end" }));
+			out.push(text(134, y, 13, color, esc(pct(item.share)), { anchor: "end" }));
 			out.push(bar(10, y + 5, 124, 5, item.share, color));
 		});
 		if (v.items.length <= 3) out.push(text(72, 138, 13, COLORS.gray, esc(v.total)));
@@ -64,12 +71,12 @@ const STYLES = {
 		v.items.slice(0, 3).forEach((item, i) => {
 			const y = 84 + i * 21;
 			out.push(`<circle cx="16" cy="${y - 5}" r="5" fill="${FAMILY_COLORS[item.family]}"/>`);
-			out.push(text(27, y, 14, COLORS.text, `<tspan>${esc(item.name)}</tspan> <tspan fill="${COLORS.gray}">${pct(item.share)}</tspan>`, { anchor: "start" }));
+			out.push(text(27, y, 14, COLORS.text, `<tspan>${esc(item.name)}</tspan> <tspan fill="${COLORS.gray}">${esc(pct(item.share))}</tspan>`, { anchor: "start" }));
 		});
 		return out;
 	},
 };
 
 export function renderModels(style, v) {
-	return svg([header(v.label), ...(STYLES[style] ?? STYLES.donut)(v)]);
+	return svg([header(v.label, { logo: v.logo }), ...(STYLES[style] ?? STYLES.donut)(v)]);
 }

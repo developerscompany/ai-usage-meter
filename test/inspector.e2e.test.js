@@ -267,3 +267,38 @@ test("a folded guide for adding another Claude account, for this platform; Launc
 	assert.ok(await launch.isVisible("#f-tag"), "and a tag");
 	await launch.close();
 });
+
+test("Codex and Kimi keys: no account to choose, a Logo setting, their own links; All Services picks its services", { skip }, async () => {
+	const mac = { application: { platform: "mac" } };
+	const codex = await open("codex-limit7d", {}, mac);
+	assert.deepEqual(await codex.$$eval("[data-key]", (els) => [...new Set(els.map((el) => el.dataset.key))]), ["show", "press", "tag", "warn", "danger", "refresh", "logo"]);
+	assert.deepEqual(await codex.$$eval("#f-press option", (o) => o.map((x) => x.textContent)).then((o) => o.at(-1)), "Open the Codex usage page");
+	assert.deepEqual(await codex.$$eval("#links a", (a) => a.map((x) => x.textContent)), ["Codex usage page", "Codex", "Email support"]);
+	received.length = 0;
+	await codex.selectOption("#f-logo", "off");
+	assert.equal((await waitFor((m) => m.event === "setSettings")).payload.logo, "off");
+	await codex.close();
+
+	// the plugin adds the console of the region Kimi Code is set up for; only an https link is taken
+	const kimi = await open("kimi-limit5h", {}, mac);
+	sendStatus({ action: "kimi-limit5h", settings: {}, previews: [], info: [], links: [["Kimi Code console", "https://www.kimi.ai/code/console"], ["Bad", "javascript:alert(1)"]] });
+	await kimi.waitForSelector('#links a[data-url*="kimi.ai"]');
+	assert.deepEqual(await kimi.$$eval("#links a", (a) => a.map((x) => x.dataset.url)), ["https://www.kimi.com/code/docs/en/", "https://www.kimi.ai/code/console", "mailto:elgato@rivo.agency"]);
+	await kimi.close();
+
+	const launch = await open("kimi-launch", { open: "app" }, mac);
+	assert.deepEqual(await launch.$$eval("#f-open option", (o) => o.map((x) => x.value)), ["app", "terminal"]);
+	await launch.close();
+	const onWindows = await open("codex-launch", { open: "terminal" }, { application: { platform: "windows" } });
+	assert.deepEqual(await onWindows.$$eval("#f-open option", (o) => o.map((x) => x.value)), ["terminal"], "an app is opened by its bundle id, which only a Mac has");
+	await onWindows.close();
+
+	const all = await open("overview", { services: ["claude", "codex", "kimi"] }, mac);
+	assert.deepEqual(await all.$$eval('input[data-key="services"]', (boxes) => boxes.map((b) => [b.value, b.checked])), [["claude", true], ["codex", true], ["kimi", true]]);
+	received.length = 0;
+	await all.uncheck('input[data-key="services"][value="codex"]');
+	assert.deepEqual((await waitFor((m) => m.event === "setSettings")).payload.services, ["claude", "kimi"]);
+	assert.deepEqual(await all.$$eval("#f-press option", (o) => o.map((x) => x.value)), ["toggle", "window", "style", "refresh"]);
+	await all.screenshot({ path: path.join(OUTPUT, "inspector-overview.png"), fullPage: true });
+	await all.close();
+});

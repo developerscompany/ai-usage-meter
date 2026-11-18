@@ -1,4 +1,5 @@
 // Tokens and cost over a period: a big number plus bars per day (or per hour for today).
+import { logo } from "./logos.js";
 import { COLORS, esc, fitSize, header, labelWidth, rect, svg, text, textWidth, valueWithUnit } from "./svg.js";
 
 export const SERIES_STYLES = [
@@ -41,14 +42,14 @@ function dots(count, active, y = 134, x = 72) {
 /**
  * @param {"classic" | "number" | "chart"} style
  * @param {{ label: string, value?: { num: string, unit: string }, rate?: string, bars?: { value: number, today?: boolean, future?: boolean }[],
- *           dots?: number, dot?: number, state?: "ok" | "loading" | "empty" | "error", message?: string }} v
+ *           dots?: number, dot?: number, state?: "ok" | "loading" | "empty" | "error", message?: string, logo?: string }} v
  */
 export function renderSeries(style, v) {
 	const state = v.state ?? "ok";
 	if (state !== "ok") {
 		const big = state === "loading" ? "···" : state === "empty" ? "—" : "!";
 		return svg([
-			header(v.label),
+			header(v.label, { logo: v.logo }),
 			text(72, 76, 44, state === "error" ? COLORS.orange : COLORS.gray, big),
 			text(72, 97, 13, state === "loading" ? COLORS.gray : COLORS.orange, esc(v.message ?? "")),
 			dots(v.dots, v.dot),
@@ -57,25 +58,27 @@ export function renderSeries(style, v) {
 	const { num, unit } = v.value;
 	if (style === "chart") {
 		// The label and the rate share the bottom line: shorten the rate, or drop it, when they would touch.
-		const room = 124 - labelWidth(v.label, 13) - 8;
+		const mark = v.logo ? 17 : 0; // a service mark before the label, and its gap
+		const room = 124 - labelWidth(v.label, 13) - 8 - mark;
 		const rate = [v.rate ?? "", (v.rate ?? "").replace("/day", "/d")].find((r) => textWidth(r, 12) <= room) ?? "";
 		return svg([
 			valueWithUnit(72, 34, fitSize(num, unit, 126, 30, UNIT_SCALE), COLORS.green, num, unit, { unitScale: UNIT_SCALE }),
 			bars(v.bars, 10, 44, 124, 72),
-			text(10, 135, 13, COLORS.white, esc(v.label), { anchor: "start" }),
+			v.logo ? logo(v.logo, 10, 123.5, 13) : "",
+			text(10 + mark, 135, 13, COLORS.white, esc(v.label), { anchor: "start" }),
 			text(134, 135, 12, COLORS.gray, esc(rate), { anchor: "end" }),
 		]);
 	}
 	if (style === "number") {
 		return svg([
-			header(v.label),
+			header(v.label, { logo: v.logo }),
 			valueWithUnit(72, 88, fitSize(num, unit, 126, 60, UNIT_SCALE), COLORS.green, num, unit, { unitScale: UNIT_SCALE }),
 			text(72, 113, 15, COLORS.green, esc(v.rate ?? ""), { opacity: 0.75 }),
 			dots(v.dots, v.dot),
 		]);
 	}
 	return svg([
-		text(72, 26, 18, COLORS.white, esc(v.label)),
+		v.logo ? header(v.label, { logo: v.logo }) : text(72, 26, 18, COLORS.white, esc(v.label)),
 		valueWithUnit(72, 76, fitSize(num, unit, 124, 50, UNIT_SCALE), COLORS.green, num, unit, { unitScale: UNIT_SCALE }),
 		text(72, 97, 15, COLORS.green, esc(v.rate ?? ""), { opacity: 0.75 }),
 		bars(v.bars, 14, 105, 116, 20),

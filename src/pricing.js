@@ -1,11 +1,12 @@
 // Anthropic API list prices, USD per million tokens (October 2026), to estimate what Claude Code
 // usage would cost on the API. Cache writes cost 1.25× input with the 5-minute TTL and 2× with the
-// 1-hour TTL; cache reads have their own price. First matching pattern wins.
+// 1-hour TTL; cache reads have their own price. First matching pattern wins. The rows of Fable 5 and Opus 5
+// match those versions only (and their dated ids), so a newer minor version takes the family's latest price.
 const MODELS = [
 	{ match: /^claude-(fable|mythos)-5-1\b/, family: "fable", input: 10, output: 50, cacheRead: 0.25 },
-	{ match: /^claude-(fable|mythos)-5\b/, family: "fable", input: 10, output: 50, cacheRead: 1 },
+	{ match: /^claude-(fable|mythos)-5\b(?!-\d\b)/, family: "fable", input: 10, output: 50, cacheRead: 1 },
 	{ match: /^claude-opus-5-5\b/, family: "opus", input: 4, output: 20, cacheRead: 0.2 },
-	{ match: /^claude-opus-5\b/, family: "opus", input: 5, output: 25, cacheRead: 0.5 },
+	{ match: /^claude-opus-5\b(?!-\d\b)/, family: "opus", input: 5, output: 25, cacheRead: 0.5 },
 	{ match: /^claude-opus-4-[5-9]\b/, family: "opus", input: 5, output: 25, cacheRead: 0.5 },
 	{ match: /^claude-opus-4\b/, family: "opus", input: 15, output: 75, cacheRead: 1.5 },
 	{ match: /^claude-sonnet-5\b/, family: "sonnet", input: 2, output: 10, cacheRead: 0.2 },
@@ -84,4 +85,64 @@ export function contextWindow(model) {
 	if (/^claude-(opus|sonnet)-4-([015]|\d{8})\b/.test(id)) return 200_000;
 	if (/^claude-(opus|sonnet)-4$/.test(id)) return 200_000;
 	return 1_000_000;
+}
+
+// OpenAI API list prices, USD per million tokens (November 2026), to estimate what Codex usage would
+// cost on the API. A cache write is priced for the default 30-minute lifetime. A request with more than
+// 272K input tokens is "long context": input, cached input and cache writes cost twice as much, output
+// 1.5 times. First matching pattern wins.
+const OPENAI_MODELS = [
+	{ match: /^gpt-6\.2-astra\b/, family: "astra", input: 8, cacheRead: 0.4, output: 40, cacheWrite: 10, long: true },
+	{ match: /^gpt-6\.2-sol\b/, family: "sol", input: 2, cacheRead: 0.1, output: 10, cacheWrite: 2.5, long: true },
+	{ match: /^gpt-6\.1-sol\b/, family: "sol", input: 2, cacheRead: 0.1, output: 10, cacheWrite: 2.5, long: true },
+	{ match: /^gpt-6\.1-terra\b/, family: "terra", input: 1, cacheRead: 0.05, output: 5, cacheWrite: 1.25, long: true },
+	{ match: /^gpt-6-astra\b/, family: "astra", input: 10, cacheRead: 1, output: 50, cacheWrite: 12.5, long: true },
+	{ match: /^gpt-6-sol\b/, family: "sol", input: 2, cacheRead: 0.2, output: 10, cacheWrite: 2.5, long: true },
+	{ match: /^gpt-6-luna\b/, family: "luna", input: 0.1, cacheRead: 0.01, output: 0.5, cacheWrite: 0.125, long: true },
+	{ match: /^gpt-5\.6-sol\b/, family: "sol", input: 4, cacheRead: 0.4, output: 20, cacheWrite: 5, long: true },
+	{ match: /^gpt-5\.6-terra\b/, family: "terra", input: 2, cacheRead: 0.2, output: 12, cacheWrite: 2.5, long: true },
+	{ match: /^gpt-5\.6-luna\b/, family: "luna", input: 0.2, cacheRead: 0.02, output: 1.2, cacheWrite: 0.25, long: true },
+	{ match: /^gpt-5\.5\b/, family: "gpt-5", input: 5, cacheRead: 0.5, output: 30, long: true },
+	{ match: /^gpt-5\.4-mini\b/, family: "gpt-5", input: 0.75, cacheRead: 0.075, output: 4.5 },
+	{ match: /^gpt-5\.4\b/, family: "gpt-5", input: 2.5, cacheRead: 0.25, output: 15, long: true },
+	{ match: /^gpt-5\.[23]\b/, family: "gpt-5", input: 1.75, cacheRead: 0.175, output: 14 },
+	{ match: /^gpt-5(\.1)?(-codex)?-mini\b/, family: "gpt-5", input: 0.25, cacheRead: 0.025, output: 2 },
+	{ match: /^gpt-5(\.1)?(-|$)/, family: "gpt-5", input: 1.25, cacheRead: 0.125, output: 10 },
+];
+
+// Versions newer than this table: assume the current price of the family.
+const OPENAI_LATEST = { astra: OPENAI_MODELS[0], sol: OPENAI_MODELS[1], terra: OPENAI_MODELS[3], luna: OPENAI_MODELS[6] };
+const OPENAI_LONG_ABOVE = 272_000;
+
+const OPENAI_FAMILY = /-(astra|sol|terra|luna)\b/;
+
+/** The family a Codex model counts under: "astra", "sol", "terra", "luna", "gpt-5", or "other". */
+export function openaiFamilyOf(model) {
+	const id = String(model).toLowerCase();
+	return OPENAI_FAMILY.exec(id)?.[1] ?? (/^gpt-5\b/.test(id) ? "gpt-5" : "other");
+}
+
+export function openaiPriceFor(model) {
+	const id = String(model).toLowerCase();
+	return OPENAI_MODELS.find((m) => m.match.test(id)) ?? OPENAI_LATEST[openaiFamilyOf(id)] ?? null;
+}
+
+/** "gpt-6.1-sol" → "GPT-6.1 Sol", "gpt-5.3-codex" → "GPT-5.3 Codex". */
+export function openaiModelLabel(model) {
+	const [, version, ...words] = String(model).toLowerCase().split("-");
+	if (!/^gpt-\d/.test(String(model).toLowerCase())) return String(model);
+	return [`GPT-${version}`, ...words.map((w) => `${w[0].toUpperCase()}${w.slice(1)}`)].join(" ");
+}
+
+/**
+ * Cost of one OpenAI API request in USD; 0 for a model without a known price.
+ * @param {{ input: number, output: number, cacheWrite: number, cacheRead: number }} u input: not cached, and not written to the cache
+ */
+export function openaiRequestCost(model, u) {
+	const price = openaiPriceFor(model);
+	if (!price) return 0;
+	const long = price.long && u.input + u.cacheWrite + u.cacheRead > OPENAI_LONG_ABOVE;
+	// a model without a cache-write price charges the write as plain input
+	const prompt = u.input * price.input + u.cacheWrite * (price.cacheWrite ?? price.input) + u.cacheRead * price.cacheRead;
+	return ((long ? 2 : 1) * prompt + (long ? 1.5 : 1) * u.output * price.output) / 1e6;
 }

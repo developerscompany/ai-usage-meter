@@ -1,13 +1,15 @@
-// Cache and Streak keys, from the local Claude Code logs: how much of the input came from the prompt
-// cache (and what that saved at API prices), and how many days in a row Claude Code was used.
+// Cache and Streak keys, from the local logs: how much of the input came from the prompt cache (and what
+// that saved at API prices), for Claude Code and Codex; and how many days in a row Claude Code was used.
 import { formatMoney } from "../format.js";
 import { getPeriod } from "../periods.js";
 import { priceFor } from "../pricing.js";
+import { PROVIDERS } from "../providers.js";
 import { PERCENT_STYLES, renderPercent } from "../render/percent.js";
 import { STREAK_STYLES, renderStreak } from "../render/streak.js";
 import { COLORS, messageKey } from "../render/svg.js";
 import { addDays, dayKey, startOfDay } from "../usage-index.js";
-import { PREFIX, clampNumber, clock, currentPeriod, nextPeriod, normalizePeriods, pick, styleIds, tildify } from "./common.js";
+import { PREFIX, clampNumber, currentPeriod, logoOf, nextPeriod, normalizeLogo, normalizePeriods, pick, styleIds } from "./common.js";
+import { sources } from "./series.js";
 
 /** Share of prompt tokens read from the cache, and what those reads saved against the input price. */
 export function cacheStats(index, days) {
@@ -17,7 +19,7 @@ export function cacheStats(index, days) {
 	for (const [model, t] of index.byModel(days)) {
 		read += t.cacheRead;
 		prompt += t.input + t.cacheWrite + t.cacheRead;
-		const price = priceFor(model);
+		const price = (index.format?.price ?? priceFor)(model);
 		if (price) saved += (t.cacheRead * (price.input - price.cacheRead)) / 1e6;
 	}
 	return { hit: prompt ? (read / prompt) * 100 : null, read, prompt, saved };
@@ -43,48 +45,43 @@ export function streakStats(index, now) {
 	return { current, best, todayActive, capped, days };
 }
 
-function scanState(ctx, label) {
+function scanState(ctx, label, provider = "claude") {
 	const index = ctx.usage;
-	if (!index.lastScan) return messageKey(label, "scanning…", { messageColor: COLORS.gray });
-	if (ctx.usageError && !index.days.size) return messageKey(label, "read error", { big: "!", color: COLORS.orange });
-	if (!index.roots.length) return messageKey(label, "no Claude logs", { big: "—", messageColor: COLORS.gray });
+	const logo = logoOf(ctx.settings, provider);
+	if (!index.lastScan) return messageKey(label, "scanning…", { logo, messageColor: COLORS.gray });
+	if (ctx.usageError && !index.days.size) return messageKey(label, "read error", { big: "!", color: COLORS.orange, logo });
+	if (!index.roots.length) return messageKey(label, `no ${PROVIDERS[provider].name} logs`, { big: "—", logo, messageColor: COLORS.gray });
 	return null;
-}
-
-function sources(ctx) {
-	const index = ctx.usage;
-	const scan = index.lastScan;
-	return [
-		["Sources", index.roots.length ? index.roots.map((r) => tildify(r)).join("\n") : "No Claude Code folders found"],
-		["Scanned", scan ? `${scan.files.toLocaleString("en-US")} log files at ${clock(scan.at)} in ${scan.ms} ms` : "scanning…"],
-	];
 }
 
 const CACHE_STYLES = PERCENT_STYLES.filter((st) => ["ring", "number", "bar", "gauge", "pie"].includes(st.id));
 const millions = (n) => `${(n / 1e6).toFixed(n >= 1e8 ? 0 : 1)}M`;
 
-export const cacheAction = {
-	id: "cache",
-	uuid: `${PREFIX}.cache`,
+const cacheFor = (id, provider) => ({
+	id,
+	uuid: `${PREFIX}.${id}`,
+	provider,
 	styles: CACHE_STYLES,
 
 	normalize(raw) {
 		const s = { periods: ["week", "month"], weekMode: "rolling", monthMode: "calendar", paths: "", refresh: 60, periodIndex: 0, style: "ring", ...(raw ?? {}) };
+		normalizeLogo(s);
 		normalizePeriods(s, ["week", "month"]);
 		s.style = pick(s.style, styleIds(CACHE_STYLES), "ring");
 		s.refresh = clampNumber(s.refresh, 15, 3600, 60);
 		return s;
 	},
 
-	needs: (s) => ({ usage: s.paths }),
+	needs: (s) => [{ kind: "usage", provider, arg: s.paths }],
 	refreshSeconds: (s) => s.refresh,
 
 	render(ctx, style = ctx.settings.style) {
 		const period = currentPeriod(ctx.settings, ctx.now);
-		const pending = scanState(ctx, period.label);
+		const pending = scanState(ctx, period.label, provider);
 		if (pending) return pending;
+		const logo = logoOf(ctx.settings, provider);
 		const c = cacheStats(ctx.usage, period.days);
-		if (c.hit === null) return messageKey(period.label, "no Claude Code use", { big: "—", messageColor: COLORS.gray });
+		if (c.hit === null) return messageKey(period.label, `no ${PROVIDERS[provider].app} use`, { big: "—", logo, messageColor: COLORS.gray });
 		// colour by misses: green from 70% hits, yellow from 40%, red below
 		return renderPercent(style, {
 			label: period.label,
@@ -98,6 +95,7 @@ export const cacheAction = {
 			windowMs: 1,
 			warn: 30,
 			danger: 60,
+			logo,
 		});
 	},
 
@@ -119,10 +117,13 @@ export const cacheAction = {
 				highlight: 0,
 			},
 			info: sources(ctx),
-			note: "Saved: what the tokens read from the cache would have cost at the full input price of the API, minus what they cost as cache reads. Writing to the cache costs extra (1.25× or 2× the input price), which is not taken off here.",
+			note: "Saved: what the tokens read from the cache would have cost at the full input price of the API, minus what they cost as cache reads. Writing to the cache costs extra, which is not taken off here.",
 		};
 	},
-};
+});
+
+export const cacheAction = cacheFor("cache", "claude");
+export const codexCacheAction = cacheFor("codex-cache", "codex");
 
 export const streakAction = {
 	id: "streak",
@@ -131,17 +132,18 @@ export const streakAction = {
 
 	normalize(raw) {
 		const s = { paths: "", refresh: 300, style: "days", ...(raw ?? {}) };
+		normalizeLogo(s);
 		s.style = pick(s.style, styleIds(STREAK_STYLES), "days");
 		s.paths = typeof s.paths === "string" ? s.paths.trim() : "";
 		s.refresh = clampNumber(s.refresh, 15, 3600, 300);
 		return s;
 	},
 
-	needs: (s) => ({ usage: s.paths }),
+	needs: (s) => [{ kind: "usage", arg: s.paths }],
 	refreshSeconds: (s) => s.refresh,
 
 	render(ctx, style = ctx.settings.style) {
-		return scanState(ctx, "STREAK") ?? renderStreak(style, { ...streakStats(ctx.usage, ctx.now), now: ctx.now });
+		return scanState(ctx, "STREAK") ?? renderStreak(style, { ...streakStats(ctx.usage, ctx.now), now: ctx.now, logo: logoOf(ctx.settings, "claude") });
 	},
 
 	press(ctx) {

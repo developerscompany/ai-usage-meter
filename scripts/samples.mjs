@@ -1,10 +1,11 @@
 // Sample keys for docs/gallery.png and the Marketplace images: the real renderers and actions, with made-up numbers.
 import { apiCreditAction } from "../src/actions/console.js";
-import { launchAction } from "../src/actions/launch.js";
-import { creditAction } from "../src/actions/limits.js";
+import { codexLaunchAction, kimiLaunchAction, launchAction } from "../src/actions/launch.js";
+import { CODEX_LIMIT_ACTIONS, KIMI_LIMIT_ACTIONS, creditAction } from "../src/actions/limits.js";
 import { peakAction } from "../src/actions/peak.js";
 import { renderDual } from "../src/render/dual.js";
 import { renderModels } from "../src/render/models.js";
+import { renderOverview } from "../src/render/overview.js";
 import { renderPercent } from "../src/render/percent.js";
 import { renderSeries } from "../src/render/series.js";
 import { renderStatus } from "../src/render/status.js";
@@ -14,8 +15,8 @@ export const H = 3_600_000;
 export const now = Date.parse("2026-10-20T18:13:00Z");
 const five = (t0) => Array.from({ length: 28 }, (_, i) => [t0 + i * 6 * 60_000, Math.round(i * 0.9 + (i > 18 ? (i - 18) * 0.8 : 0))]);
 const week = Array.from({ length: 90 }, (_, i) => [now - 4.4 * 24 * H + i * 70 * 60_000, Math.min(100, Math.round(i * 0.55 + (i > 60 ? 6 : 0)))]);
-export const fiveView = { label: "5-HOUR", used: 25.4, show: "left", resetsAt: now + 2 * H + 47 * 60_000, now, windowMs: 5 * H, warn: 50, danger: 80, series: five(now - 2.2 * H), tag: "N" };
-export const weekView = { label: "WEEKLY", used: 52, show: "used", resetsAt: now + 61 * H, now, windowMs: 7 * 24 * H, warn: 50, danger: 80, series: week };
+export const fiveView = { label: "5-HOUR", used: 25.4, show: "left", resetsAt: now + 2 * H + 47 * 60_000, now, windowMs: 5 * H, warn: 50, danger: 80, series: five(now - 2.2 * H), tag: "N", logo: "claude" };
+export const weekView = { label: "WEEKLY", used: 52, show: "used", resetsAt: now + 61 * H, now, windowMs: 7 * 24 * H, warn: 50, danger: 80, series: week, logo: "claude" };
 export const hotView = { ...fiveView, used: 86.7, show: "used", tag: "" };
 
 const dayBars = (values, today) => values.map((v, i) => ({ value: v * 1e6, today: i === today, future: i > today }));
@@ -45,21 +46,46 @@ export const peakKey = (style, iso, clock = "24") => peakAction.render({ setting
 export const PEAK_MOMENTS = [["PEAK", "2026-10-20T15:00:00Z"], ["SOON", "2026-10-20T11:45:00Z"], ["OFF-PEAK", "2026-10-20T19:30:00Z"]];
 
 export const cacheKey = (style) =>
-	renderPercent(style, { label: "7 DAYS", used: 4.9, show: "left", display: { value: "95", unit: "%", caption: style === "ring" ? "cached" : "cache hits" }, footer: "saved $105", resetsAt: null, now, windowMs: 1, warn: 30, danger: 60 });
+	renderPercent(style, { label: "7 DAYS", used: 4.9, show: "left", display: { value: "95", unit: "%", caption: style === "ring" ? "cached" : "cache hits" }, footer: "saved $105", resetsAt: null, now, windowMs: 1, warn: 30, danger: 60, logo: "claude" });
 export const streakKey = (style) =>
-	renderStreak(style, { current: 12, best: 12, todayActive: true, capped: false, days: Array.from({ length: 35 }, (_, i) => (i > 22 ? 5 + ((i * 37) % 60) : i % 9 === 0 ? 20 : 0)), now: new Date(now) });
+	renderStreak(style, { current: 12, best: 12, todayActive: true, capped: false, days: Array.from({ length: 35 }, (_, i) => (i > 22 ? 5 + ((i * 37) % 60) : i % 9 === 0 ? 20 : 0)), now: new Date(now), logo: "claude" });
 export const streakNotYetKey = () =>
-	renderStreak("days", { current: 5, best: 9, todayActive: false, capped: false, days: Array.from({ length: 35 }, (_, i) => (i >= 29 && i < 34 ? 10 : 0)), now: new Date(now) });
+	renderStreak("days", { current: 5, best: 9, todayActive: false, capped: false, days: Array.from({ length: 35 }, (_, i) => (i >= 29 && i < 34 ? 10 : 0)), now: new Date(now), logo: "claude" });
 export const launchKey = (folder = "~/projects/app") => launchAction.render({ settings: launchAction.normalize({ folder }) });
 export const dualKey = (style) =>
-	renderDual(style, { five: { used: 25.4, resetsAt: now + 2 * H + 47 * 60_000 }, week: { used: 52, resetsAt: now + 61 * H }, show: "left", warn: 50, danger: 80, now, tag: "N" });
-export const tokensKey = (style) => renderSeries(style, { label: "OCTOBER", value: { num: "1054", unit: "M" }, rate: "~52.7M/day", bars: month, dots: 2, dot: 1 });
-export const costWeekKey = () => renderSeries("classic", { label: "7 DAYS", value: { num: "$212", unit: "" }, rate: "~$30.3/day", bars: weekBars, dots: 3, dot: 1 });
-export const costTodayKey = () => renderSeries("chart", { label: "TODAY", value: { num: "$48.2", unit: "" }, rate: "~$2.6/h", bars: hours, dots: 3, dot: 0 });
-export const modelsKey = (style) => renderModels(style, { label: "7 DAYS", items, total: "432M tokens" });
+	renderDual(style, { five: { used: 25.4, resetsAt: now + 2 * H + 47 * 60_000 }, week: { used: 52, resetsAt: now + 61 * H }, show: "left", warn: 50, danger: 80, now, tag: "N", logo: "claude" });
+export const tokensKey = (style) => renderSeries(style, { label: "OCTOBER", value: { num: "1054", unit: "M" }, rate: "~52.7M/day", bars: month, dots: 2, dot: 1, logo: "claude" });
+export const costWeekKey = () => renderSeries("classic", { label: "7 DAYS", value: { num: "$212", unit: "" }, rate: "~$30.3/day", bars: weekBars, dots: 3, dot: 1, logo: "claude" });
+export const costTodayKey = () => renderSeries("chart", { label: "TODAY", value: { num: "$48.2", unit: "" }, rate: "~$2.6/h", bars: hours, dots: 3, dot: 0, logo: "claude" });
+export const modelsKey = (style) => renderModels(style, { label: "7 DAYS", items, total: "432M tokens", logo: "claude" });
 export const contextKey = () =>
-	renderPercent("ring", { label: "CONTEXT", used: 14.2, show: "used", display: { value: "142K", unit: "", caption: "of 1M" }, footer: "streamdeck · 2m", resetsAt: null, now, windowMs: 1, warn: 50, danger: 80, tag: "1/3" });
-export const extraKey = () => renderPercent("ring", { label: "EXTRA", used: 24.6, show: "used", footer: "$12.30 / $50", resetsAt: now + 11 * 24 * H, now, windowMs: 31 * 24 * H, warn: 50, danger: 80 });
+	renderPercent("ring", { label: "CONTEXT", used: 14.2, show: "used", display: { value: "142K", unit: "", caption: "of 1M" }, footer: "streamdeck · 2m", resetsAt: null, now, windowMs: 1, warn: 50, danger: 80, tag: "1/3", logo: "claude" });
+export const extraKey = () => renderPercent("ring", { label: "EXTRA", used: 24.6, show: "used", footer: "$12.30 / $50", resetsAt: now + 11 * 24 * H, now, windowMs: 31 * 24 * H, warn: 50, danger: 80, logo: "claude" });
 export const statusKey = (style) =>
-	renderStatus(style, { label: "CLAUDE", level: 2, text: "Degraded performance for Claude Fable 5", detail: "Fable 5", notes: ["Investigating", "claude.ai +3"] });
-export const statusOkKey = () => renderStatus("badge", { label: "CLAUDE", level: 0, text: "All Systems Operational" });
+	renderStatus(style, { label: "CLAUDE", level: 2, text: "Degraded performance for Claude Fable 5", detail: "Fable 5", notes: ["Investigating", "claude.ai +3"], logo: "claude" });
+export const statusOkKey = () => renderStatus("badge", { label: "CLAUDE", level: 0, text: "All Systems Operational", logo: "claude" });
+
+// Codex and Kimi through their real action code, with fake limits services.
+const limitsOf = (data) => ({ data, error: null, fetchedAt: now, stale: () => false, series: () => [], loginInfo: () => null, window: (name) => (data[name] ? { ...data[name], reset: false } : null) });
+const codex = limitsOf({ fiveHour: { used: 64, resetsAt: now + 1.2 * H, windowMs: 5 * H }, sevenDay: { used: 31, resetsAt: now + 100 * H, windowMs: 168 * H }, credits: { has: true, unlimited: false, balance: 1240 }, resets: 3 });
+const kimi = limitsOf({ fiveHour: { used: 37, resetsAt: now + 3 * H }, sevenDay: { used: 61.5, resetsAt: now + 80 * H }, month: { used: 22, resetsAt: now + 12 * 24 * H }, extra: { total: 50, left: 37.7, capped: false, cap: 0, spent: 0, currency: "USD" } });
+const limitKeys = (actions, limits) => actions.map((a) => [a.id, a.render({ settings: a.normalize({}), limits, now: new Date(now) })]);
+export const codexKeys = () => [
+	...limitKeys(CODEX_LIMIT_ACTIONS, codex),
+	["codex-usage", renderSeries("classic", { label: "7 DAYS", value: { num: "48.2", unit: "M" }, rate: "~6.9M/day", bars: weekBars, dots: 2, dot: 0, logo: "codex" })],
+	["codex-cost", renderSeries("classic", { label: "7 DAYS", value: { num: "$31.4", unit: "" }, rate: "~$4.5/day", bars: weekBars, dots: 3, dot: 1, logo: "codex" })],
+	["codex-models", renderModels("donut", { label: "7 DAYS", items: [{ name: "Sol", family: "sol", share: 0.86 }, { name: "Astra", family: "astra", share: 0.14 }], total: "48.2M tokens", logo: "codex" })],
+	["codex-status", renderStatus("badge", { label: "CODEX", level: 0, text: "operational", logo: "codex" })],
+	["codex-launch", codexLaunchAction.render({ settings: codexLaunchAction.normalize({ open: "app" }) })],
+];
+export const kimiKeys = () => [
+	...limitKeys(KIMI_LIMIT_ACTIONS, kimi),
+	["kimi-status", renderStatus("badge", { label: "KIMI CODE", level: 0, text: "operational", logo: "kimi" })],
+	["kimi-launch", kimiLaunchAction.render({ settings: kimiLaunchAction.normalize({ open: "app" }) })],
+];
+const rows = [
+	{ id: "claude", name: "Claude", five: { used: 25.4, resetsAt: now + 2 * H + 47 * 60_000 }, week: { used: 52, resetsAt: now + 61 * H } },
+	{ id: "codex", name: "Codex", five: { used: 64, resetsAt: now + 1.2 * H }, week: { used: 31, resetsAt: now + 100 * H } },
+	{ id: "kimi", name: "Kimi", five: { used: 37, resetsAt: now + 3 * H }, week: { used: 61.5, resetsAt: now + 80 * H } },
+];
+export const overviewKey = (style, window = "sevenDay") => renderOverview(style, { rows, window, show: "left", warn: 50, danger: 80, now });

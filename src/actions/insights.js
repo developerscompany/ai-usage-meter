@@ -1,25 +1,25 @@
-// Model Mix, Session Context and Claude Status keys.
+// Model Mix (Claude Code and Codex), Session Context and service status keys.
 import path from "node:path";
 import { formatAge, formatCount, formatTokens, formatUsd, joined } from "../format.js";
 import { getPeriod } from "../periods.js";
-import { contextWindow, familyOf, modelLabel } from "../pricing.js";
+import { contextWindow, modelLabel } from "../pricing.js";
+import { CLAUDE_LOGS } from "../usage-index.js";
 import { MODEL_STYLES, renderModels } from "../render/models.js";
 import { PERCENT_STYLES, renderPercent } from "../render/percent.js";
 import { STATUS_STYLES, renderStatus } from "../render/status.js";
 import { COLORS, messageKey } from "../render/svg.js";
-import { COMPONENTS, STATUS_PAGE, progressOf, shortService, statusFor, troubleOf } from "../status.js";
-import { PREFIX, clampNumber, clock, currentPeriod, nextPeriod, normalizePeriods, pick, styleIds } from "./common.js";
+import { STATUS_PAGES, progressOf, shortService, statusFor, troubleOf } from "../status.js";
+import { PREFIX, clampNumber, clock, currentPeriod, logoOf, nextPeriod, normalizeLogo, normalizePeriods, pick, styleIds } from "./common.js";
 import { TOKEN_COUNTS } from "./series.js";
-
-const FAMILY_NAMES = { opus: "Opus", sonnet: "Sonnet", haiku: "Haiku", fable: "Fable", other: "Other" };
 
 /** Usage per model family (or per model) over some days, largest first. */
 function modelItems(index, days, s) {
+	const format = index.format ?? CLAUDE_LOGS;
 	const groups = new Map();
 	for (const [model, t] of index.byModel(days)) {
-		const family = familyOf(model);
+		const { id: family, name: familyName } = format.family(model);
 		const key = s.group === "model" ? model : family;
-		const name = s.group === "model" ? modelLabel(model) : FAMILY_NAMES[family];
+		const name = s.group === "model" ? format.label(model) : familyName;
 		const item = groups.get(key) ?? { name, family, tokens: 0, cost: 0 };
 		item.tokens += TOKEN_COUNTS.all(t);
 		item.cost += t.cost;
@@ -30,12 +30,14 @@ function modelItems(index, days, s) {
 	return { total, items: items.filter((item) => item.value > 0).map((item) => ({ ...item, share: item.value / total })).sort((a, b) => b.value - a.value) };
 }
 
-export const modelsAction = {
-	id: "models",
-	uuid: `${PREFIX}.models`,
+const modelsFor = (id, provider) => ({
+	id,
+	uuid: `${PREFIX}.${id}`,
+	provider,
 	styles: MODEL_STYLES,
 	normalize(raw) {
 		const s = { periods: ["week", "month"], weekMode: "rolling", monthMode: "calendar", paths: "", refresh: 60, periodIndex: 0, style: "donut", metric: "tokens", group: "family", ...(raw ?? {}) };
+		normalizeLogo(s);
 		normalizePeriods(s, ["week", "month"]);
 		s.style = pick(s.style, styleIds(MODEL_STYLES), "donut");
 		s.metric = pick(s.metric, ["tokens", "cost"], "tokens");
@@ -43,16 +45,17 @@ export const modelsAction = {
 		s.refresh = clampNumber(s.refresh, 15, 3600, 60);
 		return s;
 	},
-	needs: (s) => ({ usage: s.paths }),
+	needs: (s) => [{ kind: "usage", provider, arg: s.paths }],
 	refreshSeconds: (s) => s.refresh,
 
 	render(ctx, style = ctx.settings.style) {
 		const s = ctx.settings;
 		const period = currentPeriod(s, ctx.now);
-		if (!ctx.usage.lastScan) return messageKey(period.label, "scanning…", { messageColor: COLORS.gray });
+		const logo = logoOf(s, provider);
+		if (!ctx.usage.lastScan) return messageKey(period.label, "scanning…", { logo, messageColor: COLORS.gray });
 		const { total, items } = modelItems(ctx.usage, period.days, s);
 		const totalText = s.metric === "cost" ? `${joined(formatUsd(total))} API` : `${joined(formatTokens(total))} tokens`;
-		return renderModels(style, { label: period.label, items, total: totalText });
+		return renderModels(style, { label: period.label, items, total: totalText, logo });
 	},
 
 	press: (ctx) => nextPeriod(ctx.settings),
@@ -71,7 +74,10 @@ export const modelsAction = {
 			error: ctx.usageError,
 		};
 	},
-};
+});
+
+export const modelsAction = modelsFor("models", "claude");
+export const codexModelsAction = modelsFor("codex-models", "codex");
 
 const CONTEXT_STYLES = PERCENT_STYLES.filter((st) => ["ring", "bar", "number", "gauge", "segments", "battery", "pie"].includes(st.id));
 
@@ -92,6 +98,7 @@ export const contextAction = {
 	styles: CONTEXT_STYLES,
 	normalize(raw) {
 		const s = { style: "ring", paths: "", refresh: 15, warn: 50, danger: 80, window: "auto", sessionIndex: 0, ...(raw ?? {}) };
+		normalizeLogo(s);
 		s.style = pick(s.style, styleIds(CONTEXT_STYLES), "ring");
 		s.paths = typeof s.paths === "string" ? s.paths.trim() : "";
 		s.refresh = clampNumber(s.refresh, 5, 3600, 15);
@@ -101,14 +108,15 @@ export const contextAction = {
 		s.sessionIndex = Math.max(0, Math.floor(Number(s.sessionIndex) || 0));
 		return s;
 	},
-	needs: (s) => ({ usage: s.paths }),
+	needs: (s) => [{ kind: "usage", arg: s.paths }],
 	refreshSeconds: (s) => s.refresh,
 
 	render(ctx, style = ctx.settings.style) {
 		const s = ctx.settings;
-		if (!ctx.usage.lastScan) return messageKey("CONTEXT", "scanning…", { messageColor: COLORS.gray });
+		const logo = logoOf(s, "claude");
+		if (!ctx.usage.lastScan) return messageKey("CONTEXT", "scanning…", { logo, messageColor: COLORS.gray });
 		const sessions = ctx.usage.recentSessions(5);
-		if (!sessions.length) return messageKey("CONTEXT", "no sessions", { big: "—", messageColor: COLORS.gray });
+		if (!sessions.length) return messageKey("CONTEXT", "no sessions", { big: "—", logo, messageColor: COLORS.gray });
 		const i = s.sessionIndex % sessions.length;
 		const session = sessions[i];
 		const win = sessionWindow(session, s.window);
@@ -124,6 +132,7 @@ export const contextAction = {
 			warn: s.warn,
 			danger: s.danger,
 			tag: sessions.length > 1 ? `${i + 1}/${sessions.length}` : "",
+			logo,
 		});
 	},
 
@@ -147,56 +156,68 @@ export const contextAction = {
 	},
 };
 
-export const statusAction = {
-	id: "status",
-	uuid: `${PREFIX}.status`,
-	styles: STATUS_STYLES,
-	normalize(raw) {
-		const s = { component: "all", style: "badge", refresh: 120, ...(raw ?? {}) };
-		s.component = pick(s.component, Object.keys(COMPONENTS), "all");
-		s.style = pick(s.style, styleIds(STATUS_STYLES), "badge");
-		s.refresh = clampNumber(s.refresh, 60, 3600, 120);
-		return s;
-	},
-	needs: () => ({ status: true }),
-	refreshSeconds: (s) => s.refresh,
+const statusKey = (id, provider) => {
+	const page = STATUS_PAGES[provider];
+	return {
+		id,
+		uuid: `${PREFIX}.${id}`,
+		provider,
+		styles: STATUS_STYLES,
+		normalize(raw) {
+			const s = { component: page.watch, style: "badge", refresh: 120, ...(raw ?? {}) };
+			normalizeLogo(s);
+			s.component = pick(s.component, Object.keys(page.components), page.watch);
+			s.style = pick(s.style, styleIds(STATUS_STYLES), "badge");
+			s.refresh = clampNumber(s.refresh, 60, 3600, 120);
+			return s;
+		},
+		needs: () => [{ kind: "status", provider }],
+		refreshSeconds: (s) => s.refresh,
 
-	render(ctx, style = ctx.settings.style) {
-		const label = COMPONENTS[ctx.settings.component].label;
-		const svc = ctx.status;
-		if (!svc.summary) return renderStatus(style, { label, level: null, text: svc.error ? "offline" : "checking…" });
-		const st = statusFor(svc.summary, ctx.settings.component);
-		const troubled = st.level >= 2 && st.incident;
-		const detail = troubled ? troubleOf(st.incident, ctx.settings.component) : "";
-		return renderStatus(style, {
-			label,
-			level: st.level,
-			text: troubled ? st.incident.name : st.text,
-			detail,
-			// with the model named, the title would only repeat it: say how far the fix is instead
-			notes: detail ? progressOf(st.incident) : undefined,
-			stale: !!svc.error,
-		});
-	},
+		render(ctx, style = ctx.settings.style) {
+			const { component } = ctx.settings;
+			const label = page.components[component].label;
+			const logo = logoOf(ctx.settings, provider);
+			const svc = ctx.status;
+			if (!svc.summary) return renderStatus(style, { label, logo, level: null, text: svc.error ? "offline" : "checking…" });
+			const st = statusFor(svc.summary, component, page);
+			const troubled = st.level >= 2 && st.incident;
+			const detail = troubled ? troubleOf(st.incident, component, page) : "";
+			return renderStatus(style, {
+				label,
+				logo,
+				level: st.level,
+				text: troubled ? st.incident.name : st.text,
+				detail,
+				// with the model named, the title would only repeat it: say how far the fix is instead
+				notes: detail ? progressOf(st.incident) : undefined,
+				stale: !!svc.error,
+			});
+		},
 
-	press(ctx) {
-		const svc = ctx.status;
-		const st = svc.summary && statusFor(svc.summary, ctx.settings.component);
-		return { url: st?.level && st.incident ? st.incident.url : STATUS_PAGE };
-	},
+		press(ctx) {
+			const svc = ctx.status;
+			const st = svc.summary && statusFor(svc.summary, ctx.settings.component, page);
+			return { url: st?.level && st.incident ? st.incident.url : page.page };
+		},
 
-	info(ctx) {
-		const svc = ctx.status;
-		const summary = svc.summary;
-		return {
-			table: summary ? { columns: ["Status"], rows: summary.components.map((c) => [c.name, c.status.replace(/_/g, " ")]) } : null,
-			info: [
-				...(summary?.incidents.length
-					? summary.incidents.map((i) => ["Incident", `${i.name}\n${[i.models.join(", "), i.status, i.components.length ? `affects ${i.components.map(shortService).join(", ")}` : ""].filter(Boolean).join(" · ")}`])
-					: [["Incidents", "none"]]),
-				["Updated", svc.fetchedAt ? clock(svc.fetchedAt) : "not yet"],
-			],
-			error: svc.error?.message ?? null,
-		};
-	},
+		info(ctx) {
+			const svc = ctx.status;
+			const summary = svc.summary;
+			return {
+				table: summary ? { columns: ["Status"], rows: summary.components.map((c) => [c.group ? `${c.group}: ${c.name}` : c.name, c.status.replace(/_/g, " ")]) } : null,
+				info: [
+					...(summary?.incidents.length
+						? summary.incidents.map((i) => ["Incident", `${i.name}\n${[i.models.join(", "), i.status, i.components.length ? `affects ${i.components.map(shortService).join(", ")}` : ""].filter(Boolean).join(" · ")}`])
+						: [["Incidents", "none"]]),
+					["Updated", svc.fetchedAt ? clock(svc.fetchedAt) : "not yet"],
+				],
+				error: svc.error?.message ?? null,
+			};
+		},
+	};
 };
+
+export const statusAction = statusKey("status", "claude");
+export const codexStatusAction = statusKey("codex-status", "codex");
+export const kimiStatusAction = statusKey("kimi-status", "kimi");

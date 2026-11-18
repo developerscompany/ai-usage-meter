@@ -7,7 +7,9 @@
 
 Your Claude usage on Stream Deck: plan limits for every model, peak hours, cloud and API credit, the tokens and API-equivalent cost of Claude Code, cache hits, model mix, session context, a daily streak and service status, plus a key that starts Claude Code.
 
-> Unofficial plugin by [Rivo Agency](https://rivo.agency). Not affiliated with or endorsed by Anthropic.
+Since 3.2 also **Codex** (5-hour and weekly limits, credits, tokens, cost, cache, models, status) and **Kimi Code** (5-hour, weekly and monthly limits, extra usage, status), each key marked with its service's logo, and one key that shows all three side by side.
+
+> Unofficial plugin by [Rivo Agency](https://rivo.agency). Not affiliated with or endorsed by Anthropic, OpenAI or Moonshot AI.
 
 ![Usage Meter for Claude on a Stream Deck](marketplace/thumbnail.png)
 
@@ -19,9 +21,21 @@ Your Claude usage on Stream Deck: plan limits for every model, peak hours, cloud
 2. Double-click it. Stream Deck installs the plugin. Later versions install the same way and keep your keys and their settings.
 3. In the action list, open **Usage Meter for Claude** and drag the keys you want onto your Stream Deck. Each key's settings show a live preview of every display style; click one to use it.
 
-**Requirements:** Stream Deck 6.9 or later on macOS 12+ or Windows 10+, and Claude Code signed in on the same computer for the limit and credit keys. The plugin is tested on macOS; Windows support is in the code but hasn't been tried on a real PC yet.
+**Requirements:** Stream Deck 6.9 or later on macOS 12+ or Windows 10+, and Claude Code signed in on the same computer for the limit and credit keys. The Codex keys need Codex signed in with a ChatGPT account, the Kimi keys the Kimi Code app (or a Kimi Code API key). The plugin is tested on macOS; Windows support is in the code but hasn't been tried on a real PC yet.
 
 ## Keys
+
+In Stream Deck's action list every key carries its service's name: **Claude 5-Hour Limit**, **Codex Weekly Limit**, **Kimi Monthly Limit**.
+
+### All services
+
+| Key | Shows | Press | Hold |
+| --- | --- | --- | --- |
+| **All Services** | Claude, Codex and Kimi on one key, a row each: the weekly or the 5-hour limit as bars or rings, or both limits as numbers | switch left / used, or weekly / 5-hour (configurable) | refresh |
+
+An orange dot by a service's logo means its login needs attention; a dimmed row has numbers that are no longer current. Choose which services the key shows under **Services**.
+
+### Claude
 
 | Key | Shows | Press | Hold |
 | --- | --- | --- | --- |
@@ -41,6 +55,39 @@ Your Claude usage on Stream Deck: plan limits for every model, peak hours, cloud
 | **Claude Status** | service status from status.claude.com, naming the model in trouble (`DEGRADED · Fable 5`) | open the incident or status page | refresh |
 | **Launch Claude Code** | opens a terminal running `claude` in a folder you choose, with any of your Claude accounts | launch | — |
 
+### Codex
+
+| Key | Shows | Press | Hold |
+| --- | --- | --- | --- |
+| **5-Hour Limit** | Codex's 5-hour limit on your ChatGPT plan; `not on your plan` where the plan only has a weekly one | switch left / used (configurable) | refresh |
+| **Weekly Limit** | Codex's weekly limit | the same | refresh |
+| **Both Limits** | both on one key | the same | refresh |
+| **Credits** | credits bought on top of the plan, and the limit resets your account can spend | open the Codex usage page | refresh |
+| **Token Usage** | Codex tokens today, over 7 days or this month | next period | rescan |
+| **API Cost** | what that usage would cost at OpenAI's API list prices | next period | rescan |
+| **Cache Hits** | the share of input read from the prompt cache, and what it saved | next period | rescan |
+| **Model Mix** | the share of each model family (Sol, Astra, Terra, Luna) | next period | rescan |
+| **Codex Status** | Codex's status from status.openai.com, or all of OpenAI, ChatGPT or the API | open the incident or status page | refresh |
+| **Launch Codex** | opens the Codex app (Mac), or a terminal running `codex` in a folder you choose | launch | — |
+
+### Kimi Code
+
+| Key | Shows | Press | Hold |
+| --- | --- | --- | --- |
+| **5-Hour Limit** | the 5-hour limit of your Kimi Code plan | switch left / used (configurable) | refresh |
+| **Weekly Limit** | the weekly limit | the same | refresh |
+| **Both Limits** | both on one key | the same | refresh |
+| **Monthly Limit** | the monthly limit of your Kimi plan, which Kimi Code shares with Kimi chat | the same | refresh |
+| **Extra Usage** | the wallet of extra usage on top of the plan: what is left, or this month's spend against the cap you set | the same | refresh |
+| **Kimi Status** | Kimi Code's status from status.moonshot.cn, or all of Moonshot AI or the API | open the incident or status page | refresh |
+| **Launch Kimi Code** | opens the Kimi Code app (Mac), or a terminal running `kimi` in a folder you choose | launch | — |
+
+Kimi's token keys are not there yet: see [what's next](#whats-next).
+
+### Display styles and logos
+
+Every key shows the logo of its service before its label, so a glance tells a Claude limit from a Codex one. **Logo** in a key's settings turns it off.
+
 Limit keys have ten display styles: ring, number, bar, pie, battery, gauge, LED, pace, history and reset timer. **Pace** shows how fast you're using the limit against an even pace, and warns `limit in 1h12m` when it won't last until the reset. **History** draws your usage over the current window and projects it to the reset. Colours go green, then yellow (from 50% used by default), then red (from 80%); both levels can be changed per key.
 
 | | |
@@ -58,6 +105,14 @@ Limit keys have ten display styles: ring, number, bar, pie, battery, gauge, LED,
 
 **Service status** comes from the public status.claude.com API. When an incident names a model, the key shows it; when it doesn't and only one service is hit, a key that watches all of Claude names that service.
 
+**Codex, for your whole account (from OpenAI):** the limit keys and Credits make the request the Codex app makes for its own usage panel, `GET https://chatgpt.com/backend-api/wham/usage`, with Codex's ChatGPT login. Which of a plan's limits is the 5-hour one and which the weekly one is told by the length of each, so a plan with only a weekly limit shows it on the Weekly key.
+
+**Codex, for this computer only (from Codex's logs):** Token Usage, API Cost, Cache Hits and Model Mix read `~/.codex/sessions` and `~/.codex/archived_sessions`. Each response is counted once, by the record Codex writes for it. Costs use OpenAI's API list prices (November 2026), including cached input, cache writes and long context; a model without a list price, such as `codex-auto-review`, counts as tokens but not as dollars. Codex compresses older session logs (`.jsonl.zst`), and the Node.js 20 that Stream Deck runs plugins with cannot open those: the key's settings then say how many logs were not read, and the totals only cover the recent sessions. See [what's next](#whats-next).
+
+**Kimi Code, for your whole account (from Moonshot AI):** the limit keys and Extra Usage make the request the Kimi Code app makes for its own usage panel, `GET <api>/coding/v1/usages`, on `api.kimi.com` or `api.kimi.ai`, whichever Kimi Code is set up with.
+
+**Status of Codex and Kimi** comes from status.openai.com and status.moonshot.cn.
+
 ## Setup
 
 ### Your Claude Code login
@@ -65,6 +120,23 @@ Limit keys have ten display styles: ring, number, bar, pie, battery, gauge, LED,
 The plugin reads the login Claude Code keeps: on macOS from the Keychain item `Claude Code-credentials`, elsewhere from `~/.claude/.credentials.json`. The first time, macOS may ask whether to allow access to it; choose **Always Allow**.
 
 Logins expire after a while, and only `claude` renews them when it runs, so a computer where you don't use Claude Code for a day (because you work on another one, say) ends up with an expired login. The keys then dim their last numbers and say `login expired` at the bottom. Start `claude` on this computer (or press a **Launch Claude Code** key) and send any message; the keys recover within a minute, or at once if you hold one.
+
+### Your Codex login
+
+The Codex keys read the login Codex keeps in `~/.codex/auth.json` (or `$CODEX_HOME/auth.json`) when you sign in with your ChatGPT account, in the Codex app or with `codex login`. It lasts about ten days and Codex renews it whenever it runs; if it has expired, open Codex and send any message. A Codex set up with an API key alone has no plan limits to show, and a login that Codex keeps in the system keyring instead of the file is not read.
+
+### Your Kimi Code login
+
+Kimi works with either of two logins, and both are only read:
+
+- **A Kimi Code API key** (recommended). Create one in the Kimi Code console, then store it for the plugin. On macOS, run this in Terminal and paste the key when asked:
+  ```sh
+  security add-generic-password -a "$USER" -s "Usage Meter Kimi API Key" -w
+  ```
+  On Windows, save it as the only line of `%APPDATA%\agency.rivo.usage-meter-for-claude\kimi-api-key`. A key does not expire, so the numbers are always current.
+- **The login of the Kimi Code app**, in `~/.kimi-code/credentials`, with no setup. It lasts 15 minutes, and Kimi Code renews it only while you use it: soon after you stop working in Kimi Code the keys dim their last numbers and say `login expired`, until you use Kimi Code again.
+
+The key's settings show the steps for your computer and which login is in use.
 
 ### Several Claude accounts
 
@@ -106,9 +178,13 @@ Whether times show as 24-hour or AM/PM follows your computer's region, not its l
 | `login expired / run claude` | the login expired: run `claude` and send any message |
 | `token refused` | Anthropic didn't accept the login; details in the key's settings |
 | `rate limited` / `offline` / `API error` | a temporary problem; the plugin retries |
-| `not on your plan` | your plan has no such limit (for example, a separate Haiku limit) |
+| `not on your plan` | your plan has no such limit (for example, a separate Haiku limit, or a 5-hour limit on a Codex plan that only has a weekly one) |
 | `only on claude.ai / press to open` | the API didn't send the cloud credit; press to open claude.ai |
 | `no Claude Code use` | no requests in this period |
+| `no Codex login / open Codex` | Codex isn't signed in with a ChatGPT account on this computer |
+| `no Kimi login / open Kimi Code` | no Kimi Code login and no stored API key were found |
+| `login expired / open Kimi Code` | the 15-minute login of the Kimi Code app ran out: use Kimi Code, or store an API key |
+| orange dot by a logo, dimmed row (All Services) | that service's login needs attention; its numbers are no longer current |
 | `no Admin key / see settings` | the API Credit key found no Admin key |
 | `key refused / see settings` | the Admin API refused the key: it must be an Admin key of the organization whose credit you track |
 | dimmed numbers, `login expired` at the bottom | the last numbers from before the login expired: run `claude` here and send any message |
@@ -120,11 +196,16 @@ The plugin's log is in the plugin folder, on macOS `~/Library/Application Suppor
 ## Privacy and security
 
 - Everything runs on your computer. There's no analytics, no telemetry and no server of ours.
-- The plugin only talks to `api.anthropic.com` (limits, credit and, for API Credit, your organization's cost report) and `status.claude.com`.
-- Your Claude Code login and the Admin key are only read: never refreshed, copied, written to a log, shown in settings or sent anywhere but `api.anthropic.com`.
+- The plugin only talks to `api.anthropic.com` (limits, credit and, for API Credit, your organization's cost report) and `status.claude.com`; with Codex keys also to `chatgpt.com` and `status.openai.com`; with Kimi keys also to `api.kimi.com` or `api.kimi.ai` and `status.moonshot.cn`.
+- Your Claude Code login and the Admin key are only read: never refreshed, copied, written to a log, shown in settings or sent anywhere but `api.anthropic.com`. The same goes for Codex's login (sent only to `chatgpt.com`) and for Kimi Code's login or API key (sent only to Kimi's API). None of them follows a redirect to another address.
 - It keeps the latest numbers and a short history for the History style in its data folder (`~/Library/Application Support/agency.rivo.usage-meter-for-claude` on macOS).
 
 Details: [PRIVACY.md](PRIVACY.md). To report a security problem, see [SECURITY.md](SECURITY.md).
+
+## What's next
+
+- **Kimi tokens and cost.** Kimi Code's session logs (`wire.jsonl`) hold token counts, but the format has to be checked against real sessions before keys are built on it.
+- **Codex's compressed logs.** Reading `.jsonl.zst` needs either Stream Deck's Node.js 24 (a newer minimum Stream Deck version) or a bundled decoder.
 
 ## Development
 
@@ -145,17 +226,21 @@ The settings panel tests and the image scripts need [Playwright](https://playwri
 | --- | --- |
 | `src/plugin.js` | the core: keys, presses and holds, shared data sources, previews for the settings panel |
 | `src/streamdeck.js` | the connection to Stream Deck through Elgato's SDK (`@elgato/streamdeck`) |
-| `src/actions/` | the fifteen keys: defaults, drawing, what a press does, data for the settings panel |
-| `src/render/` | key images as SVG (SVG Tiny only: Stream Deck draws keys with Qt) |
-| `src/usage-index.js` | incremental reading of Claude Code's logs: tokens, cost, models, hours, sessions |
-| `src/pricing.js` | Claude model prices |
-| `src/limits.js` | plan limits and cloud credit: requests, retries, cache and history |
+| `src/actions/` | the keys: defaults, drawing, what a press does, data for the settings panel |
+| `src/render/` | key images as SVG (SVG Tiny only: Stream Deck draws keys with Qt); `logos.js` has the service marks |
+| `src/providers.js` | the three services: where each one's limits and logs come from |
+| `src/usage-index.js` | incremental reading of session logs (tokens, cost, models, hours, sessions), and Claude Code's log format |
+| `src/codex-logs.js` | Codex's log format |
+| `src/pricing.js` | Claude and OpenAI model prices |
+| `src/limits.js` | plan limits: requests, retries, cache and history; Claude's limits and cloud credit |
+| `src/codex.js`, `src/kimi.js` | where Codex and Kimi Code keep their logins, and their usage answers (read only) |
+| `src/secrets.js`, `src/keychain.js` | care for logins and keys: one clean token, never in an error's text, the macOS Keychain |
 | `src/console.js` | API spend from the Usage and Cost Admin API, for API Credit |
 | `src/login.js` | where Claude Code keeps its logins and which to use (read only) |
-| `src/status.js` | service status from status.claude.com, and the model an incident names |
+| `src/status.js` | service status from status.claude.com, status.openai.com and status.moonshot.cn, and the model an incident names |
 | `src/peak.js` | the peak hours schedule in Pacific time |
 | `src/clock.js` | 24-hour or AM/PM, from the key's setting or the computer's region |
-| `src/launch.js` | the command that opens a terminal running Claude Code |
+| `src/launch.js` | the command that opens a terminal running Claude Code, Codex or Kimi Code, or their Mac app |
 | `agency.rivo.usage-meter-for-claude.sdPlugin/ui/` | the settings panel shared by every key |
 
 Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -164,4 +249,4 @@ Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 [MIT](LICENSE) © Rivo Agency.
 
-Claude is a trademark of Anthropic, PBC. Elgato and Stream Deck are trademarks of Corsair Memory, Inc. This project is not affiliated with either company.
+Claude is a trademark of Anthropic, PBC. OpenAI, ChatGPT and Codex are trademarks of OpenAI. Kimi is a trademark of Moonshot AI. Elgato and Stream Deck are trademarks of Corsair Memory, Inc. This project is not affiliated with any of these companies; their logos on the keys only name the service a key shows, and every key can hide its logo.

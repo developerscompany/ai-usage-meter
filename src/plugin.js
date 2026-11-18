@@ -1,21 +1,24 @@
 // Usage Meter for Claude, a Stream Deck plugin: plan limits, peak hours, credit, tokens, API cost, cache, model mix,
-// session context, streak, service status, and a key that starts Claude Code.
+// session context, streak, service status, and a key that starts Claude Code; plus the limits, credits, tokens
+// and status of Codex and Kimi Code.
 // Short press does what the key's settings say (next period, used/left, ...). Holding a key refreshes it now.
 import { execFile } from "node:child_process";
 import path from "node:path";
-import { cacheAction, streakAction } from "./actions/activity.js";
+import { cacheAction, codexCacheAction, streakAction } from "./actions/activity.js";
 import { apiCreditAction } from "./actions/console.js";
-import { contextAction, modelsAction, statusAction } from "./actions/insights.js";
-import { launchAction } from "./actions/launch.js";
+import { codexModelsAction, codexStatusAction, contextAction, kimiStatusAction, modelsAction, statusAction } from "./actions/insights.js";
+import { codexLaunchAction, kimiLaunchAction, launchAction } from "./actions/launch.js";
+import { overviewAction } from "./actions/overview.js";
 import { peakAction } from "./actions/peak.js";
 import { detectClock } from "./clock.js";
 import { ConsoleService } from "./console.js";
-import { bothLimitsAction, creditAction, extraAction, fiveHourAction, weeklyAction } from "./actions/limits.js";
-import { costAction, tokensAction } from "./actions/series.js";
+import { CODEX_LIMIT_ACTIONS, KIMI_LIMIT_ACTIONS, bothLimitsAction, creditAction, extraAction, fiveHourAction, weeklyAction } from "./actions/limits.js";
+import { codexCostAction, codexTokensAction, costAction, tokensAction } from "./actions/series.js";
 import { LimitsService, dataDir } from "./limits.js";
 import { createLogger } from "./log.js";
+import { PROVIDERS } from "./providers.js";
 import { toDataUrl } from "./render/svg.js";
-import { StatusService } from "./status.js";
+import { STATUS_PAGES, StatusService } from "./status.js";
 import { connectStreamDeck } from "./streamdeck.js";
 import { UsageIndex, resolveRoots } from "./usage-index.js";
 
@@ -36,10 +39,24 @@ const ACTIONS = new Map(
 		streakAction,
 		statusAction,
 		launchAction,
+		...CODEX_LIMIT_ACTIONS,
+		codexTokensAction,
+		codexCostAction,
+		codexCacheAction,
+		codexModelsAction,
+		codexStatusAction,
+		codexLaunchAction,
+		...KIMI_LIMIT_ACTIONS,
+		kimiStatusAction,
+		kimiLaunchAction,
+		overviewAction,
 	].map((a) => [a.uuid, a]),
 );
 const LONG_PRESS_MS = 600;
 const TICK_MS = 5_000;
+// A data source nobody shows any more is kept this long: flipping pages, folders or profiles of the
+// Stream Deck must not ask the APIs again or read all the logs again.
+const IDLE_SERVICE_MS = 10 * 60_000;
 
 const pluginDir = path.dirname(path.dirname(path.resolve(process.argv[1] ?? ".")));
 const log = createLogger(path.join(pluginDir, "logs"));
@@ -55,49 +72,67 @@ detectClock().then(
 
 /** Visible keys by context. */
 const keys = new Map();
-/** Data sources shared by keys: "usage:<folders>", "limits:<account>", "console:<from day>", "status:". */
+/**
+ * Data sources shared by keys, by "<kind>:<service>:<argument>": "usage:claude:<folders>",
+ * "limits:codex:", "console:claude:<from day>", "status:claude:".
+ */
 const services = new Map();
 
-function service(kind, arg = "") {
-	const id = `${kind}:${arg}`;
+function createService(kind, provider, arg) {
+	if (kind === "usage") {
+		const format = PROVIDERS[provider].logs;
+		return new UsageIndex(() => format.roots(arg), { format });
+	}
+	if (kind === "limits") {
+		// Claude's "Auto" limits look for a login in every folder that has Claude Code logs.
+		const profileDirs = provider === "claude" ? () => resolveRoots("").map((root) => path.dirname(root)) : () => [];
+		return new LimitsService(arg, { source: PROVIDERS[provider].limits, log, dir: dataDir(), profileDirs });
+	}
+	if (kind === "console") return new ConsoleService({ from: arg, log, dir: dataDir() });
+	return new StatusService({ log, page: STATUS_PAGES[provider] });
+}
+
+function service({ kind, provider = "claude", arg = "" }) {
+	const id = `${kind}:${provider}:${arg}`;
 	let svc = services.get(id);
 	if (!svc) {
-		// "Auto" limits look for a login in every folder that has Claude Code logs.
-		const profileDirs = () => resolveRoots("").map((root) => path.dirname(root));
-		const impl =
-			kind === "usage"
-				? new UsageIndex(() => resolveRoots(arg))
-				: kind === "limits"
-					? new LimitsService(arg, { log, dir: dataDir(), profileDirs })
-					: kind === "console"
-						? new ConsoleService({ from: arg, log, dir: dataDir() })
-						: new StatusService({ log });
-		svc = { id, kind, arg, impl, lastRun: 0, error: null, loggedError: null };
+		const impl = createService(kind, provider, arg);
+		// numbers from the cache that are fresh enough are not asked for again
+		svc = { id, kind, provider, arg, impl, lastRun: Number(impl.fetchedAt) || 0, error: null, loggedError: null, idleSince: 0 };
 		services.set(id, svc);
 	}
+	svc.idleSince = 0;
 	return svc;
 }
 
 const usersOf = (svc) => [...keys.values()].filter((key) => key.services.includes(svc));
 
-function attach(key) {
-	const needs = key.action.needs(key.settings);
-	key.services = [];
-	if (needs.usage !== undefined) key.services.push(service("usage", needs.usage));
-	if (needs.limits !== undefined) key.services.push(service("limits", needs.limits));
-	if (needs.console !== undefined) key.services.push(service("console", needs.console));
-	if (needs.status) key.services.push(service("status"));
-	for (const [id, svc] of services) if (!usersOf(svc).length) services.delete(id);
+/** Forgets the data sources that no key has shown for a while. */
+function releaseServices() {
+	const now = Date.now();
+	for (const [id, svc] of services) {
+		if (usersOf(svc).length) svc.idleSince = 0;
+		else if (!svc.idleSince) svc.idleSince = now;
+		else if (now - svc.idleSince > IDLE_SERVICE_MS) services.delete(id);
+	}
 }
 
+function attach(key) {
+	key.services = key.action.needs(key.settings).map(service);
+	releaseServices();
+}
+
+/** What an action draws from: the key's settings and its data sources, the first of each kind by name. */
 function contextOf(key) {
-	const ctx = { settings: key.settings, now: new Date() };
+	const ctx = { settings: key.settings, now: new Date(), limitsOf: {} };
 	for (const svc of key.services) {
 		if (svc.kind === "usage") {
 			ctx.usage = svc.impl;
 			ctx.usageError = svc.error;
-		} else if (svc.kind === "limits") ctx.limits = svc.impl;
-		else if (svc.kind === "console") ctx.console = svc.impl;
+		} else if (svc.kind === "limits") {
+			ctx.limits ??= svc.impl;
+			ctx.limitsOf[svc.provider] = svc.impl;
+		} else if (svc.kind === "console") ctx.console = svc.impl;
 		else ctx.status = svc.impl;
 	}
 	return ctx;
@@ -123,7 +158,8 @@ async function refresh(svc, force = false) {
 			const first = !svc.impl.lastScan;
 			const scan = await svc.impl.refresh();
 			svc.error = null;
-			if (first || scan.ms > 2000) log.info(`scan: ${svc.impl.roots.join(", ") || "no folders"}; ${scan.files} files, ${(scan.bytes / 1e6).toFixed(1)} MB in ${scan.ms} ms`);
+			const trouble = `${scan.errors ? `; ${scan.errors} files could not be read` : ""}${scan.unread ? `; ${scan.unread} compressed logs not read` : ""}`;
+			if (first || scan.ms > 2000) log.info(`scan: ${svc.impl.roots.join(", ") || "no folders"}; ${scan.files} files, ${(scan.bytes / 1e6).toFixed(1)} MB in ${scan.ms} ms${trouble}`);
 		} else {
 			await svc.impl.refresh(force);
 			logChange(svc, svc.impl.error);
@@ -217,7 +253,7 @@ sd.on("willDisappear", ({ context }) => {
 	if (!key) return;
 	clearTimeout(key.timer);
 	keys.delete(context);
-	for (const [id, svc] of services) if (!usersOf(svc).length) services.delete(id);
+	releaseServices();
 });
 
 sd.on("keyDown", ({ context }) => {
@@ -273,6 +309,7 @@ sd.on("systemDidWakeUp", () => {
 });
 
 setInterval(() => {
+	releaseServices();
 	for (const svc of services.values()) refresh(svc);
 	// countdowns and "minutes ago" change without new data
 	for (const key of keys.values()) draw(key);

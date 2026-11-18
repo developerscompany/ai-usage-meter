@@ -48,17 +48,17 @@ function lines(words, width, max) {
 }
 
 /**
- * @param {{ label: string, level: number | null, text: string, detail?: string, notes?: string[], stale?: boolean }} v
+ * @param {{ label: string, level: number | null, text: string, detail?: string, notes?: string[], stale?: boolean, logo?: string }} v
  * detail: what is in trouble, e.g. "Fable 5", shown under the status word; notes: gray lines that replace `text`
  */
 export function renderStatus(style, v) {
-	if (v.level === null) return svg([header(v.label), text(72, 82, 42, COLORS.gray, "···"), text(72, 108, 13, COLORS.gray, esc(v.text || "checking…"))]);
+	if (v.level === null) return svg([header(v.label, { logo: v.logo }), text(72, 82, 42, COLORS.gray, "···"), text(72, 108, 13, COLORS.gray, esc(v.text || "checking…"))]);
 	const level = LEVELS[v.level] ?? LEVELS[0];
 	if (style === "detail") {
 		const max = v.detail ? 2 : 3;
 		const shown = v.notes?.length ? v.notes.slice(0, max) : lines(v.text, 17, max);
 		return svg([
-			header(v.label, { stale: v.stale }),
+			header(v.label, { stale: v.stale, logo: v.logo }),
 			`<circle cx="22" cy="52" r="8" fill="${level.color}"/>`,
 			text(38, 58, 18, level.color, esc(level.word), { anchor: "start" }),
 			...(v.detail ? [text(12, 84, fit(v.detail, 120, 16), COLORS.white, esc(v.detail), { anchor: "start" })] : []),
@@ -67,12 +67,12 @@ export function renderStatus(style, v) {
 	}
 	if (v.detail) {
 		return svg([
-			header(v.label, { stale: v.stale }),
+			header(v.label, { stale: v.stale, logo: v.logo }),
 			`<circle cx="72" cy="61" r="23" fill="${level.color}"/>`,
 			icon(level.icon, 72, 61, 23),
 			text(72, 108, 17, level.color, esc(level.word)),
 			text(72, 131, fit(v.detail, 128, 17), COLORS.white, esc(v.detail)),
 		]);
 	}
-	return svg([header(v.label, { stale: v.stale }), `<circle cx="72" cy="72" r="31" fill="${level.color}"/>`, icon(level.icon, 72, 72, 31), text(72, 128, 17, level.color, esc(level.word))]);
+	return svg([header(v.label, { stale: v.stale, logo: v.logo }), `<circle cx="72" cy="72" r="31" fill="${level.color}"/>`, icon(level.icon, 72, 72, 31), text(72, 128, 17, level.color, esc(level.word))]);
 }

@@ -1,5 +1,6 @@
 // Both plan limits (5-hour and weekly) on one key.
 import { formatDuration, percentParts } from "../format.js";
+import { logo } from "./logos.js";
 import { COLORS, arc, bar, esc, levelColor, oldNumbers, svg, text, valueWithUnit } from "./svg.js";
 
 export const DUAL_STYLES = [
@@ -11,7 +12,7 @@ export const DUAL_STYLES = [
 
 /**
  * @typedef {{ used: number, resetsAt: number | null, reset?: boolean } | null} Window
- * @param {{ five: Window, week: Window, show: "used" | "left", warn: number, danger: number, now: number, tag?: string, stale?: boolean, old?: string, labels?: [string, string] }} v
+ * @param {{ five: Window, week: Window, show: "used" | "left", warn: number, danger: number, now: number, tag?: string, stale?: boolean, old?: string, labels?: [string, string], logo?: string }} v
  */
 function rowOf(w, v) {
 	if (!w) return { value: "—", unit: "", fraction: 0, color: COLORS.gray, reset: "" };
@@ -72,7 +73,10 @@ export function renderDual(style, v) {
 	const rows = [rowOf(v.five, v), rowOf(v.week, v)];
 	const labels = v.labels ?? ["5H", "7D"];
 	const parts = (STYLES[style] ?? STYLES.bars)(v, rows, labels);
-	if (v.tag) parts.push(text(136, 14, 11, COLORS.gray, esc(v.tag), { anchor: "end" }));
+	// The service's mark sits in the top left corner, clear of the rings and above the first label. The
+	// tag follows it there, except beside the rings: the top right corner belongs to the first number.
+	if (v.logo) parts.push(style === "rings" ? logo(v.logo, 5, 5, 17) : logo(v.logo, 10, 3, 13));
+	if (v.tag) parts.push(style === "rings" ? text(136, 14, 11, COLORS.gray, esc(v.tag), { anchor: "end" }) : text(v.logo ? 28 : 10, 13, 11, COLORS.gray, esc(v.tag), { anchor: "start" }));
 	if (v.old) return svg(oldNumbers(parts, v.old));
 	if (v.stale) parts.push(`<circle cx="72" cy="139" r="3" fill="none" stroke="${COLORS.gray}" stroke-width="1.5"/>`);
 	return svg(parts);

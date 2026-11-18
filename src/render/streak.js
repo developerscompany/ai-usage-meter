@@ -63,5 +63,5 @@ const STYLES = {
 /** @param {StreakView} view */
 export function renderStreak(style, view) {
 	const draw = STYLES[style] ?? STYLES.days;
-	return svg([header("STREAK"), ...draw(view)]);
+	return svg([header("STREAK", { logo: view.logo }), ...draw(view)]);
 }

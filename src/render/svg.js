@@ -1,5 +1,7 @@
 // SVG building blocks for 144×144 key images. Stream Deck draws keys with Qt SVG (SVG Tiny),
 // so only text/tspan, rect, circle, line, polyline and path (with arcs) are used: no filters or CSS.
+import { logo } from "./logos.js";
+
 export const SIZE = 144;
 export const FONT = "Helvetica Neue,Helvetica,Arial,sans-serif";
 
@@ -114,11 +116,28 @@ export function bar(x, y, w, h, fraction, color, track = COLORS.track) {
 	return rect(x, y, w, h, track, { rx: h / 2 }) + rect(x, y, Math.min(w, fillW), h, color, { rx: h / 2 });
 }
 
-/** Header line at the top of every key; `tag` is a short marker in the corner (e.g. an account letter). */
-export function header(label, { tag, stale } = {}) {
-	let out = text(72, 24, 17, COLORS.white, esc(label));
+// A service mark in a header: its side, and the gap to the label.
+const MARK = 18;
+const MARK_GAP = 5;
+
+/**
+ * Header line at the top of every key; `tag` is a short marker in the corner (e.g. an account letter),
+ * `logo` the service the key reports on ("claude", "codex", "kimi"): its mark goes before the label.
+ * Mark and label are centred as one; a long label gets smaller letters and keeps clear of the tag.
+ */
+export function header(label, { tag, stale, logo: mark } = {}) {
+	const lead = mark ? MARK + MARK_GAP : 0;
+	const right = tag ? 132 - labelWidth(tag, 12) : 140;
+	let size = 17;
+	while (size > 12 && lead + labelWidth(label, size) > right - 4) size--;
+	const width = lead + labelWidth(label, size);
+	const x = Math.max(4, Math.min(72 - width / 2, right - width));
+	// without a mark the renderer centres the label itself, which is exact where the width is only estimated
+	const centre = Math.abs(x + width / 2 - 72) < 0.01 ? 72 : x + width / 2;
+	let out = mark ? logo(mark, x, 9, MARK) + text(x + lead, 24, size, COLORS.white, esc(label), { anchor: "start" }) : text(centre, 24, size, COLORS.white, esc(label));
 	if (tag) out += text(136, 20, 12, COLORS.gray, esc(tag), { anchor: "end" });
-	if (stale) out += `<circle cx="11" cy="15" r="3.5" fill="none" stroke="${COLORS.gray}" stroke-width="1.5"/>`;
+	// the last update failed: a small ring in the corner, above the line of the label
+	if (stale) out += `<circle cx="11" cy="5" r="3" fill="none" stroke="${COLORS.gray}" stroke-width="1.5"/>`;
 	return out;
 }
 
@@ -147,9 +166,9 @@ export function levelColor(used, warn = 50, danger = 80) {
 }
 
 /** Key for "loading", "no data" and error states. */
-export function messageKey(label, message, { big = "···", color = COLORS.gray, tag, messageColor = COLORS.orange, detail = "" } = {}) {
+export function messageKey(label, message, { big = "···", color = COLORS.gray, tag, logo: mark, messageColor = COLORS.orange, detail = "" } = {}) {
 	return svg([
-		header(label, { tag }),
+		header(label, { tag, logo: mark }),
 		text(72, 82, 42, color, esc(big)),
 		text(72, 108, 13, messageColor, esc(message)),
 		detail ? text(72, 126, 12, COLORS.gray, esc(detail)) : "",

@@ -4,7 +4,7 @@ import { formatDuration } from "../format.js";
 import { peakAt, peakWindows } from "../peak.js";
 import { PEAK_STYLES, renderPeak } from "../render/peak.js";
 import { addDays, startOfDay } from "../usage-index.js";
-import { PREFIX, clampNumber, pick, styleIds } from "./common.js";
+import { PREFIX, clampNumber, logoOf, normalizeLogo, pick, styleIds } from "./common.js";
 
 const NOTE =
 	"Anthropic set peak hours on 26 March 2026: weekdays 5–11 AM Pacific time, when 5-hour session limits drain faster. Since 6 May 2026 that no longer applies to Claude Code on Pro and Max plans; for Claude chat (web, desktop, mobile) and the Free plan no end has been announced.";
@@ -15,7 +15,7 @@ function view(s, now) {
 	const dayStart = midnight.getTime();
 	const dayEnd = addDays(midnight, 1).getTime();
 	const state = w.peak ? "peak" : s.warn > 0 && w.start - now <= s.warn * 60_000 ? "soon" : "off";
-	return { state, now, start: w.start, end: w.end, day: peakWindows(dayStart, dayEnd), dayStart, dayEnd, twelve: twelveHour(s.clock), tag: s.tag };
+	return { state, now, start: w.start, end: w.end, day: peakWindows(dayStart, dayEnd), dayStart, dayEnd, twelve: twelveHour(s.clock), tag: s.tag, logo: logoOf(s, "claude") };
 }
 
 export const peakAction = {
@@ -25,6 +25,7 @@ export const peakAction = {
 
 	normalize(raw) {
 		const s = { style: "badge", warn: 30, clock: "auto", tag: "", ...(raw ?? {}) };
+		normalizeLogo(s);
 		s.style = pick(s.style, styleIds(PEAK_STYLES), "badge");
 		s.clock = pick(String(s.clock), ["auto", "24", "12"], "auto");
 		s.warn = clampNumber(s.warn, 0, 240, 30);
@@ -33,7 +34,7 @@ export const peakAction = {
 	},
 
 	// the clock is all it needs; the plugin redraws every key every few seconds
-	needs: () => ({}),
+	needs: () => [],
 	refreshSeconds: () => 3600,
 
 	render: (ctx, style = ctx.settings.style) => renderPeak(style, view(ctx.settings, ctx.now.getTime())),

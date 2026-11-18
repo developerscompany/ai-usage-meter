@@ -1,4 +1,5 @@
-// Builders for Claude Code transcript lines, shaped like real ~/.claude/projects/*.jsonl entries.
+// Builders for Claude Code transcript lines, shaped like real ~/.claude/projects/*.jsonl entries, and
+// for Codex session logs and logins, shaped like the real ones in ~/.codex.
 import crypto from "node:crypto";
 
 const id = (prefix) => `${prefix}_${crypto.randomBytes(12).toString("hex")}`;
@@ -59,4 +60,34 @@ export function taskResultLine({ at, tokens }) {
 
 export function userLine({ at, text = "hello" }) {
 	return JSON.stringify({ type: "user", message: { role: "user", content: text }, uuid: crypto.randomUUID(), timestamp: new Date(at).toISOString() });
+}
+
+/** A JWT like those in Codex's auth.json: the plugin only reads the expiry and the email from the payload. */
+export function jwt(payload) {
+	const part = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+	return `${part({ alg: "RS256", typ: "JWT" })}.${part(payload)}.signature`;
+}
+
+/**
+ * A Codex session log (rollout): the model in a turn_context line, then for every response its
+ * token_usage_record and the token_count event Codex writes right after, with the session's running total.
+ * `records: false` gives the log of a Codex from before those records.
+ */
+export function codexLines({ at, model = "gpt-6.1-sol", responses, records = true, threadId = crypto.randomUUID() }) {
+	const timestamp = new Date(at).toISOString();
+	const line = (ordinal, type, payload) => JSON.stringify({ timestamp, ordinal, type, payload });
+	const lines = [line(0, "session_meta", { id: threadId, cwd: "/Users/nick/project", originator: "Codex Desktop" }), line(1, "turn_context", { turn_id: "t1", cwd: "/Users/nick/project", model })];
+	const total = { input_tokens: 0, cached_input_tokens: 0, cache_write_input_tokens: 0, output_tokens: 0, reasoning_output_tokens: 0, total_tokens: 0 };
+	responses.forEach((usage, i) => {
+		for (const k of Object.keys(total)) total[k] += usage[k] ?? 0;
+		if (records) lines.push(line(2 + 2 * i, "token_usage_record", { thread_id: threadId, turn_id: "t1", response_id: id("resp"), usage, turn_token_usage: usage, thread_token_usage: { ...total } }));
+		lines.push(
+			line(3 + 2 * i, "event_msg", {
+				type: "token_count",
+				info: { total_token_usage: { ...total }, last_token_usage: usage, model_context_window: 475_000 },
+				rate_limits: { limit_id: "codex", primary: { used_percent: 9, window_minutes: 300, resets_at: 1 }, plan_type: "team" },
+			}),
+		);
+	});
+	return lines;
 }

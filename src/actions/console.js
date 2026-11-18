@@ -6,7 +6,7 @@ import { ADMIN_KEY_SERVICE, utcDay, utcMonthStart } from "../console.js";
 import { formatAge, formatMoney } from "../format.js";
 import { PERCENT_STYLES, renderPercent } from "../render/percent.js";
 import { COLORS, messageKey } from "../render/svg.js";
-import { PREFIX, clampNumber, clock, limitPress, normalizeLimitSettings } from "./common.js";
+import { PREFIX, clampNumber, clock, limitPress, logoOf, normalizeLimitSettings } from "./common.js";
 
 const STYLES = PERCENT_STYLES.filter((st) => st.id !== "history" && st.id !== "pace");
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -55,24 +55,25 @@ export const apiCreditAction = {
 		return s;
 	},
 
-	needs: (s) => ({ console: s.granted }),
+	needs: (s) => [{ kind: "console", arg: s.granted }],
 	refreshSeconds: (s) => s.refresh,
 
 	render(ctx, style = ctx.settings.style) {
 		const s = ctx.settings;
 		const svc = ctx.console;
 		const label = s.amount ? "API CREDIT" : "API SPEND";
+		const logo = logoOf(s, "claude");
 		if (!svc.fetchedAt) {
-			if (!svc.error) return messageKey(label, "loading…", { tag: s.tag, messageColor: COLORS.gray });
+			if (!svc.error) return messageKey(label, "loading…", { tag: s.tag, logo, messageColor: COLORS.gray });
 			const [message, detail] = ERRORS[svc.error.code] ?? ["error", ""];
-			return messageKey(label, message, { big: "!", color: COLORS.orange, tag: s.tag, detail });
+			return messageKey(label, message, { big: "!", color: COLORS.orange, tag: s.tag, logo, detail });
 		}
 		const now = ctx.now.getTime();
 		const stale = !!svc.error || svc.stale(s.refresh, now);
 		// a missing or refused key makes the numbers useless at once; other trouble once they are a while old
 		const age = now - svc.fetchedAt;
 		const old = ["nokey", "auth"].includes(svc.error?.code) ? ERRORS[svc.error.code][0] : stale && age >= 15 * 60_000 ? `${formatAge(age)} old` : "";
-		const common = { label, now, warn: s.warn, danger: s.danger, tag: s.tag, stale, old };
+		const common = { label, now, warn: s.warn, danger: s.danger, tag: s.tag, logo, stale, old };
 		if (!s.amount) {
 			const spent = svc.spendSince(utcMonthStart(now));
 			return renderPercent(style, { ...common, used: 0, show: "used", display: { value: formatMoney(spent), unit: "", caption: "this month" }, footer: "Claude Console", resetsAt: null, windowMs: 1 });
