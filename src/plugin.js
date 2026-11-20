@@ -217,7 +217,13 @@ async function rescan(key, { feedback = true } = {}) {
 	else sd.showOk(key.context);
 }
 
+/** A limit key with nothing but a message on it: no login, a refused one, or no answer so far. */
+const onlyMessage = (key) => key.services.length > 0 && key.services.every((svc) => svc.kind === "limits" && svc.impl.error && !svc.impl.data);
+
 function press(key) {
+	// Switching the view of numbers that are not there would show nothing, and would change it unseen: the
+	// press asks again instead. A key set to open its page still opens it.
+	if (onlyMessage(key) && key.settings.press !== "open") return rescan(key);
 	const result = key.action.press(contextOf(key));
 	if (result === "save") {
 		sd.setSettings(key.context, key.settings);

@@ -1,5 +1,5 @@
 // Both plan limits (5-hour and weekly) on one key.
-import { formatDuration, percentParts } from "../format.js";
+import { coarseDuration, formatDuration, percentParts } from "../format.js";
 import { logo } from "./logos.js";
 import { COLORS, arc, bar, esc, levelColor, oldNumbers, svg, text, valueWithUnit } from "./svg.js";
 
@@ -53,7 +53,8 @@ const STYLES = {
 	split(v, [a, b], [la, lb]) {
 		const half = (y, label, r) => [
 			text(12, y, 15, COLORS.gray, esc(label), { anchor: "start" }),
-			text(12, y + 22, 12, COLORS.gray, esc(r.reset), { anchor: "start" }),
+			// "100%" this large leaves room for one unit of the reset time: "3h" of "3h42m"
+			text(12, y + 22, 12, COLORS.gray, esc(r.value.length > 2 ? coarseDuration(r.reset) : r.reset), { anchor: "start" }),
 			valueWithUnit(134, y + 20, 38, r.color, r.value, r.unit, { anchor: "end" }),
 		];
 		return [...half(32, la, a), `<line x1="10" y1="72" x2="134" y2="72" stroke="${COLORS.track}" stroke-width="2"/>`, ...half(102, lb, b)];

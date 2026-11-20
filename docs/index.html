@@ -17,7 +17,7 @@
 <meta property="og:image:width" content="1920">
 <meta property="og:image:height" content="960">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Usage Meter","description":"A Stream Deck plugin with 33 keys for the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code.","applicationCategory":"DeveloperApplication","operatingSystem":"macOS 12+, Windows 10+","softwareVersion":"4.0.0","softwareRequirements":"Elgato Stream Deck 6.9 or later","downloadUrl":"https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin","url":"https://developerscompany.github.io/ai-usage-meter/","image":"https://developerscompany.github.io/ai-usage-meter/assets/og.png","license":"https://opensource.org/license/mit","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"Rivo Agency","url":"https://rivo.agency"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Usage Meter","description":"A Stream Deck plugin with 33 keys for the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code.","applicationCategory":"DeveloperApplication","operatingSystem":"macOS 12+, Windows 10+","softwareVersion":"4.0.1","softwareRequirements":"Elgato Stream Deck 6.9 or later","downloadUrl":"https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin","url":"https://developerscompany.github.io/ai-usage-meter/","image":"https://developerscompany.github.io/ai-usage-meter/assets/og.png","license":"https://opensource.org/license/mit","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"Rivo Agency","url":"https://rivo.agency"}}</script>
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -52,7 +52,7 @@
 <section class="hero" id="top">
 	<div class="wrap hero-grid">
 		<div>
-			<p class="eyebrow">Stream Deck plugin · version 4.0.0 · free and open source</p>
+			<p class="eyebrow">Stream Deck plugin · version 4.0.1 · free and open source</p>
 			<h1>Your AI coding limits, <em>on your Stream Deck</em></h1>
 			<p class="lead">One plugin, 33 keys, three services: Claude, Codex and Kimi Code. See what is left of each plan before you hit a limit, what your work would cost through the API, and whether the service is up.</p>
 			<div class="cta">
@@ -107,6 +107,7 @@
 			<p class="sub">The All Services key puts Claude, Codex and Kimi side by side, each with its logo. Pick the weekly or the 5-hour limit as bars or rings, or both limits as numbers.</p>
 			<ul class="ticks">
 				<li>Press to switch between what's left and what's used, or between weekly and 5-hour.</li>
+				<li>A service whose plan has no weekly limit shows its monthly one in that place, marked MO.</li>
 				<li>An orange dot by a logo means that service's login needs attention.</li>
 				<li>A dimmed row has numbers that are no longer current.</li>
 				<li>Choose which services the key shows.</li>
@@ -123,7 +124,7 @@
 <section id="keys" class="block">
 	<div class="wrap">
 		<h2>Every key, <em>explained</em></h2>
-		<p class="sub">In Stream Deck's action list every key carries its service's name, such as Claude 5-Hour Limit or Codex Weekly Limit. A short press does what is listed here, and most of it can be changed in the key's settings. Holding a key for a moment refreshes it.</p>
+		<p class="sub">In Stream Deck's action list every key carries its service's name, such as Claude 5-Hour Limit or Codex Weekly Limit. A short press does what is listed here, and most of it can be changed in the key's settings. Holding a key for a moment refreshes it, and a key that has only a message on it asks again when pressed.</p>
 		
 			<section class="service-keys" aria-labelledby="keys-claude">
 				<h3 id="keys-claude"><svg class="mark" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><g transform="translate(0.00 0.00) scale(1.1667)"><path d="M 4.71 15.96 L 9.43 13.31 L 9.51 13.08 L 9.43 12.95 L 9.2 12.95 L 8.41 12.9 L 5.71 12.83 L 3.37 12.73 L 1.11 12.61 L 0.54 12.49 L 0 11.78 L 0.06 11.43 L 0.54 11.11 L 1.22 11.17 L 2.74 11.27 L 5.02 11.43 L 6.67 11.53 L 9.12 11.78 L 9.51 11.78 L 9.56 11.63 L 9.43 11.53 L 9.33 11.43 L 6.97 9.84 L 4.42 8.15 L 3.08 7.18 L 2.36 6.69 L 1.99 6.22 L 1.83 5.22 L 2.49 4.49 L 3.37 4.55 L 3.6 4.61 L 4.49 5.3 L 6.4 6.78 L 8.89 8.61 L 9.25 8.91 L 9.4 8.81 L 9.42 8.74 L 9.25 8.46 L 7.9 6.02 L 6.45 3.53 L 5.81 2.5 L 5.64 1.88 A 2.97 2.97 0 0 1 5.53 1.15 L 6.28 0.13 L 6.7 0 L 7.69 0.13 L 8.11 0.5 L 8.73 1.91 L 9.73 4.14 L 11.29 7.17 L 11.75 8.07 L 11.99 8.9 L 12.08 9.16 L 12.24 9.16 L 12.24 9.01 L 12.36 7.3 L 12.6 5.21 L 12.83 2.51 L 12.91 1.75 L 13.29 0.84 L 14.03 0.35 L 14.62 0.63 L 15.1 1.32 L 15.03 1.76 L 14.75 3.61 L 14.19 6.52 L 13.82 8.46 L 14.03 8.46 L 14.28 8.22 L 15.26 6.91 L 16.92 4.85 L 17.65 4.02 L 18.5 3.12 L 19.04 2.69 L 20.08 2.69 L 20.84 3.82 L 20.5 4.98 L 19.43 6.33 L 18.55 7.47 L 17.29 9.17 L 16.5 10.53 L 16.57 10.64 L 16.76 10.62 L 19.61 10.02 L 21.16 9.74 L 23 9.42 L 23.83 9.81 L 23.92 10.21 L 23.59 11.01 L 21.62 11.5 L 19.32 11.96 L 15.88 12.77 L 15.83 12.8 L 15.88 12.86 L 17.43 13.01 L 18.09 13.05 L 19.72 13.05 L 22.74 13.27 L 23.53 13.79 L 24 14.43 L 23.92 14.92 L 22.71 15.54 L 21.07 15.15 L 17.24 14.24 L 15.93 13.91 L 15.74 13.91 L 15.74 14.02 L 16.84 15.09 L 18.84 16.9 L 21.35 19.23 L 21.48 19.8 L 21.16 20.26 L 20.82 20.21 L 18.61 18.55 L 17.76 17.81 L 15.83 16.19 L 15.71 16.19 L 15.71 16.36 L 16.15 17.01 L 18.5 20.53 L 18.62 21.61 L 18.45 21.96 L 17.84 22.17 L 17.17 22.05 L 15.8 20.13 L 14.38 17.96 L 13.24 16.02 L 13.1 16.1 L 12.43 23.35 L 12.11 23.72 L 11.38 24 L 10.77 23.54 L 10.45 22.79 L 10.77 21.32 L 11.16 19.39 L 11.48 17.86 L 11.76 15.96 L 11.93 15.33 L 11.92 15.29 L 11.78 15.31 L 10.35 17.27 L 8.17 20.22 L 6.44 22.06 L 6.03 22.23 L 5.31 21.86 L 5.38 21.2 L 5.78 20.61 L 8.17 17.57 L 9.61 15.69 L 10.54 14.6 L 10.53 14.44 L 10.48 14.44 L 4.13 18.56 L 3 18.71 L 2.51 18.25 L 2.58 17.5 L 2.81 17.26 L 4.72 15.95 L 4.71 15.96 Z" fill="#d97757"/></g></svg> Claude <span class="count">15 keys</span></h3>
@@ -132,7 +133,7 @@
 					<img class="key" src="assets/keys/limit5h.svg" width="96" height="96" alt="Claude 5-Hour Limit key with sample numbers" loading="lazy" decoding="async">
 					<div>
 						<h4>5-Hour Limit</h4>
-						<p>The 5-hour session limit: what's left or used, and the time until it resets.</p>
+						<p>The 5-hour session limit: what's left or used, and the time until it resets. Says “not on your plan” on an account without one (verified Ultra accounts).</p>
 						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
 					</div>
 				</li>
@@ -350,7 +351,7 @@
 					<img class="key" src="assets/keys/kimi-limit7d.svg" width="96" height="96" alt="Kimi Weekly Limit key with sample numbers" loading="lazy" decoding="async">
 					<div>
 						<h4>Weekly Limit</h4>
-						<p>The weekly limit of your Kimi Code plan.</p>
+						<p>The weekly limit of your Kimi Code plan. Says “not on your plan” where the plan has a 5-hour and a monthly limit only.</p>
 						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
 					</div>
 				</li>
@@ -358,7 +359,7 @@
 					<img class="key" src="assets/keys/kimi-limits.svg" width="96" height="96" alt="Kimi Both Limits key with sample numbers" loading="lazy" decoding="async">
 					<div>
 						<h4>Both Limits</h4>
-						<p>Both Kimi Code limits on one key.</p>
+						<p>The 5-hour limit and the weekly one on one key, or the monthly one (MO) on a plan without a weekly limit.</p>
 						<p class="acts"><span><b>Press</b> switch left / used</span><span><b>Hold</b> refresh</span></p>
 					</div>
 				</li>
@@ -528,7 +529,7 @@
 				<tr><th scope="row"><code>login expired / open Kimi Code</code></th><td>The 15-minute login of the Kimi Code app ran out: use Kimi Code, or store an API key.</td></tr>
 				<tr><th scope="row"><code>token refused / login refused</code></th><td>The service didn't accept the login; the key's settings say more.</td></tr>
 				<tr><th scope="row"><code>rate limited / offline / API error</code></th><td>A temporary problem; the plugin retries.</td></tr>
-				<tr><th scope="row"><code>not on your plan</code></th><td>Your plan has no such limit: a separate Haiku limit, say, or a 5-hour limit on a Codex plan that only has a weekly one.</td></tr>
+				<tr><th scope="row"><code>not on your plan</code></th><td>Your plan has no such limit: a separate Haiku limit, say, a 5-hour limit on a verified Ultra account of Claude or on a Codex plan that only has a weekly one, or a weekly limit on a Kimi Code plan that has a monthly one.</td></tr>
 				<tr><th scope="row"><code>only on claude.ai / press to open</code></th><td>The API didn't send the cloud credit; press to open claude.ai.</td></tr>
 				<tr><th scope="row"><code>no Admin key / see settings</code></th><td>The API Credit key found no Admin key.</td></tr>
 				<tr><th scope="row">Dimmed numbers, “login expired” below</th><td>The last numbers from before the login expired.</td></tr>
@@ -563,6 +564,9 @@
 		<details class="qa"><summary>Does it send my data anywhere?</summary><p>No. Everything runs on your computer. The plugin reads the logins your tools already keep, asks each service for your own numbers, and has no analytics, no telemetry and no server of its own.</p></details>
 		<details class="qa"><summary>The Kimi keys say “login expired” most of the time.</summary><p>That is the Kimi Code app's 15-minute login running out between your sessions. Store a Kimi Code API key for the plugin and the numbers stay current all the time.</p></details>
 		<details class="qa"><summary>My Codex 5-Hour key says “not on your plan”.</summary><p>Some ChatGPT plans give Codex a weekly limit only. Use the Weekly key; the key's settings tell you which limits your plan has.</p></details>
+		<details class="qa"><summary>My Claude 5-Hour key says “not on your plan”.</summary><p>Verified Ultra accounts have no 5-hour session limit, only the weekly ones; Pro and Max plans have both. Use the Weekly key.</p></details>
+		<details class="qa"><summary>My Kimi Weekly key says “not on your plan”.</summary><p>Some Kimi Code plans have a 5-hour and a monthly limit only. Use the Monthly Limit key; Both Limits and All Services show the monthly limit in the weekly one's place by themselves.</p></details>
+		<details class="qa"><summary>I stored a Kimi API key and the key still shows a message.</summary><p>The plugin notices a new key or login within a minute; pressing a key that shows a message asks at once. “login refused” means Kimi did not accept what was stored: store the key again, pasting the key itself when Terminal asks.</p></details>
 		<details class="qa"><summary>The Codex token numbers look too low.</summary><p>Codex compresses its older session logs, and the plugin can't open those yet. The key's settings say how many logs were not read.</p></details>
 		<details class="qa"><summary>Do the token keys count other computers or the web apps?</summary><p>No, only this computer's logs. The limit keys do count everything: those numbers come from the service itself.</p></details>
 		<details class="qa"><summary>Can I hide the logos?</summary><p>Yes, per key: Logo in its settings. The All Services key then shows two letters per service.</p></details>
@@ -577,7 +581,7 @@
 		<h2>Put your limits <em>where you can see them</em></h2>
 		<p class="sub">Free, open source, and installed with a double click.</p>
 		<div class="cta center">
-			<a class="button" href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download AI Usage Meter 4.0.0</a>
+			<a class="button" href="https://github.com/developerscompany/ai-usage-meter/releases/latest/download/agency.rivo.ai-usage-meter.streamDeckPlugin">Download AI Usage Meter 4.0.1</a>
 			<a class="ghost big" href="https://github.com/developerscompany/ai-usage-meter/releases">All releases</a>
 		</div>
 	</div>

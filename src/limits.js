@@ -199,6 +199,9 @@ export class LimitsService {
 		this.history = []; // [time, one column per window of the source]
 		this.creds = null;
 		this.credsReadAt = 0;
+		// After a refusal: { token, until, error }. The login the server said no to is not sent again before
+		// `until`; another login in its place does not wait for that. Kept in memory only.
+		this.refusal = null;
 		this.lastLogin = null;
 		this.failures = 0;
 		this.retryAt = 0;
@@ -242,7 +245,8 @@ export class LimitsService {
 
 	async token() {
 		const now = this.now();
-		const valid = this.creds && (!this.creds.expiresAt || this.creds.expiresAt - EXPIRY_MARGIN_MS > now);
+		// only a login that works is kept for a while: an expired or a refused one may be replaced any moment
+		const valid = this.creds && this.creds.token !== this.refusal?.token && (!this.creds.expiresAt || this.creds.expiresAt - EXPIRY_MARGIN_MS > now);
 		if (this.credsReadAt && now - this.credsReadAt < (valid ? REUSE_LOGIN_MS : REREAD_TOKEN_MS)) return this.creds;
 		this.credsReadAt = now;
 		this.creds = await this.credentials(this.account, { dirs: this.profileDirs(), now });
@@ -266,6 +270,8 @@ export class LimitsService {
 	async fetchNow(force) {
 		const now = this.now();
 		if (now < this.retryAt && (!force || this.error?.code === "rate")) return;
+		// asked for by hand: with the login as it is now, not as it was read a moment ago
+		if (force) this.credsReadAt = 0;
 
 		const { api, text } = this.source;
 		const creds = await this.token();
@@ -278,8 +284,21 @@ export class LimitsService {
 		const expired = !!creds.expiresAt && creds.expiresAt - EXPIRY_MARGIN_MS <= now;
 		if (expired && this.source.exactExpiry) {
 			this.credsReadAt = 0; // look for a renewed login next time
-			this.fail("expired", text.expired, REREAD_TOKEN_MS);
+			// nothing was asked, so this is no failed request: it must not lengthen the wait after a real one
+			this.error = { code: "expired", message: text.expired };
+			this.retryAt = now + REREAD_TOKEN_MS;
 			return;
+		}
+		if (this.refusal) {
+			if (this.refusal.token !== creds.token) {
+				// another login in the refused one's place (a new sign-in, a key stored again) starts afresh
+				this.refusal = null;
+				this.failures = 0;
+			} else if (!force && now < this.refusal.until) {
+				// the same one waits its turn, also after a moment in which it could not be read
+				this.error = this.refusal.error;
+				return;
+			}
 		}
 
 		let res;
@@ -297,6 +316,9 @@ export class LimitsService {
 				this.fail("expired", text.expired, 60_000);
 			} else {
 				this.fail("auth", `${api} refused the ${creds.kind === "key" ? "key" : "token"} (HTTP ${res.status})`);
+				// the wait is this login's, not the service's: another login is tried at once (see above)
+				this.refusal = { token: creds.token, until: this.retryAt, error: this.error };
+				this.retryAt = 0;
 			}
 			return;
 		}
@@ -318,6 +340,7 @@ export class LimitsService {
 		}
 		this.fetchedAt = now;
 		this.error = null;
+		this.refusal = null;
 		this.failures = 0;
 		this.retryAt = 0;
 		this.sample(now);

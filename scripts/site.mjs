@@ -50,7 +50,7 @@ const mark = (id, size = 28) => `<svg class="mark" xmlns="http://www.w3.org/2000
 const SWITCH = "switch left / used";
 const KEYS = {
 	claude: [
-		["limit5h", "The 5-hour session limit: what's left or used, and the time until it resets.", SWITCH, "refresh"],
+		["limit5h", "The 5-hour session limit: what's left or used, and the time until it resets. Says “not on your plan” on an account without one (verified Ultra accounts).", SWITCH, "refresh"],
 		["limit7d", "The weekly limit for all models, or just Fable, Opus, Sonnet or Haiku.", SWITCH, "refresh"],
 		["limits", "The 5-hour and the weekly limit on one key.", SWITCH, "refresh"],
 		["peak", "Whether it's peak time now (weekdays 5–11 AM Pacific), and when it ends or starts, in your time zone.", "next style", ""],
@@ -80,8 +80,8 @@ const KEYS = {
 	],
 	kimi: [
 		["kimi-limit5h", "The 5-hour limit of your Kimi Code plan.", SWITCH, "refresh"],
-		["kimi-limit7d", "The weekly limit of your Kimi Code plan.", SWITCH, "refresh"],
-		["kimi-limits", "Both Kimi Code limits on one key.", SWITCH, "refresh"],
+		["kimi-limit7d", "The weekly limit of your Kimi Code plan. Says “not on your plan” where the plan has a 5-hour and a monthly limit only.", SWITCH, "refresh"],
+		["kimi-limits", "The 5-hour limit and the weekly one on one key, or the monthly one (MO) on a plan without a weekly limit.", SWITCH, "refresh"],
 		["kimi-month", "The monthly limit of your Kimi plan, which Kimi Code shares with Kimi chat.", SWITCH, "refresh"],
 		["kimi-extra", "The wallet of extra usage on top of the plan: what is left, or this month's spend against the cap you set.", SWITCH, "refresh"],
 		["kimi-status", "Kimi Code's status from status.moonshot.cn, or all of Moonshot AI or the API.", "open the incident", "refresh"],
@@ -150,7 +150,7 @@ const MESSAGES = [
 	["login expired / open Kimi Code", "The 15-minute login of the Kimi Code app ran out: use Kimi Code, or store an API key."],
 	["token refused / login refused", "The service didn't accept the login; the key's settings say more."],
 	["rate limited / offline / API error", "A temporary problem; the plugin retries."],
-	["not on your plan", "Your plan has no such limit: a separate Haiku limit, say, or a 5-hour limit on a Codex plan that only has a weekly one."],
+	["not on your plan", "Your plan has no such limit: a separate Haiku limit, say, a 5-hour limit on a verified Ultra account of Claude or on a Codex plan that only has a weekly one, or a weekly limit on a Kimi Code plan that has a monthly one."],
 	["only on claude.ai / press to open", "The API didn't send the cloud credit; press to open claude.ai."],
 	["no Admin key / see settings", "The API Credit key found no Admin key."],
 	["Dimmed numbers, “login expired” below", "The last numbers from before the login expired.", true],
@@ -165,6 +165,9 @@ const FAQ = [
 	["Does it send my data anywhere?", "No. Everything runs on your computer. The plugin reads the logins your tools already keep, asks each service for your own numbers, and has no analytics, no telemetry and no server of its own."],
 	["The Kimi keys say “login expired” most of the time.", "That is the Kimi Code app's 15-minute login running out between your sessions. Store a Kimi Code API key for the plugin and the numbers stay current all the time."],
 	["My Codex 5-Hour key says “not on your plan”.", "Some ChatGPT plans give Codex a weekly limit only. Use the Weekly key; the key's settings tell you which limits your plan has."],
+	["My Claude 5-Hour key says “not on your plan”.", "Verified Ultra accounts have no 5-hour session limit, only the weekly ones; Pro and Max plans have both. Use the Weekly key."],
+	["My Kimi Weekly key says “not on your plan”.", "Some Kimi Code plans have a 5-hour and a monthly limit only. Use the Monthly Limit key; Both Limits and All Services show the monthly limit in the weekly one's place by themselves."],
+	["I stored a Kimi API key and the key still shows a message.", "The plugin notices a new key or login within a minute; pressing a key that shows a message asks at once. “login refused” means Kimi did not accept what was stored: store the key again, pasting the key itself when Terminal asks."],
 	["The Codex token numbers look too low.", "Codex compresses its older session logs, and the plugin can't open those yet. The key's settings say how many logs were not read."],
 	["Do the token keys count other computers or the web apps?", "No, only this computer's logs. The limit keys do count everything: those numbers come from the service itself."],
 	["Can I hide the logos?", "Yes, per key: Logo in its settings. The All Services key then shows two letters per service."],
@@ -284,6 +287,7 @@ const html = `<!doctype html>
 			<p class="sub">The All Services key puts Claude, Codex and Kimi side by side, each with its logo. Pick the weekly or the 5-hour limit as bars or rings, or both limits as numbers.</p>
 			<ul class="ticks">
 				<li>Press to switch between what's left and what's used, or between weekly and 5-hour.</li>
+				<li>A service whose plan has no weekly limit shows its monthly one in that place, marked MO.</li>
 				<li>An orange dot by a logo means that service's login needs attention.</li>
 				<li>A dimmed row has numbers that are no longer current.</li>
 				<li>Choose which services the key shows.</li>
@@ -298,7 +302,7 @@ const html = `<!doctype html>
 <section id="keys" class="block">
 	<div class="wrap">
 		<h2>Every key, <em>explained</em></h2>
-		<p class="sub">In Stream Deck's action list every key carries its service's name, such as Claude 5-Hour Limit or Codex Weekly Limit. A short press does what is listed here, and most of it can be changed in the key's settings. Holding a key for a moment refreshes it.</p>
+		<p class="sub">In Stream Deck's action list every key carries its service's name, such as Claude 5-Hour Limit or Codex Weekly Limit. A short press does what is listed here, and most of it can be changed in the key's settings. Holding a key for a moment refreshes it, and a key that has only a message on it asks again when pressed.</p>
 		${SERVICES.map(serviceKeys).join("")}
 	</div>
 </section>

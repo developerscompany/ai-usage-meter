@@ -1,6 +1,6 @@
 // All services on one key: Claude, Codex and Kimi side by side, each with its mark and one limit
 // (or both limits as numbers).
-import { formatDuration, percentParts } from "../format.js";
+import { coarseDuration, formatDuration, percentParts } from "../format.js";
 import { logo } from "./logos.js";
 import { COLORS, arc, bar, esc, levelColor, svg, text, valueWithUnit } from "./svg.js";
 
@@ -16,7 +16,8 @@ export const OVERVIEW_STYLES = [
  * @property {string} id       the service, also the id of its mark
  * @property {string} name     shown instead of the mark when marks are off
  * @property {Window} five     5-hour window; null when the plan has none or nothing is known yet
- * @property {Window} week     weekly window
+ * @property {Window} week     weekly window, or the monthly one of a plan that has no weekly limit
+ * @property {boolean} [monthly] `week` holds the monthly limit: the row says "MO"
  * @property {boolean} [dim]   the numbers are no longer current (an expired login, say)
  * @property {boolean} [alert] the service's login needs attention
  *
@@ -49,6 +50,10 @@ const dimmed = (row, parts) => (row.dim ? `<g opacity="0.35">${parts}</g>` : par
 // the tag (an account letter, say) rides along with the caption: the corners are taken by numbers
 const tagged = (words, v) => (v.tag ? `${words} · ${v.tag}` : words);
 const caption = (v) => tagged(`${v.window === "fiveHour" ? "5-HOUR" : "WEEKLY"} · ${v.show}`, v);
+// A row that shows a monthly limit where the others show the weekly one says "MO": under its mark, before
+// its reset time, or under its number, wherever the style has the room.
+const monthly = (row, v) => !!row.monthly && v.window !== "fiveHour";
+const MONTH = "MO";
 
 const STYLES = {
 	bars(v) {
@@ -57,11 +62,14 @@ const STYLES = {
 		const out = v.rows.map((row, i) => {
 			const y = top + i * h;
 			const c = cellOf(v.window === "fiveHour" ? row.five : row.week, v);
+			// "100%" leaves no room for a long reset time beside it: "20h00m" becomes "20h"
+			const reset = c.value.length + c.reset.length > 8 ? coarseDuration(c.reset) : c.reset;
 			return (
 				lead(row, v, 10, y + 5, 22) +
+				(monthly(row, v) ? text(21, y + 38, 10, COLORS.gray, MONTH) : "") +
 				dimmed(
 					row,
-					text(40, y + 20, 12, COLORS.gray, esc(c.reset), { anchor: "start" }) + valueWithUnit(134, y + 22, 24, c.color, c.value, c.unit, { anchor: "end" }) + bar(40, y + 28, 94, 7, c.fraction, c.color),
+					text(40, y + 20, 12, COLORS.gray, esc(reset), { anchor: "start" }) + valueWithUnit(134, y + 22, 24, c.color, c.value, c.unit, { anchor: "end" }) + bar(40, y + 28, 94, 7, c.fraction, c.color),
 				)
 			);
 		});
@@ -80,7 +88,8 @@ const STYLES = {
 			const c = cellOf(v.window === "fiveHour" ? row.five : row.week, v);
 			out.push(dimmed(row, arc(cx, cy, r, 0, 360, COLORS.track, 6) + arc(cx, cy, r, 0, c.fraction * 360, c.color, 6)));
 			out.push(lead(row, v, cx - mark / 2, cy - mark / 2, mark));
-			out.push(dimmed(row, valueWithUnit(cx, cy + r + 26, n >= 3 ? 18 : 22, c.color, c.value, c.unit) + text(cx, cy + r + 42, 11, COLORS.gray, esc(c.reset))));
+			const reset = monthly(row, v) ? `${MONTH} ${coarseDuration(c.reset)}`.trim() : c.reset;
+			out.push(dimmed(row, valueWithUnit(cx, cy + r + 26, n >= 3 ? 18 : 22, c.color, c.value, c.unit) + text(cx, cy + r + 42, 11, COLORS.gray, esc(reset))));
 		});
 		return out;
 	},
@@ -95,6 +104,7 @@ const STYLES = {
 			const week = cellOf(row.week, v);
 			out.push(lead(row, v, 10, y + 4, 22));
 			out.push(dimmed(row, valueWithUnit(84, y + 23, 19, five.color, five.value, five.unit, { anchor: "end" }) + valueWithUnit(134, y + 23, 19, week.color, week.value, week.unit, { anchor: "end" })));
+			if (row.monthly) out.push(text(134, y + 35, 10, COLORS.gray, MONTH, { anchor: "end" }));
 		});
 		return out;
 	},

@@ -3,7 +3,7 @@ import { percentParts } from "../format.js";
 import { PROVIDERS, PROVIDER_IDS } from "../providers.js";
 import { OVERVIEW_STYLES, renderOverview } from "../render/overview.js";
 import { PREFIX, clock, detectProfiles, limitError, normalizeLimitSettings, pick, styleIds } from "./common.js";
-import { isStale, oldNote } from "./limits.js";
+import { isStale, longLimit, oldNote } from "./limits.js";
 
 const WINDOWS = ["sevenDay", "fiveHour"];
 const DEFAULTS = { style: "bars", show: "left", press: "toggle", account: "", tag: "", warn: 50, danger: 80, refresh: 60, window: "sevenDay", services: PROVIDER_IDS };
@@ -13,11 +13,13 @@ function rowOf(id, ctx) {
 	const svc = ctx.limitsOf[id];
 	const now = ctx.now.getTime();
 	const known = !!svc?.data;
+	const long = known ? longLimit(svc, now) : { window: null, monthly: false };
 	return {
 		id,
 		name: PROVIDERS[id].name,
 		five: known ? svc.window("fiveHour", now) : null,
-		week: known ? svc.window("sevenDay", now) : null,
+		week: long.window,
+		monthly: long.monthly,
 		dim: known && !!oldNote(svc, ctx.settings, now, id),
 		alert: !!svc?.error && ["signin", "expired", "auth"].includes(svc.error.code),
 	};
@@ -77,7 +79,8 @@ export const overviewAction = {
 			const svc = ctx.limitsOf[id];
 			if (!svc) continue;
 			const { name } = PROVIDERS[id];
-			rows.push([name, svc.data ? cell(svc.window("fiveHour", now)) : "—", svc.data ? cell(svc.window("sevenDay", now)) : "—"]);
+			const long = svc.data ? longLimit(svc, now) : null;
+			rows.push([name, svc.data ? cell(svc.window("fiveHour", now)) : "—", long ? `${cell(long.window)}${long.monthly ? " (monthly)" : ""}` : "—"]);
 			const trouble = svc.error ? limitError(id, svc.error.code)[0] : isStale(svc, ctx.settings, now) ? "not current" : "";
 			info.push([name, `${svc.fetchedAt ? `updated ${clock(svc.fetchedAt)}` : "no numbers yet"}${trouble ? `, ${trouble}` : ""}`]);
 			if (svc.error) errors.push(`${name}: ${svc.error.message}`);

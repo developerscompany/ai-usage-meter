@@ -22,7 +22,7 @@ const PLUGIN_UUID = "0123456789ABCDEF";
 // what Stream Deck on a Mac passes in -info; the SDK reads the application version from it
 const INFO = JSON.stringify({
 	application: { font: ".AppleSystemUIFont", language: "en", platform: "mac", platformVersion: "15.1.0", version: "7.1.0.22035" },
-	plugin: { uuid: "agency.rivo.ai-usage-meter", version: "4.0.0.0" },
+	plugin: { uuid: "agency.rivo.ai-usage-meter", version: "4.0.1.0" },
 	devicePixelRatio: 2,
 	colors: { buttonPressedBackgroundColor: "#303030FF", buttonPressedBorderColor: "#646464FF", buttonPressedTextColor: "#969696FF", disabledColor: "#F7821B59", highlightColor: "#F7821BFF", mouseDownColor: "#CF6304FF" },
 	devices: [{ id: "dev-1", name: "Stream Deck XL", size: { columns: 8, rows: 4 }, type: 2 }],
@@ -829,11 +829,18 @@ test("Kimi: an expired login says so without asking; a renewed one brings the li
 	assert.match(status.payload.note, process.platform === "darwin" ? /security add-generic-password .*-s "AI Usage Meter Kimi API Key" -w$/m : /kimi-api-key$/m, "how to store an API key on this computer");
 	assert.deepEqual(status.payload.links, [["Kimi Code console", "https://www.kimi.ai/code/console"]], "the console of the region Kimi Code is set up for");
 
+	// a key set to open its page still does so while it has only a message to show
+	await imageOf("kimi-open", appear("kimi-open", "kimi-limit5h", { press: "open" }));
+	const opened = await sd.waitFor((m) => m.event === "openUrl", await tap("kimi-open", "kimi-limit5h"));
+	assert.equal(opened.payload.url, "https://www.kimi.ai/code/console");
+	sd.send({ action: `${PREFIX}.kimi-limit5h`, event: "willDisappear", context: "kimi-open", device: "dev-1", payload: keyPayload() });
+
 	// what Kimi Code does when it is used again
 	fs.writeFileSync(kimiLogin, JSON.stringify({ access_token: "kimi-token", refresh_token: "never-read", expires_at: Math.floor(Date.now() / 1000) + 900, token_type: "Bearer", expires_in: 900 }));
-	from = hold("kimi", "kimi-limit7d");
+	// a key that has only a message to show asks again on a press, instead of switching used and left unseen
+	from = await tap("kimi", "kimi-limit7d");
 	const week = await imageOf("kimi", from, (svg) => !svg.includes("login expired"));
-	release("kimi", "kimi-limit7d");
+	await sd.waitFor((m) => m.event === "showOk" && m.context === "kimi", from);
 	save("kimi-weekly", week);
 	assert.deepEqual(visible(week), ["WEEKLY", "39%", "left", "3d8h"]);
 	assert.equal(api.requests.find((r) => r.url === "/kimi/usages").headers.authorization, "Bearer kimi-token");

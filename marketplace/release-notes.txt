@@ -1,3 +1,15 @@
+4.0.1
+
+Fixes for Kimi Code plans and for keys that show a message.
+
+• Kimi Code plans without a weekly limit: Both Limits and All Services show the monthly limit in its place, marked MO.
+• A key or login that was refused and then replaced is tried at once, not after up to ten minutes.
+• Pressing a key that shows only a message asks again.
+• A long reset time no longer runs into 100% on All Services and Both Limits.
+• Claude on an account without a 5-hour limit: the key's settings say why.
+
+4.0.0
+
 New name: AI Usage Meter. The plugin now covers Claude, Codex and Kimi Code.
 
 • Codex keys: 5-hour and weekly limits, credits, tokens, API cost, cache hits, model mix, status, and a key that opens Codex.

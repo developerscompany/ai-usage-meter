@@ -67,7 +67,7 @@ You only need the services you use: a key of a service that isn't set up says so
 
 ## Keys
 
-In Stream Deck's action list every key carries its service's name: **Claude 5-Hour Limit**, **Codex Weekly Limit**, **Kimi Monthly Limit**. A short press does what the table says (most of it can be changed under **On press**); holding a key for a moment refreshes it.
+In Stream Deck's action list every key carries its service's name: **Claude 5-Hour Limit**, **Codex Weekly Limit**, **Kimi Monthly Limit**. A short press does what the table says (most of it can be changed under **On press**); holding a key for a moment refreshes it. A key that has only a message on it (no login yet, or a refused one) asks again when you press it.
 
 ### All services
 
@@ -77,13 +77,13 @@ In Stream Deck's action list every key carries its service's name: **Claude 5-Ho
 | --- | --- | --- | --- |
 | **All Services** | Claude, Codex and Kimi on one key, a row each: the weekly or the 5-hour limit as bars or rings, or both limits as numbers | switch left / used, or weekly / 5-hour | refresh |
 
-An orange dot by a service's logo means its login needs attention; a dimmed row has numbers that are no longer current. Choose which services the key shows under **Services**.
+A service whose plan has no weekly limit shows its monthly one in that place, marked `MO`. An orange dot by a service's logo means its login needs attention; a dimmed row has numbers that are no longer current. Choose which services the key shows under **Services**.
 
 ### Claude
 
 | Key | Shows | Press | Hold |
 | --- | --- | --- | --- |
-| **5-Hour Limit** | the 5-hour session limit: left or used, and the time until it resets | switch left / used | refresh |
+| **5-Hour Limit** | the 5-hour session limit: left or used, and the time until it resets; `not on your plan` on an account that has none (verified Ultra accounts) | switch left / used | refresh |
 | **Weekly Limit** | the weekly limit for all models, or just Fable, Opus, Sonnet or Haiku | the same | refresh |
 | **Both Limits** | 5-hour and weekly limits on one key | the same | refresh |
 | **Peak Hours** | whether it's peak time now (weekdays 5–11 AM Pacific) and when it ends or starts, in your time zone | next style | — |
@@ -121,8 +121,8 @@ An orange dot by a service's logo means its login needs attention; a dimmed row 
 | Key | Shows | Press | Hold |
 | --- | --- | --- | --- |
 | **5-Hour Limit** | the 5-hour limit of your Kimi Code plan | switch left / used | refresh |
-| **Weekly Limit** | the weekly limit | the same | refresh |
-| **Both Limits** | both on one key | the same | refresh |
+| **Weekly Limit** | the weekly limit; `not on your plan` where the plan has a 5-hour and a monthly limit only | the same | refresh |
+| **Both Limits** | the 5-hour limit and the weekly one on one key, or the monthly one (`MO`) on a plan without a weekly limit | the same | refresh |
 | **Monthly Limit** | the monthly limit of your Kimi plan, which Kimi Code shares with Kimi chat | the same | refresh |
 | **Extra Usage** | the wallet of extra usage on top of the plan: what is left, or this month's spend against the cap you set | the same | refresh |
 | **Kimi Status** | Kimi Code's status from status.moonshot.cn, or all of Moonshot AI or the API | open the incident or status page | refresh |
@@ -169,7 +169,7 @@ There are two kinds of numbers, and it helps to know which is which.
 | Codex | `GET https://chatgpt.com/backend-api/wham/usage`, the same as the Codex app's usage panel | Codex's ChatGPT login |
 | Kimi Code | `GET <api>/coding/v1/usages` on `api.kimi.com` or `api.kimi.ai`, the same as the Kimi Code app's usage panel | a stored API key, or the app's login |
 
-Which of a Codex plan's limits is the 5-hour one and which the weekly one is told by the length of each, so a plan with only a weekly limit shows it on the Weekly key and `not on your plan` on the 5-Hour key.
+Which of a Codex plan's limits is the 5-hour one and which the weekly one is told by the length of each, so a plan with only a weekly limit shows it on the Weekly key and `not on your plan` on the 5-Hour key. Kimi Code plans differ as well: some have a 5-hour and a monthly limit and no weekly one. And verified Ultra accounts of Claude have no 5-hour limit, only the weekly ones.
 
 **For this computer only, from the tool's logs.** Tokens, API cost, cache hits, model mix, session context and streak. Neither Anthropic nor OpenAI publishes token counts per model for subscription accounts, so these can only come from the tools themselves.
 
@@ -250,7 +250,7 @@ Whether times show as 24-hour or AM/PM follows your computer's region, not its l
 | `login expired / open Kimi Code` | the 15-minute login of the Kimi Code app ran out: use Kimi Code, or store an API key |
 | `token refused` / `login refused` | the service didn't accept the login; details in the key's settings |
 | `rate limited` / `offline` / `API error` | a temporary problem; the plugin retries |
-| `not on your plan` | your plan has no such limit (for example, a separate Haiku limit, or a 5-hour limit on a Codex plan that only has a weekly one) |
+| `not on your plan` | your plan has no such limit (for example, a separate Haiku limit, a 5-hour limit on a verified Ultra account of Claude or on a Codex plan that only has a weekly one, or a weekly limit on a Kimi Code plan that has a monthly one) |
 | `only on claude.ai / press to open` | the API didn't send the cloud credit; press to open claude.ai |
 | `no Claude Code use` | no requests in this period |
 | `no Admin key / see settings` | the API Credit key found no Admin key |
@@ -269,6 +269,12 @@ The plugin's log is in the plugin folder, on macOS `~/Library/Application Suppor
 **The Kimi keys say `login expired` most of the time.** That is the app's 15-minute login running out between your sessions. Store a [Kimi Code API key](#your-kimi-code-login) and the numbers stay current all the time.
 
 **My Codex 5-Hour key says `not on your plan`.** Some ChatGPT plans give Codex a weekly limit only. Use the Weekly key; the key's settings tell you which limits your plan has.
+
+**My Claude 5-Hour key says `not on your plan`.** Verified Ultra accounts have no 5-hour session limit, only the weekly ones; Pro and Max plans have both. Use the Weekly key.
+
+**My Kimi Weekly key says `not on your plan`.** Some Kimi Code plans have a 5-hour and a monthly limit only. Use the Monthly Limit key; Both Limits and All Services show the monthly limit in the weekly one's place by themselves.
+
+**I stored a Kimi API key and the key still shows a message.** The plugin notices a new key or login within a minute; pressing a key that shows a message asks at once. `login refused` means Kimi did not accept what was stored: store the key again, pasting the key itself when Terminal asks.
 
 **The Codex token numbers look too low.** Codex compresses its older session logs, and the plugin can't open those yet. The key's settings say how many logs were not read. See [what's next](#whats-next).
 

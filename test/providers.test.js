@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import zlib from "node:zlib";
+import { KIMI_LIMIT_ACTIONS, fiveHourAction, longLimit } from "../src/actions/limits.js";
 import { overviewAction } from "../src/actions/overview.js";
 import { CODEX_LOGS, codexRoots } from "../src/codex-logs.js";
 import { CODEX_LIMITS, codexHome, parseCodexAuth, parseCodexUsage, readCodexLogin } from "../src/codex.js";
@@ -173,6 +174,189 @@ test("Kimi limits service: a login that says it is over is not sent; a renewed o
 	const refused = new LimitsService("", { source: KIMI_LIMITS, dir: null, fetchImpl: async () => response(401, {}), now: () => NOW, credentials: async () => ({ token: "k", kind: "key", expiresAt: null, base: "https://api.kimi.com/coding/v1", logins: [] }) });
 	await refused.refresh();
 	assert.deepEqual(refused.error, { code: "auth", message: "Kimi API refused the key (HTTP 401)" });
+});
+
+test("limits service: a refused login is not sent again and again, but another one is tried at once", async () => {
+	const key = (token) => ({ token, kind: "key", expiresAt: null, base: "https://api.kimi.ai/coding/v1", logins: [] });
+	const service = () => {
+		const t = { now: NOW, login: key("typo"), asked: [] };
+		const fetchImpl = async (_url, init) => {
+			const token = init.headers.Authorization.replace("Bearer ", "");
+			t.asked.push(token);
+			if (token === "good") return response(200, { usages: { limit_5h: { used_ratio: 0.1 } } });
+			if (token === "busy") return response(429, {}, { "retry-after": "300" });
+			if (token === "down") throw new Error("ECONNRESET");
+			return response(401, {});
+		};
+		t.svc = new LimitsService("", { source: KIMI_LIMITS, dir: null, fetchImpl, now: () => t.now, credentials: async () => t.login });
+		return t;
+	};
+	/** Refused three times, half a minute and then a minute apart: the next try of the same login is two minutes away. */
+	const refused = async (t) => {
+		for (const wait of [0, 31_000, 61_000]) {
+			t.now += wait;
+			await t.svc.refresh();
+		}
+		assert.equal(t.svc.error.code, "auth");
+		assert.deepEqual(t.asked, ["typo", "typo", "typo"]);
+	};
+
+	// the key is stored again, this time the right one
+	const a = service();
+	await refused(a);
+	a.now += 31_000;
+	await a.svc.refresh();
+	assert.equal(a.asked.length, 3, "the same login waits its turn");
+	a.login = key("good");
+	a.now += 31_000;
+	await a.svc.refresh();
+	assert.equal(a.svc.error, null, "a login that changed does not wait for the old one's turn");
+	assert.equal(a.asked.at(-1), "good");
+	assert.equal(a.svc.window("fiveHour", a.now).used, 10);
+
+	// the key is deleted, and a new one stored a little later
+	const b = service();
+	await refused(b);
+	b.login = null;
+	b.now += 31_000;
+	await b.svc.refresh();
+	assert.equal(b.svc.error.code, "signin", "a login that is gone is not called refused any longer");
+	b.login = key("good");
+	b.now += 31_000;
+	await b.svc.refresh();
+	assert.equal(b.svc.error, null);
+	assert.equal(b.asked.length, 4);
+
+	// the Keychain does not answer for a moment: afterwards the refused key still waits its turn
+	const c = service();
+	await refused(c);
+	const typo = c.login;
+	c.login = null;
+	c.now += 31_000;
+	await c.svc.refresh();
+	c.login = typo;
+	c.now += 31_000;
+	await c.svc.refresh();
+	assert.equal(c.asked.length, 3, "not sent again because it could not be read for a moment");
+	assert.equal(c.svc.error.code, "auth", "and the key says refused again");
+	c.now += 120_000;
+	await c.svc.refresh();
+	assert.equal(c.asked.length, 4, "its turn comes when the wait is over");
+
+	// a new login starts afresh: its first failure waits half a minute, not the old login's ten
+	const d = service();
+	await refused(d);
+	d.login = key("down");
+	d.now += 31_000;
+	await d.svc.refresh();
+	assert.equal(d.svc.error.code, "network");
+	d.now += 31_000;
+	await d.svc.refresh();
+	assert.deepEqual(d.asked.slice(3), ["down", "down"]);
+
+	// "too many requests" is waited out whatever login turns up
+	const e = service();
+	await refused(e);
+	e.login = key("busy");
+	e.now += 31_000;
+	await e.svc.refresh();
+	assert.equal(e.svc.error.code, "rate");
+	e.login = key("good");
+	e.now += 31_000;
+	await e.svc.refresh(true);
+	assert.equal(e.asked.length, 4, "not even a press asks before the time the server gave");
+	e.now += 300_000;
+	await e.svc.refresh();
+	assert.equal(e.svc.error, null);
+
+	// a press asks with the login as it is now, not as it was read a moment ago
+	const f = service();
+	await refused(f);
+	f.now += 10_000;
+	await f.svc.refresh();
+	f.login = key("good");
+	await f.svc.refresh(true);
+	assert.equal(f.svc.error, null);
+	assert.deepEqual(f.asked.slice(3), ["good"]);
+});
+
+test("Kimi limits service: waiting for a renewed login does not lengthen the wait after a refusal", async () => {
+	let now = NOW;
+	let login = { token: "old", kind: "oauth", expiresAt: NOW - HOUR, base: "https://api.kimi.ai/coding/v1", logins: [] };
+	let asked = 0;
+	const svc = new LimitsService("", { source: KIMI_LIMITS, dir: null, fetchImpl: async () => (asked++, response(401, {})), now: () => now, credentials: async () => login });
+	for (let i = 0; i < 6; i++) {
+		await svc.refresh();
+		now += 31_000;
+	}
+	assert.equal(svc.error.code, "expired");
+	assert.equal(asked, 0);
+
+	login = { token: "typo", kind: "key", expiresAt: null, base: "https://api.kimi.ai/coding/v1", logins: [] };
+	await svc.refresh();
+	assert.equal(svc.error.code, "auth");
+	now += 31_000;
+	await svc.refresh();
+	assert.equal(asked, 2, "the first refusal waits half a minute, not ten");
+});
+
+test("a plan without a weekly limit: the monthly one takes its place, and says so", async () => {
+	// what Kimi answers for a plan with a 5-hour and a monthly limit only
+	const answer = {
+		limits: [{ window: { duration: 300, timeUnit: "TIME_UNIT_MINUTE" }, detail: { limit: "100", remaining: "100", resetTime: "2026-11-18T22:32:53.952049Z" } }],
+		usages: {
+			limit_5h: { used_ratio: 0, reset_time: "2026-11-18T22:32:53Z" },
+			limit_month_total: { used_ratio: 0.1908, reset_time: "2026-12-11T00:00:00Z" },
+			limit_month_code: { used_ratio: 0.1403, reset_time: "2026-12-11T00:00:00Z" },
+		},
+	};
+	const kimi = new LimitsService("", { source: KIMI_LIMITS, dir: null, fetchImpl: async () => response(200, answer), now: () => NOW, credentials: async () => ({ token: "k", kind: "key", expiresAt: null, base: "https://api.kimi.ai/coding/v1", host: "api.kimi.ai", source: "Keychain", logins: [] }) });
+	await kimi.refresh();
+	assert.equal(kimi.window("sevenDay", NOW), null);
+	assert.deepEqual(longLimit(kimi, NOW), { window: { used: 19.08, resetsAt: Date.parse("2026-12-11T00:00:00Z"), reset: false }, monthly: true });
+	// a plan with a weekly limit keeps it, whatever else it has
+	const weekly = { window: (name) => ({ sevenDay: { used: 5 }, month: { used: 9 } })[name] ?? null };
+	assert.deepEqual(longLimit(weekly, NOW), { window: { used: 5 }, monthly: false });
+	assert.deepEqual(longLimit({ window: () => null }, NOW), { window: null, monthly: false });
+
+	const action = (id) => KIMI_LIMIT_ACTIONS.find((a) => a.id === id);
+	const ctx = (a, settings = {}) => ({ settings: a.normalize(settings), limits: kimi, limitsOf: { kimi }, now: new Date(NOW) });
+
+	// both limits on one key: 5-hour and month
+	const both = action("kimi-limits");
+	for (const style of both.styles) assertXml(both.render(ctx(both), style.id), style.id);
+	assert.deepEqual(texts(both.render(ctx(both), "bars")), ["5H", "100%", "3h32m", "MO", "81%", "22d5h", "left"]);
+	assert.deepEqual(texts(both.render(ctx(both), "split")), ["5H", "3h", "100%", "MO", "22d5h", "81%"], "beside a large 100% the reset time keeps its first unit");
+
+	// all services on one key
+	const all = (settings) => ({ ...ctx(overviewAction, { services: ["kimi"], ...settings }) });
+	assert.deepEqual(texts(overviewAction.render(all(), "bars")), ["MO", "22d5h", "81%", "WEEKLY · left"]);
+	assert.deepEqual(texts(overviewAction.render(all(), "rings")), ["WEEKLY · left", "81%", "MO 22d"]);
+	assert.deepEqual(texts(overviewAction.render(all(), "table")), ["left", "5H", "7D", "100%", "81%", "MO"]);
+	assert.deepEqual(texts(overviewAction.render(all({ window: "fiveHour" }), "bars")), ["3h32m", "100%", "5-HOUR · left"], "the 5-hour limit is what it says");
+	for (const style of OVERVIEW_STYLES) assertXml(overviewAction.render(all(), style.id), style.id);
+	assert.deepEqual(overviewAction.info(all()).table.rows, [["Kimi", "0% used", "19% used (monthly)"]]);
+
+	// the Weekly key has nothing to show, and its settings say which key has
+	const week = action("kimi-limit7d");
+	assert.deepEqual(texts(week.render(ctx(week))), ["WEEKLY", "—", "not on your plan"]);
+	assert.match(week.info(ctx(week)).note, /^Your Kimi Code plan has no weekly limit: .*Kimi Monthly Limit/);
+});
+
+test("Claude on an account without a 5-hour limit: the key says so, and its settings say why", async () => {
+	// what Anthropic answers for a verified Ultra account: a weekly limit, and no five_hour
+	const answer = { seven_day: { utilization: 15, resets_at: "2026-11-24T23:00:00Z" }, limits: [{ percent: 25, scope: { model: { display_name: "Fable" } } }] };
+	const claude = new LimitsService("", { dir: null, fetchImpl: async () => response(200, answer), now: () => NOW, credentials: async () => ({ token: "t", expiresAt: NOW + 8 * HOUR, source: "keychain", logins: [] }) });
+	await claude.refresh();
+	const ctx = (a) => ({ settings: a.normalize({}), limits: claude, limitsOf: { claude }, now: new Date(NOW) });
+	assert.deepEqual(texts(fiveHourAction.render(ctx(fiveHourAction))), ["5-HOUR", "—", "not on your plan"]);
+	assert.match(fiveHourAction.info(ctx(fiveHourAction)).note, /no 5-hour limit for this account/);
+	assert.deepEqual(longLimit(claude, NOW), { window: { used: 15, resetsAt: Date.parse("2026-11-24T23:00:00Z"), reset: false }, monthly: false }, "the weekly limit stays the long one");
+
+	// an account that has both limits gets no such note
+	const both = new LimitsService("", { dir: null, fetchImpl: async () => response(200, { ...answer, five_hour: { utilization: 40, resets_at: "2026-11-18T21:00:00Z" } }), now: () => NOW, credentials: async () => ({ token: "t", expiresAt: NOW + 8 * HOUR, source: "keychain", logins: [] }) });
+	await both.refresh();
+	assert.equal(fiveHourAction.info({ ...ctx(fiveHourAction), limits: both }).note, undefined);
 });
 
 test("limits cache: Auto and the default profile each have their own", () => {
@@ -368,6 +552,8 @@ test("all services on one key: a row each, a dash where a plan has no such limit
 	assert.match(bars, /<circle [^>]*fill="#ff9f0a"/, "and its login needs attention");
 	assert.deepEqual(texts(renderOverview("table", { ...view, show: "used" })), ["used · N", "5H", "7D", "25%", "52%", "—", "8%", "91%", "100%"]);
 	assert.deepEqual(texts(renderOverview("bars", { ...view, marks: false })).slice(0, 1), ["CL"], "letters instead of marks");
+	const unused = { id: "kimi", name: "Kimi", five: null, week: { used: 0, resetsAt: NOW + 20 * HOUR } };
+	assert.deepEqual(texts(renderOverview("bars", { ...view, tag: "", rows: [unused] })), ["20h", "100%", "WEEKLY · left"], "a long reset time does not run into 100%");
 
 	const s = overviewAction.normalize({ services: ["kimi", "nobody"], press: "window", window: "fiveHour" });
 	assert.deepEqual(s.services, ["kimi"]);

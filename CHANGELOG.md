@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.0.1 — 2026-11-20
+
+- A plan without a weekly limit: **Kimi Both Limits** and **All Services** show the monthly limit in the weekly one's place, marked `MO`. Kimi Code has plans with a 5-hour and a monthly limit only; their weekly slot was empty before. The settings of a Kimi key say which key shows the limit the plan has.
+- A key or login that was refused and then replaced is tried at once. Before, the plugin kept waiting for the refused one's turn, up to ten minutes, and a deleted key was still called refused.
+- Pressing a key that has only a message on it (no login, a refused one) asks again. Before, the press switched left and used, which shows nothing without numbers. A key set to open its page still opens it.
+- Holding a key, or pressing one that asks again, reads the login anew, not the one read up to five minutes before.
+- Waiting for Kimi Code to renew its 15-minute login no longer lengthens the wait after a refusal.
+- Fixed: a long reset time ran into `100%` on the All Services key (Bars) and on Both Limits (Numbers). Beside `100%` it now keeps its first unit: `20h` of `20h00m`.
+- A Claude key on an account without a 5-hour limit (verified Ultra accounts have none) says why in its settings.
+
 ## 4.0.0 — 2026-11-18
 
 - **New name, AI Usage Meter**, and a new plugin identifier, `agency.rivo.ai-usage-meter`: the plugin now covers Claude, Codex and Kimi Code, not Claude alone. Stream Deck installs it next to Usage Meter for Claude 3.x: add your keys once from the new category, then uninstall the old plugin. An Admin key stored in the Keychain under an earlier name is still found. The repository moved to `developerscompany/ai-usage-meter`.

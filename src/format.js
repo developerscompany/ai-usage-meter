@@ -49,6 +49,9 @@ export function formatDuration(ms) {
 	return hours % 24 ? `${days}d${hours % 24}h` : `${days}d`;
 }
 
+/** The first unit of a duration ("22d" of "22d5h"), for where the whole of it has no room. */
+export const coarseDuration = (duration) => duration.match(/^\d+[dhm]/)?.[0] ?? duration;
+
 /** Time since: now, 5m, 3h, 2d. */
 export function formatAge(ms) {
 	if (!(ms >= 60_000)) return "now";

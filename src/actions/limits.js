@@ -56,6 +56,18 @@ const frame = (svc, s, now, provider) => ({
 	old: oldNote(svc, s, now, provider),
 });
 
+/**
+ * The long limit of a service, beside its 5-hour one: the weekly limit, or the monthly one on a plan that
+ * has no weekly limit (Kimi Code has such plans).
+ * @returns {{ window: { used: number, resetsAt: number | null, reset?: boolean } | null, monthly: boolean }}
+ */
+export function longLimit(svc, now) {
+	const week = svc.window("sevenDay", now);
+	if (week) return { window: week, monthly: false };
+	const month = svc.window("month", now);
+	return { window: month, monthly: !!month };
+}
+
 const validity = (login, now) => (!login.expiresAt ? "no expiry" : login.expiresAt > now ? `valid for ${formatDuration(login.expiresAt - now)}` : `expired ${formatAge(now - login.expiresAt)} ago`);
 
 const resetText = (w, now) => (w.resetsAt ? `in ${formatDuration(w.resetsAt - now)} · ${when(w.resetsAt, now)}` : w.reset ? "reset" : "not started");
@@ -109,6 +121,7 @@ function claudeInfo(ctx) {
 			...loginRows(login, now),
 		],
 		error: svc.error?.message ?? null,
+		note: svc.data && !svc.data.fiveHour && svc.data.sevenDay ? "Anthropic sends no 5-hour limit for this account (verified Ultra accounts have none), so a 5-Hour key has nothing to show." : undefined,
 		accounts: detectProfiles(),
 	};
 }
@@ -178,6 +191,11 @@ function kimiInfo(ctx) {
 		rows.push(["Extra usage", `${money(e.left)} of ${money(e.total)} left`, e.capped && e.cap > 0 ? `${money(e.spent)} of ${money(e.cap)} this month` : ""]);
 	}
 	const login = svc.loginInfo();
+	const notes = [
+		data && !data.sevenDay && data.month ? "Your Kimi Code plan has no weekly limit: a Weekly key has nothing to show. The Kimi Monthly Limit key shows the limit your plan has instead." : "",
+		// the steps matter until a key is stored
+		login?.kind === "key" ? "" : kimiKeySteps(),
+	].filter(Boolean);
 	return {
 		table: rows.length ? { columns: ["Now", "Resets"], rows } : null,
 		info: [
@@ -186,8 +204,7 @@ function kimiInfo(ctx) {
 			...(login?.host ? [["Asks", login.host]] : []),
 		],
 		error: svc.error?.message ?? null,
-		// the steps matter until a key is stored
-		note: login?.kind === "key" ? undefined : kimiKeySteps(),
+		note: notes.join("\n\n") || undefined,
 		// Kimi has one console for mainland China and one for elsewhere
 		links: [["Kimi Code console", pageOf("kimi", svc)]],
 	};
@@ -267,7 +284,8 @@ function bothAction({ id, provider }) {
 			const svc = ctx.limits;
 			if (!svc.data) return waiting("LIMITS", svc, s, provider);
 			const now = ctx.now.getTime();
-			return renderDual(style, { ...frame(svc, s, now, provider), five: svc.window("fiveHour", now), week: svc.window("sevenDay", now), show: s.show });
+			const long = longLimit(svc, now);
+			return renderDual(style, { ...frame(svc, s, now, provider), five: svc.window("fiveHour", now), week: long.window, labels: long.monthly ? ["5H", "MO"] : undefined, show: s.show });
 		},
 
 		press: (ctx) => limitPress(ctx.settings, DUAL_STYLES, pageOf(provider, ctx.limits)),

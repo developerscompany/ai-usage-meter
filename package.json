@@ -1,6 +1,6 @@
 {
   "name": "ai-usage-meter",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": true,
   "description": "AI Usage Meter: Stream Deck keys for the plan limits, credits, tokens, costs and status of Claude, Codex and Kimi Code",
   "license": "MIT",
